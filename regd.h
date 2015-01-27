@@ -30,6 +30,18 @@
 #ifndef __RTL_REGD_H__
 #define __RTL_REGD_H__
 
+
+
+/* for kernel 3.14 , both value are changed to IEEE80211_CHAN_NO_IR*/
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0))
+#define IEEE80211_CHAN_NO_IBSS IEEE80211_CHAN_NO_IR
+#define IEEE80211_CHAN_PASSIVE_SCAN IEEE80211_CHAN_NO_IR
+#endif
+
+
+
+
+
 struct country_code_to_enum_rd {
 	u16 countrycode;
 	const char *iso_name;
@@ -57,7 +69,7 @@ enum country_code_type_t {
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0))
 int rtl_regd_init(struct ieee80211_hw *hw,
 		  void (*reg_notifier) (struct wiphy *wiphy,
-				       struct regulatory_request *request));
+				        struct regulatory_request *request));
 void rtl_reg_notifier(struct wiphy *wiphy, struct regulatory_request *request);
 #else
 int rtl_regd_init(struct ieee80211_hw *hw,

@@ -29,8 +29,8 @@
 #define __RTL92D_DEF_H__
 
 /* Min Spacing related settings. */
-#define	MAX_MSS_DENSITY_2T 					0x13
-#define	MAX_MSS_DENSITY_1T 					0x0A
+#define	MAX_MSS_DENSITY_2T					0x13
+#define	MAX_MSS_DENSITY_1T					0x0A
 
 #define RF6052_MAX_TX_PWR					0x3F
 #define RF6052_MAX_REG						0x3F
@@ -93,7 +93,7 @@
 #define	GET_C2H_CMD_CONTINUE(__prxhdr)		\
 	LE_BITS_TO_4BYTE((__prxhdr), 31, 1)
 #define	GET_C2H_CMD_CONTENT(__prxhdr)		\
-	((u8*)(__prxhdr) + C2H_RX_CMD_HDR_LEN)
+	((u8 *)(__prxhdr) + C2H_RX_CMD_HDR_LEN)
 
 #define	GET_C2H_CMD_FEEDBACK_ELEMENT_ID(__pcmdfbhdr)	\
 	LE_BITS_TO_4BYTE((__pcmdfbhdr), 0, 8)
@@ -129,9 +129,9 @@ enum version_8192d {
 	VERSION_NORMAL_UMC_CHIP_88C_B_CUT = 0x1088,
 	VERSION_NORMAL_UMC_CHIP_92C_B_CUT = 0x10a8,
 	VERSION_NORMAL_UMC_CHIP_92C_1T2R_B_CUT = 0x1090,
-	VERSION_TEST_CHIP_92D_SINGLEPHY= 0x0022,
+	VERSION_TEST_CHIP_92D_SINGLEPHY = 0x0022,
 	VERSION_TEST_CHIP_92D_DUALPHY = 0x0002,
-	VERSION_NORMAL_CHIP_92D_SINGLEPHY= 0x002a,
+	VERSION_NORMAL_CHIP_92D_SINGLEPHY = 0x002a,
 	VERSION_NORMAL_CHIP_92D_DUALPHY = 0x000a,
 	VERSION_NORMAL_CHIP_92D_C_CUT_SINGLEPHY = 0x202a,
 	VERSION_NORMAL_CHIP_92D_C_CUT_DUALPHY = 0x200a,
@@ -184,15 +184,27 @@ enum version_8192d {
 #define GET_CVID_ROM_VERSION(version)	((version) & ROM_VERSION_MASK)
 #define GET_CVID_CUT_VERSION(version)	((version) & CUT_VERSION_MASK)
 
-#define IS_1T1R(version)				((GET_CVID_RF_TYPE(version))? false : true)
-#define IS_1T2R(version)				((GET_CVID_RF_TYPE(version) == RF_TYPE_1T2R)? true : false)
-#define IS_2T2R(version)				((GET_CVID_RF_TYPE(version) == RF_TYPE_2T2R)? true : false)
+#define IS_1T1R(version)				((GET_CVID_RF_TYPE(version)) ? \
+											false : true)
+#define IS_1T2R(version)				((GET_CVID_RF_TYPE(version) == \
+											RF_TYPE_1T2R) ? true : false)
+#define IS_2T2R(version)				((GET_CVID_RF_TYPE(version) == \
+											RF_TYPE_2T2R) ? true : false)
 
-#define IS_92D_SINGLEPHY(version)		((IS_92D(version)) ? (IS_2T2R(version) ? true: false) : false)
-#define IS_92D(version)					((GET_CVID_IC_TYPE(version) == CHIP_92D) ? true : false)
-#define IS_92D_C_CUT(version)    		((IS_92D(version)) ? ((GET_CVID_CUT_VERSION(version) == 0x2000) ? true : false) : false)
-#define IS_92D_D_CUT(version)			((IS_92D(version)) ? ((GET_CVID_CUT_VERSION(version) == 0x3000) ? true : false) : false)
-#define IS_92D_E_CUT(version)			((IS_92D(version)) ? ((GET_CVID_CUT_VERSION(version) == 0x4000) ? true : false) : false)
+#define IS_92D_SINGLEPHY(version)		((IS_92D(version)) ? \
+										(IS_2T2R(version) ? \
+										true : false) : false)
+#define IS_92D(version)					((GET_CVID_IC_TYPE(version) == \
+											CHIP_92D) ? true : false)
+#define IS_92D_C_CUT(version)			((IS_92D(version)) ? \
+										((GET_CVID_CUT_VERSION(version) == \
+										0x2000) ? true : false) : false)
+#define IS_92D_D_CUT(version)			((IS_92D(version)) ? \
+										((GET_CVID_CUT_VERSION(version) == \
+										0x3000) ? true : false) : false)
+#define IS_92D_E_CUT(version)			((IS_92D(version)) ? \
+										((GET_CVID_CUT_VERSION(version) == \
+										0x4000) ? true : false) : false)
 
 enum rf_optype {
 	RF_OP_BY_SW_3WIRE = 0,
@@ -246,7 +258,7 @@ enum rtl_desc92d_rate {
 	DESC92D_RATEMCS32 = 0x20,
 };
 
-enum channel_plan{
+enum channel_plan {
 	CHPL_FCC	= 0,
 	CHPL_IC		= 1,
 	CHPL_ETSI	= 2,
@@ -269,7 +281,7 @@ struct phy_sts_cck_8192d {
 struct h2c_cmd_8192c {
 	u8 element_id;
 	u32 cmd_len;
-	u8 *p_cmdbuffer;
+	u8 *cmdbuffer;
 };
 
 struct txpower_info {

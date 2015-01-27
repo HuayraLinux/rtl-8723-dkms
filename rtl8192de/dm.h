@@ -31,9 +31,9 @@
 #define HAL_DM_DIG_DISABLE			BIT(0)
 #define HAL_DM_HIPWR_DISABLE		BIT(1)
 
-#define OFDM_TABLE_LENGTH 			37
-#define OFDM_TABLE_SIZE_92D 		43
-#define CCK_TABLE_LENGTH 			33
+#define OFDM_TABLE_LENGTH			37
+#define OFDM_TABLE_SIZE_92D		43
+#define CCK_TABLE_LENGTH			33
 
 
 #define CCK_TABLE_SIZE				33
@@ -48,7 +48,8 @@
 #define DM_FALSEALARM_THRESH_HIGH	1000
 
 #define DM_DIG_MAX					0x3e
-#define DM_DIG_MIN					0x1c /* 0x1e FIXME 92c is diff */
+/* 0x1e FIXME 92c is diff */
+#define DM_DIG_MIN					0x1c
 
 #define DM_DIG_FA_UPPER				0x32
 #define DM_DIG_FA_LOWER				0x20

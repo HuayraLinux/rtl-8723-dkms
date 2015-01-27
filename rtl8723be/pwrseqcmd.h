@@ -1,30 +1,30 @@
-#ifndef __rtl8723be_PWRSEQCMD_H__
-#define __rtl8723be_PWRSEQCMD_H__
+#ifndef __RTL8723BE_PWRSEQCMD_H__
+#define __RTL8723BE_PWRSEQCMD_H__
 
 #include "../wifi.h"
 /*---------------------------------------------*/
 /*The value of cmd: 4 bits */
 /*---------------------------------------------*/
-#define  PWR_CMD_READ 		0x00
-#define    PWR_CMD_WRITE	0x01
-#define    PWR_CMD_POLLING	0x02
-#define    PWR_CMD_DELAY	0x03
-#define    PWR_CMD_END		0x04
+#define PWR_CMD_READ		0x00
+#define PWR_CMD_WRITE	0x01
+#define PWR_CMD_POLLING	0x02
+#define PWR_CMD_DELAY	0x03
+#define PWR_CMD_END		0x04
 
 /* define the base address of each block */
-#define   PWR_BASEADDR_MAC	0x00
-#define   PWR_BASEADDR_USB	0x01
-#define   PWR_BASEADDR_PCIE	0x02
-#define   PWR_BASEADDR_SDIO	0x03
+#define PWR_BASEADDR_MAC	0x00
+#define PWR_BASEADDR_USB	0x01
+#define PWR_BASEADDR_PCIE	0x02
+#define PWR_BASEADDR_SDIO	0x03
 
 #define	PWR_INTF_SDIO_MSK	BIT(0)
 #define	PWR_INTF_USB_MSK	BIT(1)
 #define	PWR_INTF_PCI_MSK	BIT(2)
-#define	PWR_INTF_ALL_MSK	(BIT(0)|BIT(1)|BIT(2)|BIT(3))
+#define	PWR_INTF_ALL_MSK	(BIT(0) | BIT(1) | BIT(2) | BIT(3))
 
 #define	PWR_FAB_TSMC_MSK	BIT(0)
 #define	PWR_FAB_UMC_MSK		BIT(1)
-#define	PWR_FAB_ALL_MSK		(BIT(0)|BIT(1)|BIT(2)|BIT(3))
+#define	PWR_FAB_ALL_MSK		(BIT(0) | BIT(1) | BIT(2) | BIT(3))
 
 #define	PWR_CUT_TESTCHIP_MSK	BIT(0)
 #define	PWR_CUT_A_MSK		BIT(1)
@@ -38,8 +38,8 @@
 
 
 enum pwrseq_delay_unit {
-   PWRSEQ_DELAY_US,
-   PWRSEQ_DELAY_MS,
+	PWRSEQ_DELAY_US,
+	PWRSEQ_DELAY_MS,
 };
 
 struct wlan_pwr_cfg {
@@ -63,8 +63,8 @@ struct wlan_pwr_cfg {
 #define	GET_PWR_CFG_MASK(__PWR_CMD)	__PWR_CMD.msk
 #define	GET_PWR_CFG_VALUE(__PWR_CMD)	__PWR_CMD.value
 
-bool rtl_hal_pwrseqcmdparsing(struct rtl_priv * rtlpriv, u8 cut_version,
-			u8 fab_version, u8 interface_type, struct wlan_pwr_cfg pwrcfgcmd[]);
+bool rtl_hal_pwrseqcmdparsing(struct rtl_priv *rtlpriv, u8 cut_version,
+			      u8 fab_version, u8 interface_type,
+			      struct wlan_pwr_cfg pwrcfgcmd[]);
 
 #endif
-

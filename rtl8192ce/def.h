@@ -88,7 +88,7 @@
 #define	GET_C2H_CMD_CONTINUE(__prxhdr)		\
 	LE_BITS_TO_4BYTE((__prxhdr), 31, 1)
 #define	GET_C2H_CMD_CONTENT(__prxhdr)		\
-	((u8*)(__prxhdr) + C2H_RX_CMD_HDR_LEN)
+	((u8 *)(__prxhdr) + C2H_RX_CMD_HDR_LEN)
 
 #define	GET_C2H_CMD_FEEDBACK_ELEMENT_ID(__pcmdfbhdr)	\
 	LE_BITS_TO_4BYTE((__pcmdfbhdr), 0, 8)
@@ -126,28 +126,45 @@
 
 enum version_8192c {
 	VERSION_A_CHIP_92C = 0x01,
+	VERSION_TEST_CHIP_92C = 0x01,
 	VERSION_A_CHIP_88C = 0x00,
+	VERSION_TEST_CHIP_88C = 0x00,
 	VERSION_B_CHIP_92C = 0x11,
+	VERSION_NORMAL_TSMC_CHIP_92C = 0x11,
 	VERSION_B_CHIP_88C = 0x10,
+	VERSION_NORMAL_TSMC_CHIP_88C = 0x10,
+	VERSION_NORMAL_TSMC_CHIP_92C_1T2R = 0x13,
 	VERSION_NORMAL_UMC_CHIP_88C_A_CUT = 0x30,
 	VERSION_NORMAL_UMC_CHIP_92C_A_CUT = 0x31,
 	VERSION_NORMAL_UMC_CHIP_92C_1T2R_A_CUT = 0x33,
+	VERSION_NORMA_UMC_CHIP_8723_1T1R_A_CUT = 0x34,
+	VERSION_NORMA_UMC_CHIP_8723_1T1R_B_CUT = 0x3c,
 	VERSION_NORMAL_UMC_CHIP_88C_B_CUT = 0x70,
 	VERSION_NORMAL_UMC_CHIP_92C_B_CUT = 0x71,
 	VERSION_NORMAL_UMC_CHIP_92C_1T2R_B_CUT = 0x73,
 	VERSION_UNKNOWN = 0x88,
 };
 
-#define GET_CVID_RF_TYPE(version)		((version) & RF_TYPE_MASK)
-#define GET_CVID_CUT_VERSION(version)	((version) & CUT_VERSION_MASK)
-#define IS_NORMAL_CHIP(version)			((version & NORMAL_CHIP) ? true : false)
-#define IS_92C_SERIAL(version)			((IS_2T2R(version)) ? true : false)
-#define IS_CHIP_VENDOR_UMC(version)		((version & CHIP_VENDOR_UMC) ? true: false)
-#define IS_VENDOR_UMC_A_CUT(version)	((IS_CHIP_VENDOR_UMC(version)) ? \
+#define GET_CVID_RF_TYPE(version)	\
+	((version) & RF_TYPE_MASK)
+#define GET_CVID_CUT_VERSION(version) \
+	((version) & CUT_VERSION_MASK)
+#define IS_NORMAL_CHIP(version)	\
+	((version & NORMAL_CHIP) ? true : false)
+#define IS_92C_SERIAL(version) \
+	((IS_2T2R(version)) ? true : false)
+#define IS_CHIP_VENDOR_UMC(version)	\
+	((version & CHIP_VENDOR_UMC) ? true : false)
+#define IS_VENDOR_UMC_A_CUT(version) \
+	((IS_CHIP_VENDOR_UMC(version)) ? \
 	((GET_CVID_CUT_VERSION(version)) ? false : true) : false)
-#define IS_81xxC_VENDOR_UMC_B_CUT(version)	((IS_CHIP_VENDOR_UMC(version)) ? \
-	((GET_CVID_CUT_VERSION(version) == CHIP_VENDOR_UMC_B_CUT) ? true : false):false)
-#define IS_2T2R(version)				(((GET_CVID_RF_TYPE(version)) == CHIP_92C_BITMASK)?	true : false)
+#define IS_81xxC_VENDOR_UMC_B_CUT(version)	\
+	((IS_CHIP_VENDOR_UMC(version)) ? \
+	((GET_CVID_CUT_VERSION(version) == \
+		CHIP_VENDOR_UMC_B_CUT) ? true : false):false)
+#define IS_2T2R(version) \
+	(((GET_CVID_RF_TYPE(version)) == \
+	CHIP_92C_BITMASK) ? true : false)
 
 enum rtl819x_loopback_e {
 	RTL819X_NO_LOOPBACK = 0,

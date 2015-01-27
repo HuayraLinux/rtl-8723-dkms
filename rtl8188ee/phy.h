@@ -31,16 +31,16 @@
 #define __RTL92C_PHY_H__
 
 /*It must always set to 4, otherwise read efuse table secquence will be wrong.*/
-#define 	MAX_TX_COUNT				4
+#define		MAX_TX_COUNT				4
 
-#define MAX_PRECMD_CNT 				16
-#define MAX_RFDEPENDCMD_CNT 		16
-#define MAX_POSTCMD_CNT 			16
+#define MAX_PRECMD_CNT				16
+#define MAX_RFDEPENDCMD_CNT		16
+#define MAX_POSTCMD_CNT				16
 
-#define MAX_DOZE_WAITING_TIMES_9x 	64
+#define MAX_DOZE_WAITING_TIMES_9x	64
 
 #define RT_CANNOT_IO(hw)			false
-#define HIGHPOWER_RADIOA_ARRAYLEN 	22
+#define HIGHPOWER_RADIOA_ARRAYLEN	22
 
 #define IQK_ADDA_REG_NUM			16
 #define IQK_BB_REG_NUM				9
@@ -50,7 +50,7 @@
 
 #define	APK_BB_REG_NUM				5
 #define	APK_AFE_REG_NUM				16
-#define	APK_CURVE_REG_NUM 			4
+#define	APK_CURVE_REG_NUM			4
 #define	PATH_NUM					2
 
 #define LOOP_LIMIT					5
@@ -64,7 +64,7 @@
 
 #define RF6052_MAX_PATH				2
 
-#define CT_OFFSET_MAC_ADDR 			0X16
+#define CT_OFFSET_MAC_ADDR			0X16
 
 #define CT_OFFSET_CCK_TX_PWR_IDX			0x5A
 #define CT_OFFSET_HT401S_TX_PWR_IDX			0x60
@@ -190,11 +190,10 @@ struct tx_power_struct {
 	u8 pwrgroup_cnt;
 	u32 mcs_original_offset[4][16];
 };
-enum _ANT_DIV_TYPE
-{
+enum _ANT_DIV_TYPE {
 	NO_ANTDIV				= 0xFF,
 	CG_TRX_HW_ANTDIV		= 0x01,
-	CGCS_RX_HW_ANTDIV 		= 0x02,
+	CGCS_RX_HW_ANTDIV		= 0x02,
 	FIXED_HW_ANTDIV         = 0x03,
 	CG_TRX_SMART_ANTDIV		= 0x04,
 	CGCS_RX_SW_ANTDIV		= 0x05,

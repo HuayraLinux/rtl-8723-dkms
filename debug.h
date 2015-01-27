@@ -41,7 +41,7 @@
  *unexpected HW behavior, HW BUG
  *and so on.
  */
-#define DBG_EMERG			0
+#define DBG_EMERG			1
 
 /*
  *Abnormal, rare, or unexpeted cases.
@@ -94,8 +94,8 @@
 #define COMP_TXAGC			BIT(14)	/*For Tx power */
 #define COMP_HIPWR			BIT(15)	/*For High Power Mechanism */
 #define COMP_POWER			BIT(16)	/*For lps/ips/aspm. */
-#define COMP_POWER_TRACKING	BIT(17)	/*For TX POWER TRACKING */
-#define COMP_BB_POWERSAVING	BIT(18)
+#define COMP_POWER_TRACKING		BIT(17)	/*For TX POWER TRACKING */
+#define COMP_BB_POWERSAVING		BIT(18)
 #define COMP_SWAS			BIT(19)	/*For SW Antenna Switch */
 #define COMP_RF				BIT(20)	/*For RF. */
 #define COMP_TURBO			BIT(21)	/*For EDCA TURBO. */
@@ -103,11 +103,13 @@
 #define COMP_CMD			BIT(23)
 #define COMP_EFUSE			BIT(24)
 #define COMP_QOS			BIT(25)
-#define COMP_MAC80211		BIT(26)
+#define COMP_MAC80211			BIT(26)
 #define COMP_REGD			BIT(27)
 #define COMP_CHAN			BIT(28)
-#define COMP_EASY_CONCURRENT 		BIT(29)
+#define COMP_USB			BIT(29)
+#define COMP_EASY_CONCURRENT		BIT(29) /* Reuse of this bit is OK */
 #define COMP_BT_COEXIST			BIT(30)
+#define COMP_IQK			BIT(31)
 
 /*--------------------------------------------------------------
 		Define the rt_print components
@@ -115,11 +117,11 @@
 /* Define EEPROM and EFUSE  check module bit*/
 #define EEPROM_W			BIT(0)
 #define EFUSE_PG			BIT(1)
-#define EFUSE_READ_ALL		BIT(2)
+#define EFUSE_READ_ALL			BIT(2)
 
 /* Define init check for module bit*/
 #define	INIT_EEPROM			BIT(0)
-#define	INIT_TxPower		BIT(1)
+#define	INIT_TXPOWER			BIT(1)
 #define	INIT_IQK			BIT(2)
 #define	INIT_RF				BIT(3)
 
@@ -135,12 +137,12 @@
 #define	PHY_TXPWR			BIT(8)
 #define	PHY_PWRDIFF			BIT(9)
 
-/* Define Dynamic Mechanism check module bit --> FDM */ 
+/* Define Dynamic Mechanism check module bit --> FDM */
 #define WA_IOT				BIT(0)
 #define DM_PWDB				BIT(1)
 #define DM_MONITOR			BIT(2)
 #define DM_DIG				BIT(3)
-#define DM_EDCA_TURBO		BIT(4)
+#define DM_EDCA_TURBO			BIT(4)
 
 enum dbgp_flag_e {
 	FQOS = 0,
@@ -165,54 +167,53 @@ enum dbgp_flag_e {
 	DBGP_TYPE_MAX
 };
 
-#define RT_ASSERT(_exp,fmt)				\
-	do { \
-		if(!(_exp))	{			\
-			printk(KERN_DEBUG "%s:%s(): ", KBUILD_MODNAME, \
-			__func__);	\
-			printk fmt;			\
-		} \
-	} while(0);
+#define RT_ASSERT(_exp, fmt, ...)					\
+do {									\
+	if (!(_exp)) {							\
+		pr_info(KBUILD_MODNAME ":%s(): " fmt,			\
+		       __func__, ##__VA_ARGS__);			\
+	}								\
+} while (0)
 
-#define RT_TRACE(comp, level, fmt)\
-	do { \
-		if(unlikely(((comp) & rtlpriv->dbg.global_debugcomponents) && \
-			((level) <= rtlpriv->dbg.global_debuglevel))) {\
-			printk(KERN_DEBUG "%s-%d:%s():<%lx-%x> ", KBUILD_MODNAME, \
-			rtlpriv->rtlhal.interfaceindex, __func__, \
-			in_interrupt(), in_atomic());	\
-			printk fmt; 			\
-		}\
-	} while(0);
+#define RT_TRACE(rtlpriv, comp, level, fmt, ...)			\
+do {									\
+	if (unlikely(((comp) & rtlpriv->dbg.global_debugcomponents) &&	\
+		     ((level) <= rtlpriv->dbg.global_debuglevel))) {	\
+		pr_info(KBUILD_MODNAME ":%s():<%lx-%x> " fmt,		\
+		       __func__, in_interrupt(), in_atomic(),		\
+		       ##__VA_ARGS__);					\
+	}								\
+} while (0)
 
-#define RTPRINT(rtlpriv, dbgtype, dbgflag, printstr)	\
-	do {						\
-		if (unlikely(rtlpriv->dbg.dbgp_type[dbgtype] & dbgflag)) { \
-			printk(KERN_DEBUG "%s: ", KBUILD_MODNAME);	\
-			printk printstr;		\
-		}					\
-	} while(0);
+#define RTPRINT(rtlpriv, dbgtype, dbgflag, fmt, ...)			\
+do {									\
+	if (unlikely(rtlpriv->dbg.dbgp_type[dbgtype] & dbgflag)) {	\
+		pr_info(KBUILD_MODNAME ": " fmt,			\
+		       ##__VA_ARGS__);					\
+	}								\
+} while (0)
 
 #define RT_PRINT_DATA(rtlpriv, _comp, _level, _titlestring, _hexdata, \
 		_hexdatalen) \
 	do {\
-		if(unlikely(((_comp) & rtlpriv->dbg.global_debugcomponents ) && \
-			(_level <= rtlpriv->dbg.global_debuglevel )))	{ 	\
-			int __i;						\
-			u8*	ptr = (u8*)_hexdata;				\
-			printk(KERN_DEBUG "%s: ", KBUILD_MODNAME);	\
-			printk(KERN_DEBUG "In process \"%s\" (pid %i):", current->comm, 	\
+		if (unlikely(((_comp) & rtlpriv->dbg.global_debugcomponents) &&\
+			(_level <= rtlpriv->dbg.global_debuglevel)))	{ \
+			int __i;					\
+			u8 *ptr = (u8 *)_hexdata;			\
+			pr_debug("%s: ", KBUILD_MODNAME);		\
+			pr_debug("In process \"%s\" (pid %i):",		\
+					current->comm,	\
 					current->pid); \
-			printk(_titlestring);		\
-			for( __i=0; __i<(int)_hexdatalen; __i++ ) {		\
-				printk("%02X%s", ptr[__i], (((__i + 1) % 4) 	\
-							== 0)?"  ":" ");	\
+			pr_cont(_titlestring);		\
+			for (__i = 0; __i < (int)_hexdatalen; __i++) {	\
+				pr_cont("%02X%s", ptr[__i], (((__i + 1) % 4) \
+							== 0)?"  ":" ");\
 				if (((__i + 1) % 16) == 0)	\
-					printk("\n");	\
+					pr_cont("\n");	\
 			}				\
-			printk(KERN_DEBUG "\n");			\
+			pr_debug("\n");			\
 		} \
-	} while(0);
+	} while (0)
 
 void rtl_dbgp_flag_init(struct ieee80211_hw *hw);
 void rtl_proc_add_one(struct ieee80211_hw *hw);

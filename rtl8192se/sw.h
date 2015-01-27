@@ -34,4 +34,3 @@ bool rtl92s_get_btc_status(void);
 
 
 #endif
-

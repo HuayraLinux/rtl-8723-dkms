@@ -34,10 +34,6 @@
 #define RF6052_MAX_REG			0x3F
 
 extern void rtl92ee_phy_rf6052_set_bandwidth(struct ieee80211_hw *hw,
-					    u8 bandwidth);
-extern void rtl92ee_phy_rf6052_set_cck_txpower(struct ieee80211_hw *hw,
-					      u8 *ppowerlevel);
-extern void rtl92ee_phy_rf6052_set_ofdm_txpower(struct ieee80211_hw *hw,
-					      u8 *ppowerlevel_ofdm, u8 *ppowerlevel_bw20, u8 *ppowerlevel_bw40, u8 channel);
+					     u8 bandwidth);
 extern bool rtl92ee_phy_rf6052_config(struct ieee80211_hw *hw);
 #endif

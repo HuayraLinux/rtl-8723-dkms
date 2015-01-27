@@ -33,6 +33,4 @@
 int rtl92ee_init_sw_vars(struct ieee80211_hw *hw);
 void rtl92ee_deinit_sw_vars(struct ieee80211_hw *hw);
 bool rtl92ee_get_btc_status(void);
-
-
 #endif

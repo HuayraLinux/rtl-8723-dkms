@@ -40,7 +40,7 @@
 #include "trx.h"
 #include "led.h"
 
-void rtl92d_init_aspm_vars(struct ieee80211_hw *hw)
+static void rtl92d_init_aspm_vars(struct ieee80211_hw *hw)
 {
 	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
 
@@ -84,19 +84,18 @@ void rtl92d_init_aspm_vars(struct ieee80211_hw *hw)
 	rtlpci->const_support_pciaspm = 1;
 }
 
-int rtl92d_init_sw_vars(struct ieee80211_hw *hw)
+static int rtl92d_init_sw_vars(struct ieee80211_hw *hw)
 {
 	int err;
 	u8 tid;
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
-	const struct firmware *firmware;
 
-	rtlpriv->dm.b_dm_initialgain_enable = true;
+	rtlpriv->dm.dm_initialgain_enable = true;
 	rtlpriv->dm.dm_flag = 0;
-	rtlpriv->dm.b_disable_framebursting = 0;;
+	rtlpriv->dm.disable_framebursting = 0;
 	rtlpriv->dm.thermalvalue = 0;
-	rtlpriv->dm.b_useramask = 1;
+	rtlpriv->dm.useramask = 1;
 	/* dual mac */
 	if (rtlpriv->rtlhal.current_bandtype == BAND_ON_5G)
 		rtlpriv->phy.current_channel = 36;
@@ -119,9 +118,9 @@ int rtl92d_init_sw_vars(struct ieee80211_hw *hw)
 			| RCR_ACRC32
 			| RCR_AB
 			| RCR_AM
-	     	| RCR_APM
-	     	| RCR_APP_PHYST_RXFF
-	     	| RCR_HTC_LOC_CTRL
+		| RCR_APM
+		| RCR_APP_PHYST_RXFF
+		| RCR_HTC_LOC_CTRL
 			);
 
 	rtlpci->irq_mask[0] = (u32) (
@@ -139,71 +138,64 @@ int rtl92d_init_sw_vars(struct ieee80211_hw *hw)
 
 	rtlpci->irq_mask[1] = (u32) (IMR_CPWM | IMR_C2HCMD);
 
+	/* for debug level */
+	rtlpriv->dbg.global_debuglevel = rtlpriv->cfg->mod_params->debug;
 	/* for LPS & IPS */
-	rtlpriv->psc.b_inactiveps = rtlpriv->cfg->mod_params->b_inactiveps;
-	rtlpriv->psc.b_swctrl_lps = rtlpriv->cfg->mod_params->b_swctrl_lps;
-	rtlpriv->psc.b_fwctrl_lps = rtlpriv->cfg->mod_params->b_fwctrl_lps;
-	rtlpriv->psc.b_reg_fwctrl_lps = 3;
+	rtlpriv->psc.inactiveps = rtlpriv->cfg->mod_params->inactiveps;
+	rtlpriv->psc.swctrl_lps = rtlpriv->cfg->mod_params->swctrl_lps;
+	rtlpriv->psc.fwctrl_lps = rtlpriv->cfg->mod_params->fwctrl_lps;
+	if (rtlpriv->cfg->mod_params->disable_watchdog)
+		pr_info("watchdog disabled\n");
+	rtlpriv->psc.reg_fwctrl_lps = 3;
 	rtlpriv->psc.reg_max_lps_awakeintvl = 5;
 	if (rtlpriv->dm.supp_phymode_switch) {
-		rtlpriv->psc.b_inactiveps = false;
-		rtlpriv->psc.b_swctrl_lps = false;
-		rtlpriv->psc.b_fwctrl_lps = false;
+		rtlpriv->psc.inactiveps = false;
+		rtlpriv->psc.swctrl_lps = false;
+		rtlpriv->psc.fwctrl_lps = false;
 	}
 	/* for ASPM, you can close aspm through
 	 * set const_support_pciaspm = 0 */
 	rtl92d_init_aspm_vars(hw);
 
-	if (rtlpriv->psc.b_reg_fwctrl_lps == 1)
+	if (rtlpriv->psc.reg_fwctrl_lps == 1)
 		rtlpriv->psc.fwctrl_psmode = FW_PS_MIN_MODE;
-	else if (rtlpriv->psc.b_reg_fwctrl_lps == 2)
+	else if (rtlpriv->psc.reg_fwctrl_lps == 2)
 		rtlpriv->psc.fwctrl_psmode = FW_PS_MAX_MODE;
-	else if (rtlpriv->psc.b_reg_fwctrl_lps == 3)
+	else if (rtlpriv->psc.reg_fwctrl_lps == 3)
 		rtlpriv->psc.fwctrl_psmode = FW_PS_DTIM_MODE;
 
 	/* for firmware buf */
-	rtlpriv->rtlhal.pfirmware = (u8 *) vmalloc(0x8000);
+	rtlpriv->rtlhal.pfirmware = vzalloc(0x8000);
 	if (!rtlpriv->rtlhal.pfirmware) {
-		RT_TRACE(COMP_ERR, DBG_EMERG,
-			 ("Can't alloc buffer for fw.\n"));
+		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG,
+			 "Can't alloc buffer for fw\n");
 		return 1;
 	}
+
+	rtlpriv->max_fw_size = 0x8000;
+	pr_info("Driver for Realtek RTL8192DE WLAN interface\n");
+	pr_info("Loading firmware file %s\n", rtlpriv->cfg->fw_name);
 
 	/* request fw */
-	err = request_firmware(&firmware, rtlpriv->cfg->fw_name,
-			       rtlpriv->io.dev);
+	err = request_firmware_nowait(THIS_MODULE, 1, rtlpriv->cfg->fw_name,
+				      rtlpriv->io.dev, GFP_KERNEL, hw,
+				      rtl_fw_cb);
 	if (err) {
-		RT_TRACE(COMP_ERR, DBG_EMERG,
-			 ("Failed to request firmware!\n"));
+		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG,
+			 "Failed to request firmware!\n");
 		return 1;
 	}
-	if (firmware->size > 0x8000) {
-		RT_TRACE(COMP_ERR, DBG_EMERG,
-			 ("Firmware is too big!\n"));
-		release_firmware(firmware);
-		return 1;
-	}
-	memcpy(rtlpriv->rtlhal.pfirmware, firmware->data, firmware->size);
-	rtlpriv->rtlhal.fwsize = firmware->size;
-	release_firmware(firmware);
 
 	/* for early mode */
-/*<delete in kernel start>*/
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,7,0))	
-	rtlpriv->rtlhal.b_earlymode_enable =true;
-#else
-/*<delete in kernel end>*/
-	rtlpriv->rtlhal.b_earlymode_enable =false;
-/*<delete in kernel start>*/
-#endif
-/*<delete in kernel end>*/
+	rtlpriv->rtlhal.earlymode_enable = false;
 	rtlpriv->rtlhal.max_earlymode_num = 5;
 	for (tid = 0; tid < 8; tid++)
 		skb_queue_head_init(&rtlpriv->mac80211.skb_waitq[tid]);
+
 	return 0;
 }
 
-void rtl92d_deinit_sw_vars(struct ieee80211_hw *hw)
+static void rtl92d_deinit_sw_vars(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u8 tid;
@@ -223,7 +215,7 @@ bool rtl92d_get_btc_status(void)
 }
 
 
-struct rtl_hal_ops rtl8192de_hal_ops = {
+static struct rtl_hal_ops rtl8192de_hal_ops = {
 	.init_sw_vars = rtl92d_init_sw_vars,
 	.deinit_sw_vars = rtl92d_deinit_sw_vars,
 	.read_eeprom_info = rtl92de_read_eeprom_info,
@@ -256,9 +248,9 @@ struct rtl_hal_ops rtl8192de_hal_ops = {
 	.led_control = rtl92de_led_control,
 	.set_desc = rtl92de_set_desc,
 	.get_desc = rtl92de_get_desc,
+	.is_tx_desc_closed = rtl92de_is_tx_desc_closed,
 	.tx_polling = rtl92de_tx_polling,
 	.enable_hw_sec = rtl92de_enable_hw_security_config,
-	.set_key = rtl92de_set_key,
 	.init_sw_leds = rtl92de_init_sw_leds,
 	.get_bbreg = rtl92d_phy_query_bb_reg,
 	.set_bbreg = rtl92d_phy_set_bb_reg,
@@ -270,16 +262,18 @@ struct rtl_hal_ops rtl8192de_hal_ops = {
 	.dualmac_easy_concurrent = rtl_dualmac_easyconcurrent,
 	.dualmac_switch_to_dmdp = rtl92d_dm_easy_concurrent_switch_to_dmdp,
 	.get_btc_status = rtl92d_get_btc_status,
+	.rx_command_packet = rtl92de_rx_command_packet,
 };
 
-struct rtl_mod_params rtl92de_mod_params = {
+static struct rtl_mod_params rtl92de_mod_params = {
 	.sw_crypto = false,
-	.b_inactiveps = true,
-	.b_swctrl_lps = true,
-	.b_fwctrl_lps = false,
+	.inactiveps = true,
+	.swctrl_lps = true,
+	.fwctrl_lps = false,
+	.debug = DBG_EMERG,
 };
 
-struct rtl_hal_cfg rtl92de_hal_cfg = {
+static struct rtl_hal_cfg rtl92de_hal_cfg = {
 	.bar_id = 2,
 	.write_readback = true,
 	.name = "rtl92d_pci",
@@ -295,6 +289,8 @@ struct rtl_hal_cfg rtl92de_hal_cfg = {
 	.maps[MAC_RCR_ACRC32] = RCR_ACRC32,
 	.maps[MAC_RCR_ACF] = RCR_ACF,
 	.maps[MAC_RCR_AAP] = RCR_AAP,
+	.maps[MAC_HIMR] = REG_HIMR,
+	.maps[MAC_HIMRE] = REG_HIMRE,
 
 	.maps[EFUSE_TEST] = REG_EFUSE_TEST,
 	.maps[EFUSE_CTRL] = REG_EFUSE_CTRL,
@@ -372,19 +368,11 @@ struct rtl_hal_cfg rtl92de_hal_cfg = {
 	.maps[RTL_RC_HT_RATEMCS15] = DESC92D_RATEMCS15,
 };
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,8,0))
-struct pci_device_id rtl92de_pci_ids[] = {
-        {RTL_PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x8193, rtl92de_hal_cfg)},
-        {RTL_PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x002B, rtl92de_hal_cfg)},
-        {},
-};
-#else
-struct pci_device_id rtl92de_pci_ids[] __devinitdata = {
+static struct pci_device_id rtl92de_pci_ids[] = {
 	{RTL_PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x8193, rtl92de_hal_cfg)},
 	{RTL_PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x002B, rtl92de_hal_cfg)},
 	{},
 };
-#endif
 
 MODULE_DEVICE_TABLE(pci, rtl92de_pci_ids);
 
@@ -395,34 +383,26 @@ MODULE_DESCRIPTION("Realtek 8192DE 802.11n Dul Mac PCI wireless");
 MODULE_FIRMWARE("rtlwifi/rtl8192defw.bin");
 
 module_param_named(swenc, rtl92de_mod_params.sw_crypto, bool, 0444);
-module_param_named(ips, rtl92de_mod_params.b_inactiveps, bool, 0444);
-module_param_named(swlps, rtl92de_mod_params.b_swctrl_lps, bool, 0444);
-module_param_named(fwlps, rtl92de_mod_params.b_fwctrl_lps, bool, 0444);
-MODULE_PARM_DESC(swenc, "using hardware crypto (default 0 [hardware])\n");
-MODULE_PARM_DESC(ips, "using no link power save (default 1 is open)\n");
-MODULE_PARM_DESC(swlps, "using linked sw control power save (default 1 is open)\n");
+module_param_named(debug, rtl92de_mod_params.debug, int, 0444);
+module_param_named(ips, rtl92de_mod_params.inactiveps, bool, 0444);
+module_param_named(swlps, rtl92de_mod_params.swctrl_lps, bool, 0444);
+module_param_named(fwlps, rtl92de_mod_params.fwctrl_lps, bool, 0444);
+module_param_named(disable_watchdog, rtl92de_mod_params.disable_watchdog, bool, 0444);
+MODULE_PARM_DESC(swenc, "Set to 1 for software crypto (default 0)\n");
+MODULE_PARM_DESC(ips, "Set to 0 to not use link power save (default 1)\n");
+MODULE_PARM_DESC(swlps, "Set to 1 to use SW control power save (default 0)\n");
+MODULE_PARM_DESC(fwlps, "Set to 1 to use FW control power save (default 1)\n");
+MODULE_PARM_DESC(debug, "Set debug level (0-5) (default 0)");
+MODULE_PARM_DESC(disable_watchdog, "Set to 1 to disable the watchdog (default 0)\n");
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29))
-static const SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtl_pci_suspend, rtl_pci_resume);
-#endif
-
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,29))
-compat_pci_suspend(rtl_pci_suspend)
-compat_pci_resume(rtl_pci_resume)
-#endif
+static SIMPLE_DEV_PM_OPS(rtlwifi_pm_ops, rtl_pci_suspend, rtl_pci_resume);
 
 static struct pci_driver rtl92de_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = rtl92de_pci_ids,
 	.probe = rtl_pci_probe,
 	.remove = rtl_pci_disconnect,
-
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29))
 	.driver.pm = &rtlwifi_pm_ops,
-#elif defined(CONFIG_PM)
-	.suspend = rtl_pci_suspend_compat,
-	.resume = rtl_pci_resume_compat,
-#endif
 
 };
 
@@ -432,17 +412,20 @@ spinlock_t globalmutex_for_poweron_and_poweroff;
 spinlock_t globalmutex_for_fwdownload;
 spinlock_t globalmutex_for_power_and_efuse;
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0))
+module_pci_driver(rtl92de_driver);
+#else
 static int __init rtl92de_module_init(void)
 {
 	int ret = 0;
-	
+
 	spin_lock_init(&globalmutex_for_poweron_and_poweroff);
 	spin_lock_init(&globalmutex_for_fwdownload);
 	spin_lock_init(&globalmutex_for_power_and_efuse);
-	
+
 	ret = pci_register_driver(&rtl92de_driver);
 	if (ret)
-		RT_ASSERT(false, (": No device found\n"));
+		RT_ASSERT(false, ": No device found\n");
 
 	return ret;
 }
@@ -454,4 +437,5 @@ static void __exit rtl92de_module_exit(void)
 
 module_init(rtl92de_module_init);
 module_exit(rtl92de_module_exit);
+#endif
 

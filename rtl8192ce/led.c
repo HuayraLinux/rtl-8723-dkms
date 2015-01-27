@@ -30,13 +30,14 @@
 #include "../wifi.h"
 #include "../pci.h"
 #include "reg.h"
+#include "led.h"
 
 static void _rtl92ce_init_led(struct ieee80211_hw *hw,
 			      struct rtl_led *pled, enum rtl_led_pin ledpin)
 {
 	pled->hw = hw;
 	pled->ledpin = ledpin;
-	pled->b_ledon = false;
+	pled->ledon = false;
 }
 
 void rtl92ce_sw_led_on(struct ieee80211_hw *hw, struct rtl_led *pled)
@@ -44,8 +45,8 @@ void rtl92ce_sw_led_on(struct ieee80211_hw *hw, struct rtl_led *pled)
 	u8 ledcfg;
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
-	RT_TRACE(COMP_LED, DBG_LOUD,
-		 ("LedAddr:%X ledpin=%d\n", REG_LEDCFG2, pled->ledpin));
+	RT_TRACE(rtlpriv, COMP_LED, DBG_LOUD,
+		 "LedAddr:%X ledpin=%d\n", REG_LEDCFG2, pled->ledpin);
 
 	ledcfg = rtl_read_byte(rtlpriv, REG_LEDCFG2);
 
@@ -60,11 +61,11 @@ void rtl92ce_sw_led_on(struct ieee80211_hw *hw, struct rtl_led *pled)
 		rtl_write_byte(rtlpriv, REG_LEDCFG2, (ledcfg & 0x0f) | BIT(5));
 		break;
 	default:
-		RT_TRACE(COMP_ERR, DBG_EMERG,
-			 ("switch case not process \n"));
+		RT_TRACE(rtlpriv, COMP_ERR, DBG_LOUD,
+			 "switch case not process\n");
 		break;
 	}
-	pled->b_ledon = true;
+	pled->ledon = true;
 }
 
 void rtl92ce_sw_led_off(struct ieee80211_hw *hw, struct rtl_led *pled)
@@ -73,8 +74,8 @@ void rtl92ce_sw_led_off(struct ieee80211_hw *hw, struct rtl_led *pled)
 	struct rtl_pci_priv *pcipriv = rtl_pcipriv(hw);
 	u8 ledcfg;
 
-	RT_TRACE(COMP_LED, DBG_LOUD,
-		 ("LedAddr:%X ledpin=%d\n", REG_LEDCFG2, pled->ledpin));
+	RT_TRACE(rtlpriv, COMP_LED, DBG_LOUD,
+		 "LedAddr:%X ledpin=%d\n", REG_LEDCFG2, pled->ledpin);
 
 	ledcfg = rtl_read_byte(rtlpriv, REG_LEDCFG2);
 
@@ -83,7 +84,7 @@ void rtl92ce_sw_led_off(struct ieee80211_hw *hw, struct rtl_led *pled)
 		break;
 	case LED_PIN_LED0:
 		ledcfg &= 0xf0;
-		if (pcipriv->ledctl.bled_opendrain == true)
+		if (pcipriv->ledctl.led_opendrain == true)
 			rtl_write_byte(rtlpriv, REG_LEDCFG2,
 				       (ledcfg | BIT(1) | BIT(5) | BIT(6)));
 		else
@@ -95,11 +96,11 @@ void rtl92ce_sw_led_off(struct ieee80211_hw *hw, struct rtl_led *pled)
 		rtl_write_byte(rtlpriv, REG_LEDCFG2, (ledcfg | BIT(3)));
 		break;
 	default:
-		RT_TRACE(COMP_ERR, DBG_EMERG,
-			 ("switch case not process \n"));
+		RT_TRACE(rtlpriv, COMP_ERR, DBG_LOUD,
+			 "switch case not process\n");
 		break;
 	}
-	pled->b_ledon = false;
+	pled->ledon = false;
 }
 
 void rtl92ce_init_sw_leds(struct ieee80211_hw *hw)
@@ -144,7 +145,7 @@ void rtl92ce_led_control(struct ieee80211_hw *hw,
 	     ledaction == LED_CTL_POWER_ON)) {
 		return;
 	}
-	RT_TRACE(COMP_LED, DBG_LOUD, ("ledaction %d, \n",
-				ledaction));
+	RT_TRACE(rtlpriv, COMP_LED, DBG_LOUD, "ledaction %d,\n",
+				ledaction);
 	_rtl92ce_sw_led_control(hw, ledaction);
 }

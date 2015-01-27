@@ -128,7 +128,7 @@
 #define	FIFOPAGE5			0x00D4
 #define	FW_RSVD_PG_CRTL		0x00D8
 #define	RXDMA_AGG_PG_TH		0x00D9
-#define	TXDESC_MSK 			0x00DC
+#define	TXDESC_MSK			0x00DC
 #define	TXRPTFF_RDPTR		0x00E0
 #define	TXRPTFF_WTPTR		0x00E4
 #define	C2HFF_RDPTR			0x00E8
@@ -185,7 +185,7 @@
 #define	CCK_TXAGC			0x01C8
 
 /* 7. EDCA Setting Registers */
-#define	EDCAPARA_VO 		0x01D0
+#define	EDCAPARA_VO		0x01D0
 #define	EDCAPARA_VI			0x01D4
 #define	EDCAPARA_BE			0x01D8
 #define	EDCAPARA_BK			0x01DC
@@ -284,13 +284,13 @@
 #define	CBUS_ERR_ADDR		0x0350
 #define	CBUS_ERR_CMD		0x0354
 #define	CBUS_ERR_DATA_L		0x0358
-#define	CBUS_ERR_DATA_H 	0x035C
+#define	CBUS_ERR_DATA_H		0x035C
 #define	USB_SIE_INTF_ADDR	0x0360
 #define	USB_SIE_INTF_WD		0x0361
 #define	USB_SIE_INTF_RD		0x0362
 #define	USB_SIE_INTF_CTRL	0x0363
-#define LBUS_MON_ADDR 		0x0364
-#define LBUS_ADDR_MASK 		0x0368
+#define LBUS_MON_ADDR		0x0364
+#define LBUS_ADDR_MASK		0x0368
 
 /* Boundary is 0x37F */
 
@@ -322,8 +322,8 @@
 #define	PHY_CCA				0x803
 
 /* Min Spacing related settings. */
-#define	MAX_MSS_DENSITY_2T 	0x13
-#define	MAX_MSS_DENSITY_1T 	0x0A
+#define	MAX_MSS_DENSITY_2T	0x13
+#define	MAX_MSS_DENSITY_1T	0x0A
 
 /* Rx DMA Control related settings */
 #define	RXDMA_AGG_EN		BIT(7)
@@ -416,7 +416,9 @@
 #define	FAKE_IMEM_EN		BIT(15)
 #define	TSFRST				BIT(9)
 #define	TSFEN				BIT(8)
-#define	FWALLRDY			(BIT(0)|BIT(1)|BIT(2)|BIT(3)|BIT(4)|BIT(5)|BIT(6)|BIT(7))
+#define	FWALLRDY			(BIT(0)|BIT(1)|BIT(2)| \
+					BIT(3)|BIT(4)|BIT(5)| \
+					BIT(6)|BIT(7))
 #define	FWRDY				BIT(7)
 #define	BASECHG				BIT(6)
 #define	IMEM				BIT(5)
@@ -433,9 +435,13 @@
 #define	IMEM_RDY			BIT(5)
 #define	BASECHG				BIT(6)
 #define	FWRDY				BIT(7)
-#define	LOAD_FW_READY		(IMEM_CODE_DONE|IMEM_CHK_RPT|EMEM_CODE_DONE|\
-							EMEM_CHK_RPT|DMEM_CODE_DONE|IMEM_RDY|BASECHG|\
-							FWRDY)
+#define	LOAD_FW_READY		(IMEM_CODE_DONE| \
+				IMEM_CHK_RPT| \
+				EMEM_CODE_DONE| \
+				EMEM_CHK_RPT| \
+				DMEM_CODE_DONE| \
+				IMEM_RDY|BASECHG|\
+				FWRDY)
 #define	TCR_TSFEN			BIT(8)
 #define	TCR_TSFRST			BIT(9)
 #define	TCR_FAKE_IMEM_EN	BIT(15)
@@ -476,12 +482,12 @@
 #define	RCR_FIFO_OFFSET		13
 
 
-#define MSR_LINK_MASK      	((1<<0)|(1<<1))
-#define MSR_LINK_MANAGED   	2
-#define MSR_LINK_NONE      	0
-#define MSR_LINK_SHIFT     	0
-#define MSR_LINK_ADHOC     	1
-#define MSR_LINK_MASTER    	3
+#define MSR_LINK_MASK		((1<<0)|(1<<1))
+#define MSR_LINK_MANAGED	2
+#define MSR_LINK_NONE		0
+#define MSR_LINK_SHIFT		0
+#define MSR_LINK_ADHOC		1
+#define MSR_LINK_MASTER		3
 #define	MSR_NOLINK			0x00
 #define	MSR_ADHOC			0x01
 #define	MSR_INFRA			0x02
@@ -564,23 +570,25 @@
 #define	RATR_MCS14			0x04000000
 #define	RATR_MCS15			0x08000000
 
-#define	RATE_ALL_CCK		RATR_1M|RATR_2M|RATR_55M|RATR_11M
-#define	RATE_ALL_OFDM_AG	RATR_6M|RATR_9M|RATR_12M|RATR_18M|RATR_24M|\
-							RATR_36M|RATR_48M|RATR_54M
-#define	RATE_ALL_OFDM_1SS	RATR_MCS0|RATR_MCS1|RATR_MCS2|RATR_MCS3 |\
-							RATR_MCS4|RATR_MCS5|RATR_MCS6	|RATR_MCS7
-#define	RATE_ALL_OFDM_2SS	RATR_MCS8|RATR_MCS9	|RATR_MCS10|RATR_MCS11|\
-							RATR_MCS12|RATR_MCS13|RATR_MCS14|RATR_MCS15
+#define	RATE_ALL_CCK		(RATR_1M|RATR_2M|RATR_55M|RATR_11M)
+#define	RATE_ALL_OFDM_AG	(RATR_6M|RATR_9M|RATR_12M|RATR_18M|RATR_24M|\
+					RATR_36M|RATR_48M|RATR_54M)
+#define	RATE_ALL_OFDM_1SS	(RATR_MCS0|RATR_MCS1|RATR_MCS2|RATR_MCS3 |\
+					RATR_MCS4|RATR_MCS5|RATR_MCS6 \
+					| RATR_MCS7)
+#define	RATE_ALL_OFDM_2SS	(RATR_MCS8|RATR_MCS9 | RATR_MCS10|RATR_MCS11|\
+					RATR_MCS12|RATR_MCS13| \
+					RATR_MCS14|RATR_MCS15)
 
 #define	AC_PARAM_TXOP_LIMIT_OFFSET		16
 #define	AC_PARAM_ECW_MAX_OFFSET			12
 #define	AC_PARAM_ECW_MIN_OFFSET			8
 #define	AC_PARAM_AIFS_OFFSET			0
 
-#define	AcmHw_HwEn				BIT(0)
-#define	AcmHw_BeqEn				BIT(1)
-#define	AcmHw_ViqEn				BIT(2)
-#define	AcmHw_VoqEn				BIT(3)
+#define	AcmHw_HwEn			BIT(0)
+#define	AcmHw_BeqEn			BIT(1)
+#define	AcmHw_ViqEn			BIT(2)
+#define	AcmHw_VoqEn			BIT(3)
 #define	AcmHw_BeqStatus			BIT(4)
 #define	AcmHw_ViqStatus			BIT(5)
 #define	AcmHw_VoqStatus			BIT(6)
@@ -589,8 +597,8 @@
 #define	RETRY_LIMIT_LONG_SHIFT	0
 
 #define	NAV_UPPER_EN			BIT(16)
-#define	NAV_UPPER				0xFF00
-#define	NAV_RTSRST				0xFF
+#define	NAV_UPPER			0xFF00
+#define	NAV_RTSRST			0xFF
 
 #define	BW_OPMODE_20MHZ			BIT(2)
 #define	BW_OPMODE_5G			BIT(1)
@@ -612,28 +620,28 @@
 #define	RXERR_HT_MPDU_FAIL		12
 #define	RXERR_RX_FULL_DROP		15
 
-#define	SCR_TXUSEDK				BIT(0)
-#define	SCR_RXUSEDK				BIT(1)
+#define	SCR_TXUSEDK			BIT(0)
+#define	SCR_RXUSEDK			BIT(1)
 #define	SCR_TXENCENABLE			BIT(2)
 #define	SCR_RXENCENABLE			BIT(3)
-#define	SCR_SKBYA2				BIT(4)
-#define	SCR_NOSKMC				BIT(5)
+#define	SCR_SKBYA2			BIT(4)
+#define	SCR_NOSKMC			BIT(5)
 
-#define	CAM_VALID				BIT(15)
+#define	CAM_VALID			BIT(15)
 #define	CAM_NOTVALID			0x0000
-#define	CAM_USEDK				BIT(5)
+#define	CAM_USEDK			BIT(5)
 
-#define	CAM_NONE				0x0
-#define	CAM_WEP40				0x01
-#define	CAM_TKIP				0x02
-#define	CAM_AES					0x04
-#define	CAM_WEP104				0x05
+#define	CAM_NONE			0x0
+#define	CAM_WEP40			0x01
+#define	CAM_TKIP			0x02
+#define	CAM_AES				0x04
+#define	CAM_WEP104			0x05
 
 #define	TOTAL_CAM_ENTRY			32
 #define	HALF_CAM_ENTRY			16
 
-#define	CAM_WRITE				BIT(16)
-#define	CAM_READ				0x00000000
+#define	CAM_WRITE			BIT(16)
+#define	CAM_READ			0x00000000
 #define	CAM_POLLINIG			BIT(31)
 
 #define	WOW_PMEN			BIT(0)
@@ -644,18 +652,18 @@
 #define	GPIOMUX_EN			BIT(3)
 #define	GPIOSEL_GPIO		0
 #define	GPIOSEL_PHYDBG		1
-#define	GPIOSEL_BT			2
+#define	GPIOSEL_BT		2
 #define	GPIOSEL_WLANDBG		3
 #define	GPIOSEL_GPIO_MASK	~(BIT(0)|BIT(1))
 
-#define	HST_RDBUSY			BIT(0)
-#define	CPU_WTBUSY			BIT(1)
+#define	HST_RDBUSY		BIT(0)
+#define	CPU_WTBUSY		BIT(1)
 
 #define	IMR8190_DISABLED	0x0
-#define	IMR_CPUERR			BIT(5)
-#define	IMR_ATIMEND			BIT(4)
-#define	IMR_TBDOK			BIT(3)
-#define	IMR_TBDER			BIT(2)
+#define	IMR_CPUERR		BIT(5)
+#define	IMR_ATIMEND		BIT(4)
+#define	IMR_TBDOK		BIT(3)
+#define	IMR_TBDER		BIT(2)
 #define	IMR_BCNDMAINT8		BIT(1)
 #define	IMR_BCNDMAINT7		BIT(0)
 #define	IMR_BCNDMAINT6		BIT(31)
@@ -664,14 +672,14 @@
 #define	IMR_BCNDMAINT3		BIT(28)
 #define	IMR_BCNDMAINT2		BIT(27)
 #define	IMR_BCNDMAINT1		BIT(26)
-#define	IMR_BCNDOK8			BIT(25)
-#define	IMR_BCNDOK7			BIT(24)
-#define	IMR_BCNDOK6			BIT(23)
-#define	IMR_BCNDOK5			BIT(22)
-#define	IMR_BCNDOK4			BIT(21)
-#define	IMR_BCNDOK3			BIT(20)
-#define	IMR_BCNDOK2			BIT(19)
-#define	IMR_BCNDOK1			BIT(18)
+#define	IMR_BCNDOK8		BIT(25)
+#define	IMR_BCNDOK7		BIT(24)
+#define	IMR_BCNDOK6		BIT(23)
+#define	IMR_BCNDOK5		BIT(22)
+#define	IMR_BCNDOK4		BIT(21)
+#define	IMR_BCNDOK3		BIT(20)
+#define	IMR_BCNDOK2		BIT(19)
+#define	IMR_BCNDOK1		BIT(18)
 #define	IMR_TIMEOUT2		BIT(17)
 #define	IMR_TIMEOUT1		BIT(16)
 #define	IMR_TXFOVW			BIT(15)
@@ -981,10 +989,10 @@
 #define	RCCK0_TXFILTER2				0xa24
 #define	RCCK0_DEBUGPORT				0xa28
 #define	RCCK0_FALSEALARMREPORT		0xa2c
-#define	RCCK0_TRSSIREPORT         	0xa50
-#define	RCCK0_RXREPORT            	0xa54
-#define	RCCK0_FACOUNTERLOWER      	0xa5c
-#define	RCCK0_FACOUNTERUPPER      	0xa58
+#define	RCCK0_TRSSIREPORT		0xa50
+#define	RCCK0_RXREPORT			0xa54
+#define	RCCK0_FACOUNTERLOWER		0xa5c
+#define	RCCK0_FACOUNTERUPPER		0xa58
 
 #define	ROFDM0_LSTF					0xc00
 
@@ -993,13 +1001,13 @@
 #define	ROFDM0_TRSWISOLATION		0xc0c
 
 #define	ROFDM0_XARXAFE				0xc10
-#define	ROFDM0_XARXIQIMBALANCE    	0xc14
-#define	ROFDM0_XBRXAFE            	0xc18
-#define	ROFDM0_XBRXIQIMBALANCE    	0xc1c
-#define	ROFDM0_XCRXAFE            	0xc20
-#define	ROFDM0_XCRXIQIMBALANCE    	0xc24
-#define	ROFDM0_XDRXAFE            	0xc28
-#define	ROFDM0_XDRXIQIMBALANCE    	0xc2c
+#define	ROFDM0_XARXIQIMBALANCE		0xc14
+#define	ROFDM0_XBRXAFE			0xc18
+#define	ROFDM0_XBRXIQIMBALANCE		0xc1c
+#define	ROFDM0_XCRXAFE			0xc20
+#define	ROFDM0_XCRXIQIMBALANCE		0xc24
+#define	ROFDM0_XDRXAFE			0xc28
+#define	ROFDM0_XDRXIQIMBALANCE		0xc2c
 
 #define	ROFDM0_RXDETECTOR1			0xc30
 #define	ROFDM0_RXDETECTOR2			0xc34
@@ -1030,7 +1038,7 @@
 #define	ROFDM0_XBTXIQIMBALANCE		0xc88
 #define	ROFDM0_XBTXAFE				0xc8c
 #define	ROFDM0_XCTXIQIMBALANCE		0xc90
-#define	ROFDM0_XCTXAFE            	0xc94
+#define	ROFDM0_XCTXAFE			0xc94
 #define	ROFDM0_XDTXIQIMBALANCE		0xc98
 #define	ROFDM0_XDTXAFE				0xc9c
 
@@ -1070,8 +1078,8 @@
 #define	ROFDM_LONG_CFOCD			0xdb8
 #define	ROFDM_TAIL_CFOAB			0xdbc
 #define	ROFDM_TAIL_CFOCD			0xdc0
-#define	ROFDM_PW_MEASURE1          	0xdc4
-#define	ROFDM_PW_MEASURE2          	0xdc8
+#define	ROFDM_PW_MEASURE1		0xdc4
+#define	ROFDM_PW_MEASURE2		0xdc8
 #define	ROFDM_BW_REPORT				0xdcc
 #define	ROFDM_AGC_REPORT			0xdd0
 #define	ROFDM_RXSNR					0xdd4
@@ -1138,35 +1146,35 @@
 #define	BCCKEN						0x1000000
 #define	BOFDMEN						0x2000000
 
-#define	BXBTXAGC                  	0xf00
-#define	BXCTXAGC                  	0xf000
-#define	BXDTXAGC                  	0xf0000
+#define	BXBTXAGC			0xf00
+#define	BXCTXAGC			0xf000
+#define	BXDTXAGC			0xf0000
 
-#define	B3WIRE_DATALENGTH          	0x800
-#define	B3WIRE_ADDRESSLENGTH       	0x400
+#define	B3WIRE_DATALENGTH		0x800
+#define	B3WIRE_ADDRESSLENGTH		0x400
 
-#define	BRFSI_RFENV               	0x10
+#define	BRFSI_RFENV			0x10
 
-#define	BLSSI_READADDRESS          	0x7f800000
-#define	BLSSI_READEDGE             	0x80000000
+#define	BLSSI_READADDRESS		0x7f800000
+#define	BLSSI_READEDGE			0x80000000
 #define	BLSSI_READBACK_DATA         0xfffff
 
-#define	BADCLKPHASE               	0x4000000
+#define	BADCLKPHASE			0x4000000
 
-#define	BCCK_SIDEBAND              	0x10
+#define	BCCK_SIDEBAND			0x10
 
 #define	BTX_AGCRATECCK				0x7f00
 
-#define	MASKBYTE0                	0xff
-#define	MASKBYTE1                	0xff00
-#define	MASKBYTE2                	0xff0000
-#define	MASKBYTE3                	0xff000000
-#define	MASKHWORD                	0xffff0000
-#define	MASKLWORD                	0x0000ffff
-#define	MASKDWORD                	0xffffffff
+#define	MASKBYTE0			0xff
+#define	MASKBYTE1			0xff00
+#define	MASKBYTE2			0xff0000
+#define	MASKBYTE3			0xff000000
+#define	MASKHWORD			0xffff0000
+#define	MASKLWORD			0x0000ffff
+#define	MASKDWORD			0xffffffff
 
-#define	MAKS12BITS               	0xfffff
-#define	MASK20BITS               	0xfffff
-#define RFREG_OFFSET_MASK		  	0xfffff
+#define	MAKS12BITS			0xfffff
+#define	MASK20BITS			0xfffff
+#define RFREG_OFFSET_MASK			0xfffff
 
 #endif

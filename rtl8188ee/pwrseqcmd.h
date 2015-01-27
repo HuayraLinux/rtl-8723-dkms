@@ -5,7 +5,7 @@
 /*---------------------------------------------*/
 /* The value of cmd: 4 bits */
 /*---------------------------------------------*/
-#define  PWR_CMD_READ 		0x00
+#define  PWR_CMD_READ		0x00
 #define    PWR_CMD_WRITE	0x01
 #define    PWR_CMD_POLLING	0x02
 #define    PWR_CMD_DELAY	0x03
@@ -38,8 +38,8 @@
 
 
 enum pwrseq_delay_unit {
-   PWRSEQ_DELAY_US,
-   PWRSEQ_DELAY_MS,
+	PWRSEQ_DELAY_US,
+	PWRSEQ_DELAY_MS,
 };
 
 struct wlan_pwr_cfg {
@@ -63,8 +63,8 @@ struct wlan_pwr_cfg {
 #define	GET_PWR_CFG_MASK(__PWR_CMD)	__PWR_CMD.msk
 #define	GET_PWR_CFG_VALUE(__PWR_CMD)	__PWR_CMD.value
 
-bool rtl_hal_pwrseqcmdparsing(struct rtl_priv * rtlpriv, u8 cut_version,
-			u8 fab_version, u8 interface_type, struct wlan_pwr_cfg pwrcfgcmd[]);
+bool rtl_hal_pwrseqcmdparsing(struct rtl_priv *rtlpriv, u8 cut_version,
+			u8 fab_version, u8 interface_type,
+			struct wlan_pwr_cfg pwrcfgcmd[]);
 
 #endif
-

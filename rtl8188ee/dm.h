@@ -148,7 +148,7 @@
 #define	DM_REG_TX_CCK_BBON_11N			0xE78
 #define	DM_REG_OFDM_RFON_11N			0xE7C
 #define	DM_REG_OFDM_BBON_11N			0xE80
-#define 	DM_REG_TX2RX_11N				0xE84
+#define		DM_REG_TX2RX_11N				0xE84
 #define	DM_REG_TX2TX_11N				0xE88
 #define	DM_REG_RX_CCK_11N				0xE8C
 #define	DM_REG_RX_OFDM_11N				0xED0
@@ -182,10 +182,10 @@
 #define HAL_DM_DIG_DISABLE			BIT(0)
 #define HAL_DM_HIPWR_DISABLE		BIT(1)
 
-#define OFDM_TABLE_LENGTH 			43
-#define CCK_TABLE_LENGTH 			33
+#define OFDM_TABLE_LENGTH			43
+#define CCK_TABLE_LENGTH			33
 
-#define OFDM_TABLE_SIZE 			43
+#define OFDM_TABLE_SIZE				43
 #define CCK_TABLE_SIZE				33
 
 #define BW_AUTO_SWITCH_HIGH_LOW		25
@@ -238,57 +238,6 @@
 #define TX_POWER_NEAR_FIELD_THRESH_LVL2	74
 #define TX_POWER_NEAR_FIELD_THRESH_LVL1	67
 #define TXPWRTRACK_MAX_IDX 6
-
-struct ps_t {
-	u8 pre_ccastate;
-	u8 cur_ccasate;
-	u8 pre_rfstate;
-	u8 cur_rfstate;
-	long rssi_val_min;
-
-};
-
-struct dig_t {
-	u8 dig_enable_flag;
-	u8 dig_ext_port_stage;
-	u32 rssi_lowthresh;
-	u32 rssi_highthresh;
-
-	u32 fa_lowthresh;
-	u32 fa_highthresh;
-
-	u8 cursta_connectctate;
-	u8 presta_connectstate;
-	u8 curmultista_connectstate;
-
-	u8 pre_igvalue;
-	u8 cur_igvalue;
-	u8 backup_igvalue;
-
-	char backoff_val;
-	char backoff_val_range_max;
-	char backoff_val_range_min;
-	u8 rx_gain_range_max;
-	u8 rx_gain_range_min;
-	u8 rssi_val_min;
-
-	u8 pre_cck_cca_thres;
-	u8 cur_cck_cca_thres;
-	u8 pre_cck_pd_state;
-	u8 cur_cck_pd_state;
-
-	u8 large_fa_hit;
-	u8 forbidden_igi;
-	u32 recover_cnt;
-
-	u8 dig_dynamic_min_0;
-	u8 dig_dynamic_min_1;
-	bool b_media_connect_0;
-	bool b_media_connect_1;
-
-	u32 antdiv_rssi_max;
-	u32 rssi_max;
-};
 
 struct swat_t {
 	u8 failure_cnt;
@@ -365,12 +314,11 @@ enum pwr_track_control_method {
 	TXAGC
 };
 
-extern struct dig_t dm_digtable;
 void rtl88e_dm_set_tx_ant_by_tx_info(struct ieee80211_hw *hw,
 	u8 *pdesc, u32 mac_id);
 void rtl88e_dm_ant_sel_statistics(struct ieee80211_hw *hw,
 	u8 antsel_tr_mux, u32 mac_id, u32 rx_pwdb_all);
-void rtl88e_dm_fast_antenna_trainning_callback(unsigned long data);
+void rtl88e_dm_fast_antenna_training_callback(unsigned long data);
 void rtl88e_dm_init(struct ieee80211_hw *hw);
 void rtl88e_dm_watchdog(struct ieee80211_hw *hw);
 void rtl88e_dm_write_dig(struct ieee80211_hw *hw);
@@ -378,5 +326,5 @@ void rtl88e_dm_init_edca_turbo(struct ieee80211_hw *hw);
 void rtl88e_dm_check_txpower_tracking(struct ieee80211_hw *hw);
 void rtl88e_dm_init_rate_adaptive_mask(struct ieee80211_hw *hw);
 void rtl88e_dm_txpower_track_adjust(struct ieee80211_hw *hw,
-	u8 type,u8 *pdirection, u32 *poutwrite_val);
+	u8 type, u8 *pdirection, u32 *poutwrite_val);
 #endif

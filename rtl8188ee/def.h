@@ -88,7 +88,7 @@
 #define	GET_C2H_CMD_CONTINUE(__prxhdr)		\
 	LE_BITS_TO_4BYTE((__prxhdr), 31, 1)
 #define	GET_C2H_CMD_CONTENT(__prxhdr)		\
-	((u8*)(__prxhdr) + C2H_RX_CMD_HDR_LEN)
+	((u8 *)(__prxhdr) + C2H_RX_CMD_HDR_LEN)
 
 #define	GET_C2H_CMD_FEEDBACK_ELEMENT_ID(__pcmdfbhdr)	\
 	LE_BITS_TO_4BYTE((__pcmdfbhdr), 0, 8)
@@ -121,7 +121,7 @@
 */
 #define CHIP_8723				BIT(0)
 #define CHIP_92D				BIT(1)
-#define NORMAL_CHIP  			BIT(3)
+#define NORMAL_CHIP			BIT(3)
 #define RF_TYPE_1T1R			(~(BIT(4)|BIT(5)|BIT(6)))
 #define RF_TYPE_1T2R			BIT(4)
 #define RF_TYPE_2T2R			BIT(5)
@@ -134,44 +134,61 @@
 
 /* MASK */
 #define IC_TYPE_MASK			(BIT(0)|BIT(1)|BIT(2))
-#define CHIP_TYPE_MASK 			BIT(3)
+#define CHIP_TYPE_MASK			BIT(3)
 #define RF_TYPE_MASK			(BIT(4)|BIT(5)|BIT(6))
 #define MANUFACTUER_MASK		BIT(7)
 #define ROM_VERSION_MASK		(BIT(11)|BIT(10)|BIT(9)|BIT(8))
 #define CUT_VERSION_MASK		(BIT(15)|BIT(14)|BIT(13)|BIT(12))
 
 /* Get element */
-#define GET_CVID_IC_TYPE(version)			((version) & IC_TYPE_MASK)
-#define GET_CVID_CHIP_TYPE(version)			((version) & CHIP_TYPE_MASK)
-#define GET_CVID_RF_TYPE(version)			((version) & RF_TYPE_MASK)
-#define GET_CVID_MANUFACTUER(version)		((version) & MANUFACTUER_MASK)
-#define GET_CVID_ROM_VERSION(version)		((version) & ROM_VERSION_MASK)
-#define GET_CVID_CUT_VERSION(version)		((version) & CUT_VERSION_MASK)
+#define GET_CVID_IC_TYPE(version)		((version) & IC_TYPE_MASK)
+#define GET_CVID_CHIP_TYPE(version)		((version) & CHIP_TYPE_MASK)
+#define GET_CVID_RF_TYPE(version)		((version) & RF_TYPE_MASK)
+#define GET_CVID_MANUFACTUER(version)	((version) & MANUFACTUER_MASK)
+#define GET_CVID_ROM_VERSION(version)	((version) & ROM_VERSION_MASK)
+#define GET_CVID_CUT_VERSION(version)	((version) & CUT_VERSION_MASK)
 
 
-#define IS_81XXC(version)				((GET_CVID_IC_TYPE(version) == 0)? true : false)
-#define IS_8723_SERIES(version)			((GET_CVID_IC_TYPE(version) == CHIP_8723)? true : false)
-#define IS_92D(version)					((GET_CVID_IC_TYPE(version) == CHIP_92D)? true : false)
+#define IS_81XXC(version)	((GET_CVID_IC_TYPE(version) == \
+								0) ? true : false)
+#define IS_8723_SERIES(version)	((GET_CVID_IC_TYPE(version) == \
+									CHIP_8723) ? true : false)
+#define IS_92D(version)			((GET_CVID_IC_TYPE(version) == \
+									CHIP_92D) ? true : false)
 
-#define IS_NORMAL_CHIP(version)			((GET_CVID_CHIP_TYPE(version))? true : false)
-#define IS_NORMAL_CHIP92D(version)		((GET_CVID_CHIP_TYPE(version))? true : false)
+#define IS_NORMAL_CHIP(version)	((GET_CVID_CHIP_TYPE(version)) ? \
+									true : false)
+#define IS_NORMAL_CHIP92D(version)	((GET_CVID_CHIP_TYPE(version)) ? \
+										true : false)
 
-#define IS_1T1R(version)					((GET_CVID_RF_TYPE(version))? false : true)
-#define IS_1T2R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_1T2R)? true : false)
-#define IS_2T2R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_2T2R)? true : false)
-#define IS_CHIP_VENDOR_UMC(version)	((GET_CVID_MANUFACTUER(version))? true : false)
+#define IS_1T1R(version)	((GET_CVID_RF_TYPE(version)) ? \
+								false : true)
+#define IS_1T2R(version)	((GET_CVID_RF_TYPE(version) == \
+								RF_TYPE_1T2R) ? true : false)
+#define IS_2T2R(version)	((GET_CVID_RF_TYPE(version) == \
+								RF_TYPE_2T2R) ? true : false)
+#define IS_CHIP_VENDOR_UMC(version)	((GET_CVID_MANUFACTUER(version)) ? \
+										true : false)
 
-#define IS_92C_SERIAL(version)   			((IS_81XXC(version) && IS_2T2R(version)) ? true : false)
-#define IS_81xxC_VENDOR_UMC_A_CUT(version)		(IS_81XXC(version)?((IS_CHIP_VENDOR_UMC(version)) ? ((GET_CVID_CUT_VERSION(version)) ? false : true) : false):false)
-#define IS_81xxC_VENDOR_UMC_B_CUT(version)		(IS_81XXC(version)?(IS_CHIP_VENDOR_UMC(version) ? ((GET_CVID_CUT_VERSION(version) == B_CUT_VERSION) ? true : false):false): false)
+#define IS_92C_SERIAL(version)	((IS_81XXC(version) \
+									&& IS_2T2R(version)) ? true : false)
+#define IS_81xxC_VENDOR_UMC_A_CUT(version)	(IS_81XXC(version) ? \
+											((IS_CHIP_VENDOR_UMC(version)) ? \
+											((GET_CVID_CUT_VERSION(version)) ? \
+											false : true) : false):false)
+#define IS_81xxC_VENDOR_UMC_B_CUT(version)	(IS_81XXC(version) ? \
+											(IS_CHIP_VENDOR_UMC(version) ? \
+											((GET_CVID_CUT_VERSION(version) == \
+											B_CUT_VERSION) ? true \
+											: false) : false) : false)
 
 enum version_8188e {
 	VERSION_TEST_CHIP_88E = 0x00,
 	VERSION_NORMAL_CHIP_88E = 0x01,
-	VERSION_UNKNOWN =0xFF,
+	VERSION_UNKNOWN = 0xFF,
 };
 
-enum rx_packet_type{
+enum rx_packet_type {
 	NORMAL_RX,
 	TX_REPORT1,
 	TX_REPORT2,

@@ -37,9 +37,6 @@
 #include "fw.h"
 #include "trx.h"
 
-struct dig_t dm_digtable;
-static struct ps_t dm_pstable;
-
 static const u32 ofdmswing_table[OFDM_TABLE_SIZE] = {
 	0x7f8001fe,		/* 0, +6.0dB */
 	0x788001e2,		/* 1, +5.5dB */
@@ -87,285 +84,104 @@ static const u32 ofdmswing_table[OFDM_TABLE_SIZE] = {
 };
 
 static const u8 cckswing_table_ch1ch13[CCK_TABLE_SIZE][8] = {
-	{0x36, 0x35, 0x2e, 0x25, 0x1c, 0x12, 0x09, 0x04},	/* 0, +0dB */
-	{0x33, 0x32, 0x2b, 0x23, 0x1a, 0x11, 0x08, 0x04},	/* 1, -0.5dB */
-	{0x30, 0x2f, 0x29, 0x21, 0x19, 0x10, 0x08, 0x03},	/* 2, -1.0dB */
-	{0x2d, 0x2d, 0x27, 0x1f, 0x18, 0x0f, 0x08, 0x03},	/* 3, -1.5dB */
-	{0x2b, 0x2a, 0x25, 0x1e, 0x16, 0x0e, 0x07, 0x03},	/* 4, -2.0dB */
-	{0x28, 0x28, 0x22, 0x1c, 0x15, 0x0d, 0x07, 0x03},	/* 5, -2.5dB */
-	{0x26, 0x25, 0x21, 0x1b, 0x14, 0x0d, 0x06, 0x03},	/* 6, -3.0dB */
-	{0x24, 0x23, 0x1f, 0x19, 0x13, 0x0c, 0x06, 0x03},	/* 7, -3.5dB */
-	{0x22, 0x21, 0x1d, 0x18, 0x11, 0x0b, 0x06, 0x02},	/* 8, -4.0dB */
-	{0x20, 0x20, 0x1b, 0x16, 0x11, 0x08, 0x05, 0x02},	/* 9, -4.5dB */
-	{0x1f, 0x1e, 0x1a, 0x15, 0x10, 0x0a, 0x05, 0x02},	/* 10, -5.0dB */
-	{0x1d, 0x1c, 0x18, 0x14, 0x0f, 0x0a, 0x05, 0x02},	/* 11, -5.5dB */
-	{0x1b, 0x1a, 0x17, 0x13, 0x0e, 0x09, 0x04, 0x02},	/* 12, -6.0dB */
-	{0x1a, 0x19, 0x16, 0x12, 0x0d, 0x09, 0x04, 0x02},	/* 13, -6.5dB */
-	{0x18, 0x17, 0x15, 0x11, 0x0c, 0x08, 0x04, 0x02},	/* 14, -7.0dB */
-	{0x17, 0x16, 0x13, 0x10, 0x0c, 0x08, 0x04, 0x02},	/* 15, -7.5dB */
-	{0x16, 0x15, 0x12, 0x0f, 0x0b, 0x07, 0x04, 0x01},	/* 16, -8.0dB */
-	{0x14, 0x14, 0x11, 0x0e, 0x0b, 0x07, 0x03, 0x02},	/* 17, -8.5dB */
-	{0x13, 0x13, 0x10, 0x0d, 0x0a, 0x06, 0x03, 0x01},	/* 18, -9.0dB */
-	{0x12, 0x12, 0x0f, 0x0c, 0x09, 0x06, 0x03, 0x01},	/* 19, -9.5dB */
-	{0x11, 0x11, 0x0f, 0x0c, 0x09, 0x06, 0x03, 0x01},	/* 20, -10.0dB */
-	{0x10, 0x10, 0x0e, 0x0b, 0x08, 0x05, 0x03, 0x01},	/* 21, -10.5dB */
-	{0x0f, 0x0f, 0x0d, 0x0b, 0x08, 0x05, 0x03, 0x01},	/* 22, -11.0dB */
-	{0x0e, 0x0e, 0x0c, 0x0a, 0x08, 0x05, 0x02, 0x01},	/* 23, -11.5dB */
-	{0x0d, 0x0d, 0x0c, 0x0a, 0x07, 0x05, 0x02, 0x01},	/* 24, -12.0dB */
-	{0x0d, 0x0c, 0x0b, 0x09, 0x07, 0x04, 0x02, 0x01},	/* 25, -12.5dB */
-	{0x0c, 0x0c, 0x0a, 0x09, 0x06, 0x04, 0x02, 0x01},	/* 26, -13.0dB */
-	{0x0b, 0x0b, 0x0a, 0x08, 0x06, 0x04, 0x02, 0x01},	/* 27, -13.5dB */
-	{0x0b, 0x0a, 0x09, 0x08, 0x06, 0x04, 0x02, 0x01},	/* 28, -14.0dB */
-	{0x0a, 0x0a, 0x09, 0x07, 0x05, 0x03, 0x02, 0x01},	/* 29, -14.5dB */
-	{0x0a, 0x09, 0x08, 0x07, 0x05, 0x03, 0x02, 0x01},	/* 30, -15.0dB */
-	{0x09, 0x09, 0x08, 0x06, 0x05, 0x03, 0x01, 0x01},	/* 31, -15.5dB */
-	{0x09, 0x08, 0x07, 0x06, 0x04, 0x03, 0x01, 0x01}	/* 32, -16.0dB */
+	{0x36, 0x35, 0x2e, 0x25, 0x1c, 0x12, 0x09, 0x04}, /* 0, +0dB */
+	{0x33, 0x32, 0x2b, 0x23, 0x1a, 0x11, 0x08, 0x04}, /* 1, -0.5dB */
+	{0x30, 0x2f, 0x29, 0x21, 0x19, 0x10, 0x08, 0x03}, /* 2, -1.0dB */
+	{0x2d, 0x2d, 0x27, 0x1f, 0x18, 0x0f, 0x08, 0x03}, /* 3, -1.5dB */
+	{0x2b, 0x2a, 0x25, 0x1e, 0x16, 0x0e, 0x07, 0x03}, /* 4, -2.0dB */
+	{0x28, 0x28, 0x22, 0x1c, 0x15, 0x0d, 0x07, 0x03}, /* 5, -2.5dB */
+	{0x26, 0x25, 0x21, 0x1b, 0x14, 0x0d, 0x06, 0x03}, /* 6, -3.0dB */
+	{0x24, 0x23, 0x1f, 0x19, 0x13, 0x0c, 0x06, 0x03}, /* 7, -3.5dB */
+	{0x22, 0x21, 0x1d, 0x18, 0x11, 0x0b, 0x06, 0x02}, /* 8, -4.0dB */
+	{0x20, 0x20, 0x1b, 0x16, 0x11, 0x08, 0x05, 0x02}, /* 9, -4.5dB */
+	{0x1f, 0x1e, 0x1a, 0x15, 0x10, 0x0a, 0x05, 0x02}, /* 10, -5.0dB */
+	{0x1d, 0x1c, 0x18, 0x14, 0x0f, 0x0a, 0x05, 0x02}, /* 11, -5.5dB */
+	{0x1b, 0x1a, 0x17, 0x13, 0x0e, 0x09, 0x04, 0x02}, /* 12, -6.0dB */
+	{0x1a, 0x19, 0x16, 0x12, 0x0d, 0x09, 0x04, 0x02}, /* 13, -6.5dB */
+	{0x18, 0x17, 0x15, 0x11, 0x0c, 0x08, 0x04, 0x02}, /* 14, -7.0dB */
+	{0x17, 0x16, 0x13, 0x10, 0x0c, 0x08, 0x04, 0x02}, /* 15, -7.5dB */
+	{0x16, 0x15, 0x12, 0x0f, 0x0b, 0x07, 0x04, 0x01}, /* 16, -8.0dB */
+	{0x14, 0x14, 0x11, 0x0e, 0x0b, 0x07, 0x03, 0x02}, /* 17, -8.5dB */
+	{0x13, 0x13, 0x10, 0x0d, 0x0a, 0x06, 0x03, 0x01}, /* 18, -9.0dB */
+	{0x12, 0x12, 0x0f, 0x0c, 0x09, 0x06, 0x03, 0x01}, /* 19, -9.5dB */
+	{0x11, 0x11, 0x0f, 0x0c, 0x09, 0x06, 0x03, 0x01}, /* 20, -10.0dB */
+	{0x10, 0x10, 0x0e, 0x0b, 0x08, 0x05, 0x03, 0x01}, /* 21, -10.5dB */
+	{0x0f, 0x0f, 0x0d, 0x0b, 0x08, 0x05, 0x03, 0x01}, /* 22, -11.0dB */
+	{0x0e, 0x0e, 0x0c, 0x0a, 0x08, 0x05, 0x02, 0x01}, /* 23, -11.5dB */
+	{0x0d, 0x0d, 0x0c, 0x0a, 0x07, 0x05, 0x02, 0x01}, /* 24, -12.0dB */
+	{0x0d, 0x0c, 0x0b, 0x09, 0x07, 0x04, 0x02, 0x01}, /* 25, -12.5dB */
+	{0x0c, 0x0c, 0x0a, 0x09, 0x06, 0x04, 0x02, 0x01}, /* 26, -13.0dB */
+	{0x0b, 0x0b, 0x0a, 0x08, 0x06, 0x04, 0x02, 0x01}, /* 27, -13.5dB */
+	{0x0b, 0x0a, 0x09, 0x08, 0x06, 0x04, 0x02, 0x01}, /* 28, -14.0dB */
+	{0x0a, 0x0a, 0x09, 0x07, 0x05, 0x03, 0x02, 0x01}, /* 29, -14.5dB */
+	{0x0a, 0x09, 0x08, 0x07, 0x05, 0x03, 0x02, 0x01}, /* 30, -15.0dB */
+	{0x09, 0x09, 0x08, 0x06, 0x05, 0x03, 0x01, 0x01}, /* 31, -15.5dB */
+	{0x09, 0x08, 0x07, 0x06, 0x04, 0x03, 0x01, 0x01}  /* 32, -16.0dB */
 };
 
 static const u8 cckswing_table_ch14[CCK_TABLE_SIZE][8] = {
-	{0x36, 0x35, 0x2e, 0x1b, 0x00, 0x00, 0x00, 0x00},	/* 0, +0dB */
-	{0x33, 0x32, 0x2b, 0x19, 0x00, 0x00, 0x00, 0x00},	/* 1, -0.5dB */
-	{0x30, 0x2f, 0x29, 0x18, 0x00, 0x00, 0x00, 0x00},	/* 2, -1.0dB */
-	{0x2d, 0x2d, 0x17, 0x17, 0x00, 0x00, 0x00, 0x00},	/* 3, -1.5dB */
-	{0x2b, 0x2a, 0x25, 0x15, 0x00, 0x00, 0x00, 0x00},	/* 4, -2.0dB */
-	{0x28, 0x28, 0x24, 0x14, 0x00, 0x00, 0x00, 0x00},	/* 5, -2.5dB */
-	{0x26, 0x25, 0x21, 0x13, 0x00, 0x00, 0x00, 0x00},	/* 6, -3.0dB */
-	{0x24, 0x23, 0x1f, 0x12, 0x00, 0x00, 0x00, 0x00},	/* 7, -3.5dB */
-	{0x22, 0x21, 0x1d, 0x11, 0x00, 0x00, 0x00, 0x00},	/* 8, -4.0dB */
-	{0x20, 0x20, 0x1b, 0x10, 0x00, 0x00, 0x00, 0x00},	/* 9, -4.5dB */
-	{0x1f, 0x1e, 0x1a, 0x0f, 0x00, 0x00, 0x00, 0x00},	/* 10, -5.0dB */
-	{0x1d, 0x1c, 0x18, 0x0e, 0x00, 0x00, 0x00, 0x00},	/* 11, -5.5dB */
-	{0x1b, 0x1a, 0x17, 0x0e, 0x00, 0x00, 0x00, 0x00},	/* 12, -6.0dB */
-	{0x1a, 0x19, 0x16, 0x0d, 0x00, 0x00, 0x00, 0x00},	/* 13, -6.5dB */
-	{0x18, 0x17, 0x15, 0x0c, 0x00, 0x00, 0x00, 0x00},	/* 14, -7.0dB */
-	{0x17, 0x16, 0x13, 0x0b, 0x00, 0x00, 0x00, 0x00},	/* 15, -7.5dB */
-	{0x16, 0x15, 0x12, 0x0b, 0x00, 0x00, 0x00, 0x00},	/* 16, -8.0dB */
-	{0x14, 0x14, 0x11, 0x0a, 0x00, 0x00, 0x00, 0x00},	/* 17, -8.5dB */
-	{0x13, 0x13, 0x10, 0x0a, 0x00, 0x00, 0x00, 0x00},	/* 18, -9.0dB */
-	{0x12, 0x12, 0x0f, 0x09, 0x00, 0x00, 0x00, 0x00},	/* 19, -9.5dB */
-	{0x11, 0x11, 0x0f, 0x09, 0x00, 0x00, 0x00, 0x00},	/* 20, -10.0dB */
-	{0x10, 0x10, 0x0e, 0x08, 0x00, 0x00, 0x00, 0x00},	/* 21, -10.5dB */
-	{0x0f, 0x0f, 0x0d, 0x08, 0x00, 0x00, 0x00, 0x00},	/* 22, -11.0dB */
-	{0x0e, 0x0e, 0x0c, 0x07, 0x00, 0x00, 0x00, 0x00},	/* 23, -11.5dB */
-	{0x0d, 0x0d, 0x0c, 0x07, 0x00, 0x00, 0x00, 0x00},	/* 24, -12.0dB */
-	{0x0d, 0x0c, 0x0b, 0x06, 0x00, 0x00, 0x00, 0x00},	/* 25, -12.5dB */
-	{0x0c, 0x0c, 0x0a, 0x06, 0x00, 0x00, 0x00, 0x00},	/* 26, -13.0dB */
-	{0x0b, 0x0b, 0x0a, 0x06, 0x00, 0x00, 0x00, 0x00},	/* 27, -13.5dB */
-	{0x0b, 0x0a, 0x09, 0x05, 0x00, 0x00, 0x00, 0x00},	/* 28, -14.0dB */
-	{0x0a, 0x0a, 0x09, 0x05, 0x00, 0x00, 0x00, 0x00},	/* 29, -14.5dB */
-	{0x0a, 0x09, 0x08, 0x05, 0x00, 0x00, 0x00, 0x00},	/* 30, -15.0dB */
-	{0x09, 0x09, 0x08, 0x05, 0x00, 0x00, 0x00, 0x00},	/* 31, -15.5dB */
-	{0x09, 0x08, 0x07, 0x04, 0x00, 0x00, 0x00, 0x00}	/* 32, -16.0dB */
+	{0x36, 0x35, 0x2e, 0x1b, 0x00, 0x00, 0x00, 0x00}, /* 0, +0dB */
+	{0x33, 0x32, 0x2b, 0x19, 0x00, 0x00, 0x00, 0x00}, /* 1, -0.5dB */
+	{0x30, 0x2f, 0x29, 0x18, 0x00, 0x00, 0x00, 0x00}, /* 2, -1.0dB */
+	{0x2d, 0x2d, 0x17, 0x17, 0x00, 0x00, 0x00, 0x00}, /* 3, -1.5dB */
+	{0x2b, 0x2a, 0x25, 0x15, 0x00, 0x00, 0x00, 0x00}, /* 4, -2.0dB */
+	{0x28, 0x28, 0x24, 0x14, 0x00, 0x00, 0x00, 0x00}, /* 5, -2.5dB */
+	{0x26, 0x25, 0x21, 0x13, 0x00, 0x00, 0x00, 0x00}, /* 6, -3.0dB */
+	{0x24, 0x23, 0x1f, 0x12, 0x00, 0x00, 0x00, 0x00}, /* 7, -3.5dB */
+	{0x22, 0x21, 0x1d, 0x11, 0x00, 0x00, 0x00, 0x00}, /* 8, -4.0dB */
+	{0x20, 0x20, 0x1b, 0x10, 0x00, 0x00, 0x00, 0x00}, /* 9, -4.5dB */
+	{0x1f, 0x1e, 0x1a, 0x0f, 0x00, 0x00, 0x00, 0x00}, /* 10, -5.0dB */
+	{0x1d, 0x1c, 0x18, 0x0e, 0x00, 0x00, 0x00, 0x00}, /* 11, -5.5dB */
+	{0x1b, 0x1a, 0x17, 0x0e, 0x00, 0x00, 0x00, 0x00}, /* 12, -6.0dB */
+	{0x1a, 0x19, 0x16, 0x0d, 0x00, 0x00, 0x00, 0x00}, /* 13, -6.5dB */
+	{0x18, 0x17, 0x15, 0x0c, 0x00, 0x00, 0x00, 0x00}, /* 14, -7.0dB */
+	{0x17, 0x16, 0x13, 0x0b, 0x00, 0x00, 0x00, 0x00}, /* 15, -7.5dB */
+	{0x16, 0x15, 0x12, 0x0b, 0x00, 0x00, 0x00, 0x00}, /* 16, -8.0dB */
+	{0x14, 0x14, 0x11, 0x0a, 0x00, 0x00, 0x00, 0x00}, /* 17, -8.5dB */
+	{0x13, 0x13, 0x10, 0x0a, 0x00, 0x00, 0x00, 0x00}, /* 18, -9.0dB */
+	{0x12, 0x12, 0x0f, 0x09, 0x00, 0x00, 0x00, 0x00}, /* 19, -9.5dB */
+	{0x11, 0x11, 0x0f, 0x09, 0x00, 0x00, 0x00, 0x00}, /* 20, -10.0dB */
+	{0x10, 0x10, 0x0e, 0x08, 0x00, 0x00, 0x00, 0x00}, /* 21, -10.5dB */
+	{0x0f, 0x0f, 0x0d, 0x08, 0x00, 0x00, 0x00, 0x00}, /* 22, -11.0dB */
+	{0x0e, 0x0e, 0x0c, 0x07, 0x00, 0x00, 0x00, 0x00}, /* 23, -11.5dB */
+	{0x0d, 0x0d, 0x0c, 0x07, 0x00, 0x00, 0x00, 0x00}, /* 24, -12.0dB */
+	{0x0d, 0x0c, 0x0b, 0x06, 0x00, 0x00, 0x00, 0x00}, /* 25, -12.5dB */
+	{0x0c, 0x0c, 0x0a, 0x06, 0x00, 0x00, 0x00, 0x00}, /* 26, -13.0dB */
+	{0x0b, 0x0b, 0x0a, 0x06, 0x00, 0x00, 0x00, 0x00}, /* 27, -13.5dB */
+	{0x0b, 0x0a, 0x09, 0x05, 0x00, 0x00, 0x00, 0x00}, /* 28, -14.0dB */
+	{0x0a, 0x0a, 0x09, 0x05, 0x00, 0x00, 0x00, 0x00}, /* 29, -14.5dB */
+	{0x0a, 0x09, 0x08, 0x05, 0x00, 0x00, 0x00, 0x00}, /* 30, -15.0dB */
+	{0x09, 0x09, 0x08, 0x05, 0x00, 0x00, 0x00, 0x00}, /* 31, -15.5dB */
+	{0x09, 0x08, 0x07, 0x04, 0x00, 0x00, 0x00, 0x00}  /* 32, -16.0dB */
 };
 
-#define 	CALCULATE_SWINGTALBE_OFFSET(_offset, _direction, _size, _deltaThermal) \
-					do {\
-						for(_offset = 0; _offset < _size; _offset++)\
-						{\
-							if(_deltaThermal < thermal_threshold[_direction][_offset])\
-							{\
-								if(_offset != 0)\
-									_offset--;\
-								break;\
-							}\
-						}			\
-						if(_offset >= _size)\
-							_offset = _size-1;\
-					} while(0)
-
-static void rtl92ee_set_iqk_matrix(struct ieee80211_hw *hw,
-	u8 ofdm_index,
-	u8 rfpath,
-	long iqk_result_x,
-	long iqk_result_y)
-{
-	long ele_a = 0, ele_d, ele_c = 0, value32;
-
-	ele_d = (ofdmswing_table[ofdm_index] & 0xFFC00000)>>22;
-
-	if (iqk_result_x != 0){
-		if ((iqk_result_x & 0x00000200) != 0)
-			iqk_result_x = iqk_result_x | 0xFFFFFC00;
-		ele_a = ((iqk_result_x * ele_d)>>8)&0x000003FF;
-
-		if ((iqk_result_y & 0x00000200) != 0)
-			iqk_result_y = iqk_result_y | 0xFFFFFC00;
-		ele_c = ((iqk_result_y * ele_d)>>8)&0x000003FF;
-
-		switch (rfpath){
-			case RF90_PATH_A:
-				value32 = (ele_d << 22)|((ele_c & 0x3F)<<16) | ele_a;
-				rtl_set_bbreg(hw, ROFDM0_XATXIQIMBALANCE, MASKDWORD, value32);
-				value32 = (ele_c & 0x000003C0) >> 6;
-				rtl_set_bbreg(hw, ROFDM0_XCTXAFE, MASKH4BITS, value32);
-				value32 = ((iqk_result_x * ele_d) >> 7) & 0x01;
-				rtl_set_bbreg(hw, ROFDM0_ECCATHRESHOLD, BIT(24), value32);
-				break;
-			case RF90_PATH_B:
-				value32 = (ele_d << 22)|((ele_c & 0x3F)<<16) | ele_a;
-				rtl_set_bbreg(hw, ROFDM0_XBTXIQIMBALANCE, MASKDWORD, value32);
-				value32 = (ele_c & 0x000003C0) >> 6;
-				rtl_set_bbreg(hw, ROFDM0_XDTXAFE, MASKH4BITS, value32);
-				value32 = ((iqk_result_x * ele_d) >> 7) & 0x01;
-				rtl_set_bbreg(hw, ROFDM0_ECCATHRESHOLD, BIT(28), value32);
-				break;
-			default:
-				break;
-		}
-	} else {
-		switch (rfpath){
-			case RF90_PATH_A:
-				rtl_set_bbreg(hw, ROFDM0_XATXIQIMBALANCE, MASKDWORD, ofdmswing_table[ofdm_index]);
-				rtl_set_bbreg(hw, ROFDM0_XCTXAFE, MASKH4BITS, 0x00);
-				rtl_set_bbreg(hw, ROFDM0_ECCATHRESHOLD, BIT(24), 0x00);
-				break;
-			case RF90_PATH_B:
-				rtl_set_bbreg(hw, ROFDM0_XBTXIQIMBALANCE, MASKDWORD, ofdmswing_table[ofdm_index]);
-				rtl_set_bbreg(hw, ROFDM0_XDTXAFE, MASKH4BITS, 0x00);
-				rtl_set_bbreg(hw, ROFDM0_ECCATHRESHOLD, BIT(28), 0x00);
-				break;
-			default:
-				break;
-		}
-	}
-}
-
-void rtl92ee_dm_txpower_track_adjust(struct ieee80211_hw *hw,
-	u8 type,u8 *pdirection, u32 *poutwrite_val)
-{
-	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	struct rtl_dm *rtldm = rtl_dm(rtl_priv(hw));
-	u8 pwr_val = 0;
-
-	if (type == 0){
-		if (rtlpriv->dm.bb_swing_idx_ofdm[RF90_PATH_A] <=
-			rtlpriv->dm.bb_swing_idx_ofdm_base) {
-			*pdirection = 1;
-			pwr_val = rtldm->bb_swing_idx_ofdm_base - rtldm->bb_swing_idx_ofdm[RF90_PATH_A];
-		} else {
-			*pdirection = 2;
-			pwr_val = rtldm->bb_swing_idx_ofdm[RF90_PATH_A] - rtldm->bb_swing_idx_ofdm_base;
-		}
-	} else if (type ==1) {
-		if (rtldm->bb_swing_idx_cck <= rtldm->bb_swing_idx_cck_base) {
-			*pdirection = 1;
-			pwr_val = rtldm->bb_swing_idx_cck_base - rtldm->bb_swing_idx_cck;
-		} else {
-			*pdirection = 2;
-			pwr_val = rtldm->bb_swing_idx_cck - rtldm->bb_swing_idx_cck_base;
-		}
-	}
-
-	if (pwr_val >= TXPWRTRACK_MAX_IDX && (*pdirection == 1))
-		pwr_val = TXPWRTRACK_MAX_IDX;
-
-	*poutwrite_val = pwr_val |(pwr_val << 8)|(pwr_val << 16) | (pwr_val << 24);
-}
-
-
-static void rtl92ee_dm_tx_power_track_set_power(struct ieee80211_hw *hw,
-	enum pwr_track_control_method method,
-	u8 rfpath,
-	u8 channel_mapped_index)
-{
-	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	struct rtl_phy *rtlphy = &(rtlpriv->phy);
-	struct rtl_dm *rtldm = rtl_dm(rtl_priv(hw));
-
-	if (method == TXAGC) {
-		if (rtldm->bb_swing_flag_Ofdm == true || rtldm->bb_swing_flag_cck == true) {
-			rtl92ee_phy_set_txpower_level(hw,rtlphy->current_channel);
-			rtldm->bb_swing_flag_Ofdm = false;
-			rtldm->bb_swing_flag_cck = false;
-		}
-	} else if (method == BBSWING) {
-		if (!rtldm->b_cck_inch14) {
-			rtl_write_byte(rtlpriv, 0xa22, cckswing_table_ch1ch13[rtldm->bb_swing_idx_cck][0]);
-			rtl_write_byte(rtlpriv, 0xa23, cckswing_table_ch1ch13[rtldm->bb_swing_idx_cck][1]);
-			rtl_write_byte(rtlpriv, 0xa24, cckswing_table_ch1ch13[rtldm->bb_swing_idx_cck][2]);
-			rtl_write_byte(rtlpriv, 0xa25, cckswing_table_ch1ch13[rtldm->bb_swing_idx_cck][3]);
-			rtl_write_byte(rtlpriv, 0xa26, cckswing_table_ch1ch13[rtldm->bb_swing_idx_cck][4]);
-			rtl_write_byte(rtlpriv, 0xa27, cckswing_table_ch1ch13[rtldm->bb_swing_idx_cck][5]);
-			rtl_write_byte(rtlpriv, 0xa28, cckswing_table_ch1ch13[rtldm->bb_swing_idx_cck][6]);
-			rtl_write_byte(rtlpriv, 0xa29, cckswing_table_ch1ch13[rtldm->bb_swing_idx_cck][7]);
-		} else{
-			rtl_write_byte(rtlpriv, 0xa22, cckswing_table_ch14[rtldm->bb_swing_idx_cck][0]);
-			rtl_write_byte(rtlpriv, 0xa23, cckswing_table_ch14[rtldm->bb_swing_idx_cck][1]);
-			rtl_write_byte(rtlpriv, 0xa24, cckswing_table_ch14[rtldm->bb_swing_idx_cck][2]);
-			rtl_write_byte(rtlpriv, 0xa25, cckswing_table_ch14[rtldm->bb_swing_idx_cck][3]);
-			rtl_write_byte(rtlpriv, 0xa26, cckswing_table_ch14[rtldm->bb_swing_idx_cck][4]);
-			rtl_write_byte(rtlpriv, 0xa27, cckswing_table_ch14[rtldm->bb_swing_idx_cck][5]);
-			rtl_write_byte(rtlpriv, 0xa28, cckswing_table_ch14[rtldm->bb_swing_idx_cck][6]);
-			rtl_write_byte(rtlpriv, 0xa29, cckswing_table_ch14[rtldm->bb_swing_idx_cck][7]);
-		}
-
-		if (rfpath == RF90_PATH_A){
-			rtl92ee_set_iqk_matrix(hw, rtldm->bb_swing_idx_ofdm[rfpath], rfpath,
-				rtlphy->iqk_matrix_regsetting[channel_mapped_index].value[0][0],
-				rtlphy->iqk_matrix_regsetting[channel_mapped_index].value[0][1]);
-		} else if (rfpath == RF90_PATH_B) {
-			rtl92ee_set_iqk_matrix(hw, rtldm->bb_swing_idx_ofdm[rfpath], rfpath,
-				rtlphy->iqk_matrix_regsetting[channel_mapped_index].value[0][4],
-				rtlphy->iqk_matrix_regsetting[channel_mapped_index].value[0][5]);
-		}
-	} else {
-		return;
-	}
-}
 static void rtl92ee_dm_diginit(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	dm_digtable.dig_enable_flag = true;
-	dm_digtable.cur_igvalue = rtl_get_bbreg(hw, ROFDM0_XAAGCCORE1, 0x7f);
-	dm_digtable.pre_igvalue = 0;
-	dm_digtable.cursta_connectctate = DIG_STA_DISCONNECT;
-	dm_digtable.presta_connectstate = DIG_STA_DISCONNECT;
-	dm_digtable.curmultista_connectstate = DIG_MULTISTA_DISCONNECT;
-	dm_digtable.rssi_lowthresh = DM_DIG_THRESH_LOW;
-	dm_digtable.rssi_highthresh = DM_DIG_THRESH_HIGH;
-	dm_digtable.fa_lowthresh = DM_FALSEALARM_THRESH_LOW;
-	dm_digtable.fa_highthresh = DM_FALSEALARM_THRESH_HIGH;
-	dm_digtable.rx_gain_range_max = DM_DIG_MAX;
-	dm_digtable.rx_gain_range_min = DM_DIG_MIN;
-	dm_digtable.backoff_val = DM_DIG_BACKOFF_DEFAULT;
-	dm_digtable.backoff_val_range_max = DM_DIG_BACKOFF_MAX;
-	dm_digtable.backoff_val_range_min = DM_DIG_BACKOFF_MIN;
-	dm_digtable.pre_cck_cca_thres = 0xff;
-	dm_digtable.cur_cck_cca_thres = 0x83;
-	dm_digtable.forbidden_igi = DM_DIG_MIN;
-	dm_digtable.large_fa_hit = 0;
-	dm_digtable.recover_cnt = 0;
-	dm_digtable.dig_dynamic_min_0 = 0x25;
-	dm_digtable.dig_dynamic_min_1 = 0x25;
-	dm_digtable.b_media_connect_0 = false;
-	dm_digtable.b_media_connect_1 = false;
-	rtlpriv->dm.b_dm_initialgain_enable = true;
-}
+	struct dig_t *dm_dig = &rtlpriv->dm_digtable;
 
-static u8 rtl92ee_dm_initial_gain_min_pwdb(struct ieee80211_hw *hw)
-{
-	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	long rssi_val_min = 0;
-
-	if ((dm_digtable.curmultista_connectstate == DIG_MULTISTA_CONNECT) &&
-	    (dm_digtable.cursta_connectctate == DIG_STA_CONNECT)) {
-		if (rtlpriv->dm.entry_min_undecoratedsmoothed_pwdb != 0)
-			rssi_val_min =
-			    (rtlpriv->dm.entry_min_undecoratedsmoothed_pwdb >
-			     rtlpriv->dm.undecorated_smoothed_pwdb) ?
-			    rtlpriv->dm.undecorated_smoothed_pwdb :
-			    rtlpriv->dm.entry_min_undecoratedsmoothed_pwdb;
-		else
-			rssi_val_min = rtlpriv->dm.undecorated_smoothed_pwdb;
-	} else if (dm_digtable.cursta_connectctate == DIG_STA_CONNECT ||
-		   dm_digtable.cursta_connectctate == DIG_STA_BEFORE_CONNECT) {
-		rssi_val_min = rtlpriv->dm.undecorated_smoothed_pwdb;
-	} else if (dm_digtable.curmultista_connectstate ==
-		DIG_MULTISTA_CONNECT) {
-		rssi_val_min = rtlpriv->dm.entry_min_undecoratedsmoothed_pwdb;
-	}
-
-	return (u8) rssi_val_min;
+	dm_dig->cur_igvalue = rtl_get_bbreg(hw, DM_REG_IGI_A_11N,
+					    DM_BIT_IGI_11N);
+	dm_dig->rssi_lowthresh = DM_DIG_THRESH_LOW;
+	dm_dig->rssi_highthresh = DM_DIG_THRESH_HIGH;
+	dm_dig->fa_lowthresh = DM_FALSEALARM_THRESH_LOW;
+	dm_dig->fa_highthresh = DM_FALSEALARM_THRESH_HIGH;
+	dm_dig->rx_gain_max = DM_DIG_MAX;
+	dm_dig->rx_gain_min = DM_DIG_MIN;
+	dm_dig->back_val = DM_DIG_BACKOFF_DEFAULT;
+	dm_dig->back_range_max = DM_DIG_BACKOFF_MAX;
+	dm_dig->back_range_min = DM_DIG_BACKOFF_MIN;
+	dm_dig->pre_cck_cca_thres = 0xff;
+	dm_dig->cur_cck_cca_thres = 0x83;
+	dm_dig->forbidden_igi = DM_DIG_MIN;
+	dm_dig->large_fa_hit = 0;
+	dm_dig->recover_cnt = 0;
+	dm_dig->dig_dynamic_min_0 = DM_DIG_MIN;
+	dm_dig->dig_dynamic_min_1 = DM_DIG_MIN;
+	dm_dig->media_connect_0 = false;
+	dm_dig->media_connect_1 = false;
+	rtlpriv->dm.dm_initialgain_enable = true;
+	dm_dig->bt30_cur_igi = 0x32;
 }
 
 static void rtl92ee_dm_false_alarm_counter_statistics(struct ieee80211_hw *hw)
@@ -374,787 +190,774 @@ static void rtl92ee_dm_false_alarm_counter_statistics(struct ieee80211_hw *hw)
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct false_alarm_statistics *falsealm_cnt = &(rtlpriv->falsealm_cnt);
 
-	rtl_set_bbreg(hw, ROFDM0_LSTF, BIT(31), 1);
-	rtl_set_bbreg(hw, ROFDM1_LSTF, BIT(31), 1);
+	rtl_set_bbreg(hw, DM_REG_OFDM_FA_HOLDC_11N, BIT(31), 1);
+	rtl_set_bbreg(hw, DM_REG_OFDM_FA_RSTD_11N, BIT(31), 1);
 
-	ret_value = rtl_get_bbreg(hw, ROFDM0_FRAMESYNC, MASKDWORD);
-	falsealm_cnt->cnt_fast_fsync_fail = (ret_value&0xffff);
-	falsealm_cnt->cnt_sb_search_fail = ((ret_value&0xffff0000)>>16);
+	ret_value = rtl_get_bbreg(hw, DM_REG_OFDM_FA_TYPE1_11N, MASKDWORD);
+	falsealm_cnt->cnt_fast_fsync_fail = (ret_value & 0xffff);
+	falsealm_cnt->cnt_sb_search_fail = ((ret_value & 0xffff0000) >> 16);
 
-	ret_value = rtl_get_bbreg(hw, ROFDM_PHYCOUNTER1, MASKDWORD);
-	falsealm_cnt->cnt_ofdm_cca = (ret_value&0xffff);
+	ret_value = rtl_get_bbreg(hw, DM_REG_OFDM_FA_TYPE2_11N, MASKDWORD);
+	falsealm_cnt->cnt_ofdm_cca = (ret_value & 0xffff);
 	falsealm_cnt->cnt_parity_fail = ((ret_value & 0xffff0000) >> 16);
 
-	ret_value = rtl_get_bbreg(hw, ROFDM_PHYCOUNTER2, MASKDWORD);
+	ret_value = rtl_get_bbreg(hw, DM_REG_OFDM_FA_TYPE3_11N, MASKDWORD);
 	falsealm_cnt->cnt_rate_illegal = (ret_value & 0xffff);
 	falsealm_cnt->cnt_crc8_fail = ((ret_value & 0xffff0000) >> 16);
 
-	ret_value = rtl_get_bbreg(hw, ROFDM_PHYCOUNTER3, MASKDWORD);
+	ret_value = rtl_get_bbreg(hw, DM_REG_OFDM_FA_TYPE4_11N, MASKDWORD);
 	falsealm_cnt->cnt_mcs_fail = (ret_value & 0xffff);
-	falsealm_cnt->cnt_ofdm_fail = falsealm_cnt->cnt_parity_fail +
-	falsealm_cnt->cnt_rate_illegal +falsealm_cnt->cnt_crc8_fail +
-	falsealm_cnt->cnt_mcs_fail + falsealm_cnt->cnt_fast_fsync_fail + falsealm_cnt->cnt_sb_search_fail;
 
-	ret_value = rtl_get_bbreg(hw, REG_SC_CNT, MASKDWORD);
-	falsealm_cnt->cnt_bw_lsc= (ret_value & 0xffff);
+	falsealm_cnt->cnt_ofdm_fail = falsealm_cnt->cnt_parity_fail +
+				      falsealm_cnt->cnt_rate_illegal +
+				      falsealm_cnt->cnt_crc8_fail +
+				      falsealm_cnt->cnt_mcs_fail +
+				      falsealm_cnt->cnt_fast_fsync_fail +
+				      falsealm_cnt->cnt_sb_search_fail;
+
+	ret_value = rtl_get_bbreg(hw, DM_REG_SC_CNT_11N, MASKDWORD);
+	falsealm_cnt->cnt_bw_lsc = (ret_value & 0xffff);
 	falsealm_cnt->cnt_bw_usc = ((ret_value & 0xffff0000) >> 16);
 
-	rtl_set_bbreg(hw, RCCK0_FALSEALARMREPORT, BIT(12), 1);
-	rtl_set_bbreg(hw, RCCK0_FALSEALARMREPORT, BIT(14), 1);
+	rtl_set_bbreg(hw, DM_REG_CCK_FA_RST_11N, BIT(12), 1);
+	rtl_set_bbreg(hw, DM_REG_CCK_FA_RST_11N, BIT(14), 1);
 
-	ret_value = rtl_get_bbreg(hw, RCCK0_FACOUNTERLOWER, MASKBYTE0);
+	ret_value = rtl_get_bbreg(hw, DM_REG_CCK_FA_LSB_11N, MASKBYTE0);
 	falsealm_cnt->cnt_cck_fail = ret_value;
 
-	ret_value = rtl_get_bbreg(hw, RCCK0_FACOUNTERUPPER, MASKBYTE3);
+	ret_value = rtl_get_bbreg(hw, DM_REG_CCK_FA_MSB_11N, MASKBYTE3);
 	falsealm_cnt->cnt_cck_fail += (ret_value & 0xff) << 8;
 
-	ret_value = rtl_get_bbreg(hw, RCCK0_CCA_CNT, MASKDWORD);
-	falsealm_cnt->cnt_cck_cca = ((ret_value & 0xff) << 8) | ((ret_value&0xFF00)>>8);
+	ret_value = rtl_get_bbreg(hw, DM_REG_CCK_CCA_CNT_11N, MASKDWORD);
+	falsealm_cnt->cnt_cck_cca = ((ret_value & 0xff) << 8) |
+				    ((ret_value & 0xFF00) >> 8);
 
-	falsealm_cnt->cnt_all = ( falsealm_cnt->cnt_fast_fsync_fail +
+	falsealm_cnt->cnt_all = falsealm_cnt->cnt_fast_fsync_fail +
 				falsealm_cnt->cnt_sb_search_fail +
 				falsealm_cnt->cnt_parity_fail +
 				falsealm_cnt->cnt_rate_illegal +
 				falsealm_cnt->cnt_crc8_fail +
 				falsealm_cnt->cnt_mcs_fail +
-				falsealm_cnt->cnt_cck_fail);
-	falsealm_cnt->cnt_cca_all = falsealm_cnt->cnt_ofdm_cca + falsealm_cnt->cnt_cck_cca;
+				falsealm_cnt->cnt_cck_fail;
+
+	falsealm_cnt->cnt_cca_all = falsealm_cnt->cnt_ofdm_cca +
+				    falsealm_cnt->cnt_cck_cca;
+
+	/*reset false alarm counter registers*/
+	rtl_set_bbreg(hw, DM_REG_OFDM_FA_RSTC_11N, BIT(31), 1);
+	rtl_set_bbreg(hw, DM_REG_OFDM_FA_RSTC_11N, BIT(31), 0);
+	rtl_set_bbreg(hw, DM_REG_OFDM_FA_RSTD_11N, BIT(27), 1);
+	rtl_set_bbreg(hw, DM_REG_OFDM_FA_RSTD_11N, BIT(27), 0);
+	/*update ofdm counter*/
+	rtl_set_bbreg(hw, DM_REG_OFDM_FA_HOLDC_11N, BIT(31), 0);
+	rtl_set_bbreg(hw, DM_REG_OFDM_FA_RSTD_11N, BIT(31), 0);
+	/*reset CCK CCA counter*/
+	rtl_set_bbreg(hw, DM_REG_CCK_FA_RST_11N, BIT(13) | BIT(12), 0);
+	rtl_set_bbreg(hw, DM_REG_CCK_FA_RST_11N, BIT(13) | BIT(12), 2);
+	/*reset CCK FA counter*/
+	rtl_set_bbreg(hw, DM_REG_CCK_FA_RST_11N, BIT(15) | BIT(14), 0);
+	rtl_set_bbreg(hw, DM_REG_CCK_FA_RST_11N, BIT(15) | BIT(14), 2);
 
 
-	rtl_set_bbreg(hw, ROFDM0_TRSWISOLATION, BIT(31), 1);
-	rtl_set_bbreg(hw, ROFDM0_TRSWISOLATION, BIT(31), 0);
-	rtl_set_bbreg(hw, ROFDM1_LSTF, BIT(27), 1);
-	rtl_set_bbreg(hw, ROFDM1_LSTF, BIT(27), 0);
-	rtl_set_bbreg(hw, ROFDM0_LSTF, BIT(31), 0);
-	rtl_set_bbreg(hw, ROFDM1_LSTF, BIT(31), 0);
-	rtl_set_bbreg(hw, RCCK0_FALSEALARMREPORT, BIT(13)|BIT(12), 0);
-	rtl_set_bbreg(hw, RCCK0_FALSEALARMREPORT, BIT(13)|BIT(12), 2);
-	rtl_set_bbreg(hw, RCCK0_FALSEALARMREPORT, BIT(15)|BIT(14), 0);
-	rtl_set_bbreg(hw, RCCK0_FALSEALARMREPORT, BIT(15)|BIT(14), 2);
-
-
-	RT_TRACE(COMP_DIG, DBG_TRACE,
-		 ("cnt_parity_fail = %d, cnt_rate_illegal = %d, "
-		  "cnt_crc8_fail = %d, cnt_mcs_fail = %d\n",
+	RT_TRACE(rtlpriv, COMP_DIG, DBG_TRACE,
+		 "cnt_parity_fail = %d, cnt_rate_illegal = %d, cnt_crc8_fail = %d, cnt_mcs_fail = %d\n",
 		  falsealm_cnt->cnt_parity_fail,
 		  falsealm_cnt->cnt_rate_illegal,
-		  falsealm_cnt->cnt_crc8_fail, falsealm_cnt->cnt_mcs_fail));
+		  falsealm_cnt->cnt_crc8_fail, falsealm_cnt->cnt_mcs_fail);
 
-	RT_TRACE(COMP_DIG, DBG_TRACE,
-		 ("cnt_ofdm_fail = %x, cnt_cck_fail = %x, cnt_all = %x\n",
+	RT_TRACE(rtlpriv, COMP_DIG, DBG_TRACE,
+		 "cnt_ofdm_fail = %x, cnt_cck_fail = %x, cnt_all = %x\n",
 		  falsealm_cnt->cnt_ofdm_fail,
-		  falsealm_cnt->cnt_cck_fail, falsealm_cnt->cnt_all));
+		  falsealm_cnt->cnt_cck_fail, falsealm_cnt->cnt_all);
 }
 
 static void rtl92ee_dm_cck_packet_detection_thresh(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
+	struct dig_t *dm_dig = &rtlpriv->dm_digtable;
 	u8 cur_cck_cca_thresh;
 
-	if (dm_digtable.cursta_connectctate == DIG_STA_CONNECT) {
-		dm_digtable.rssi_val_min = rtl92ee_dm_initial_gain_min_pwdb(hw);
-		if (dm_digtable.rssi_val_min > 25)
+	if (rtlpriv->mac80211.link_state >= MAC80211_LINKED) {
+		if (dm_dig->rssi_val_min > 25) {
 			cur_cck_cca_thresh = 0xcd;
-		else if ((dm_digtable.rssi_val_min <= 25) && (dm_digtable.rssi_val_min > 10))
+		} else if ((dm_dig->rssi_val_min <= 25) &&
+			   (dm_dig->rssi_val_min > 10)) {
 			cur_cck_cca_thresh = 0x83;
-		else {
+		} else {
 			if (rtlpriv->falsealm_cnt.cnt_cck_fail > 1000)
 				cur_cck_cca_thresh = 0x83;
 			else
 				cur_cck_cca_thresh = 0x40;
 		}
-
 	} else {
 		if (rtlpriv->falsealm_cnt.cnt_cck_fail > 1000)
 			cur_cck_cca_thresh = 0x83;
 		else
 			cur_cck_cca_thresh = 0x40;
 	}
-
-	if (dm_digtable.cur_cck_cca_thres != cur_cck_cca_thresh) {
-		rtl_set_bbreg(hw, RCCK0_CCA, MASKBYTE2, cur_cck_cca_thresh);
-	}
-
-	dm_digtable.cur_cck_cca_thres = cur_cck_cca_thresh;
-	dm_digtable.pre_cck_cca_thres = dm_digtable.cur_cck_cca_thres;
-	RT_TRACE(COMP_DIG, DBG_TRACE,
-		 ("CCK cca thresh hold =%x\n", dm_digtable.cur_cck_cca_thres));
-
+	rtl92ee_dm_write_cck_cca_thres(hw, cur_cck_cca_thresh);
 }
 
 static void rtl92ee_dm_dig(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
-	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
-	u8 dig_dynamic_min,dig_maxofmin;
-	bool bfirstconnect;
+	struct dig_t *dm_dig = &rtlpriv->dm_digtable;
+	u8 dig_dynamic_min , dig_maxofmin;
+	bool bfirstconnect , bfirstdisconnect;
 	u8 dm_dig_max, dm_dig_min;
-	u8 current_igi = dm_digtable.cur_igvalue;
+	u8 current_igi = dm_dig->cur_igvalue;
+	u8 offset;
 
-	if (rtlpriv->dm.b_dm_initialgain_enable == false)
-		return;
-	if (dm_digtable.dig_enable_flag == false)
-		return;
+	/* AP,BT */
 	if (mac->act_scanning == true)
 		return;
 
-	if (mac->link_state >= MAC80211_LINKED)
-		dm_digtable.cursta_connectctate = DIG_STA_CONNECT;
-	else
-		dm_digtable.cursta_connectctate = DIG_STA_DISCONNECT;
-	if (rtlpriv->mac80211.opmode == NL80211_IFTYPE_AP ||
-	rtlpriv->mac80211.opmode == NL80211_IFTYPE_ADHOC)
-	dm_digtable.cursta_connectctate = DIG_STA_DISCONNECT;
+	dig_dynamic_min = dm_dig->dig_dynamic_min_0;
+	bfirstconnect = (mac->link_state >= MAC80211_LINKED) &&
+			(dm_dig->media_connect_0 == false);
+	bfirstdisconnect = (mac->link_state < MAC80211_LINKED) &&
+			   (dm_dig->media_connect_0 == true);
 
-	dm_dig_max = DM_DIG_MAX;
+	dm_dig_max = 0x5a;
 	dm_dig_min = DM_DIG_MIN;
 	dig_maxofmin = DM_DIG_MAX_AP;
-	dig_dynamic_min = dm_digtable.dig_dynamic_min_0;
-	bfirstconnect = ((mac->link_state >= MAC80211_LINKED) ? true :false) &&
-		(dm_digtable.b_media_connect_0 == false);
-
-	dm_digtable.rssi_val_min =
-		rtl92ee_dm_initial_gain_min_pwdb(hw);
 
 	if (mac->link_state >= MAC80211_LINKED) {
-		if ((dm_digtable.rssi_val_min +20) > dm_dig_max)
-			dm_digtable.rx_gain_range_max = dm_dig_max;
-		else if ((dm_digtable.rssi_val_min +20) < dm_dig_min)
-			dm_digtable.rx_gain_range_max = dm_dig_min;\
+		if ((dm_dig->rssi_val_min + 10) > dm_dig_max)
+			dm_dig->rx_gain_max = dm_dig_max;
+		else if ((dm_dig->rssi_val_min + 10) < dm_dig_min)
+			dm_dig->rx_gain_max = dm_dig_min;
 		else
-			dm_digtable.rx_gain_range_max = dm_digtable.rssi_val_min +20;
+			dm_dig->rx_gain_max = dm_dig->rssi_val_min + 10;
 
-		if (rtlefuse->antenna_div_type == CG_TRX_HW_ANTDIV)
-			dig_dynamic_min  = dm_digtable.antdiv_rssi_max;
-		else {
-			if (dm_digtable.rssi_val_min < dm_dig_min)
+		if (rtlpriv->dm.one_entry_only) {
+			offset = 0;
+			if (dm_dig->rssi_val_min - offset < dm_dig_min)
 				dig_dynamic_min = dm_dig_min;
-			else if (dm_digtable.rssi_val_min < dig_maxofmin)
+			else if (dm_dig->rssi_val_min - offset >
+				 dig_maxofmin)
 				dig_dynamic_min = dig_maxofmin;
 			else
-				dig_dynamic_min = dm_digtable.rssi_val_min;
+				dig_dynamic_min = dm_dig->rssi_val_min - offset;
+		} else {
+			dig_dynamic_min = dm_dig_min;
 		}
 
 	} else {
-		dm_digtable.rx_gain_range_max = dm_dig_max;
+		dm_dig->rx_gain_max = dm_dig_max;
 		dig_dynamic_min = dm_dig_min;
-		RT_TRACE(COMP_DIG, DBG_LOUD, ("no link\n"))
+		RT_TRACE(rtlpriv, COMP_DIG, DBG_LOUD, "no link\n");
 	}
 
 	if (rtlpriv->falsealm_cnt.cnt_all > 10000) {
-		dm_digtable.large_fa_hit++;
-		if (dm_digtable.forbidden_igi < current_igi) {
-			dm_digtable.forbidden_igi =current_igi;
-			dm_digtable.large_fa_hit =1;
+		if (dm_dig->large_fa_hit != 3)
+			dm_dig->large_fa_hit++;
+		if (dm_dig->forbidden_igi < current_igi) {
+			dm_dig->forbidden_igi = current_igi;
+			dm_dig->large_fa_hit = 1;
 		}
 
-		if (dm_digtable.large_fa_hit >= 3) {
-			if ((dm_digtable.forbidden_igi + 1) > dm_digtable.rx_gain_range_max)
-				dm_digtable.rx_gain_range_min = dm_digtable.rx_gain_range_max;
+		if (dm_dig->large_fa_hit >= 3) {
+			if (dm_dig->forbidden_igi + 1 > dm_dig->rx_gain_max)
+				dm_dig->rx_gain_min =
+						dm_dig->rx_gain_max;
 			else
-				dm_digtable.rx_gain_range_min = dm_digtable.forbidden_igi + 1;
-			dm_digtable.recover_cnt = 3600;
+				dm_dig->rx_gain_min =
+						dm_dig->forbidden_igi + 1;
+			dm_dig->recover_cnt = 3600;
 		}
 	} else {
-		if (dm_digtable.recover_cnt != 0)
-			dm_digtable.recover_cnt --;
-		else {
-			if (dm_digtable.large_fa_hit == 0) {
-				if ((dm_digtable.forbidden_igi - 1) < dig_dynamic_min) {
-					dm_digtable.forbidden_igi = dig_dynamic_min;
-					dm_digtable.rx_gain_range_min = dig_dynamic_min;
-				} else {
-					dm_digtable.forbidden_igi--;
-					dm_digtable.rx_gain_range_min = dm_digtable.forbidden_igi +1;
-				}
-			} else if (dm_digtable.large_fa_hit == 3)
-				dm_digtable.large_fa_hit = 0;
-
-		}
-	}
-
-	if (dm_digtable.cursta_connectctate == DIG_STA_CONNECT) {
-		if (bfirstconnect ) {
-			current_igi = dm_digtable.rssi_val_min;
+		if (dm_dig->recover_cnt != 0) {
+			dm_dig->recover_cnt--;
 		} else {
-			if (rtlpriv->falsealm_cnt.cnt_all > DM_DIG_FA_TH2)
-				current_igi += 2;
-			else if (rtlpriv->falsealm_cnt.cnt_all > DM_DIG_FA_TH1)
-				current_igi++;
-			else if (rtlpriv->falsealm_cnt.cnt_all < DM_DIG_FA_TH0)
-				current_igi--;
+			if (dm_dig->large_fa_hit < 3) {
+				if ((dm_dig->forbidden_igi - 1) <
+				    dig_dynamic_min) {
+					dm_dig->forbidden_igi = dig_dynamic_min;
+					dm_dig->rx_gain_min =
+								dig_dynamic_min;
+				} else {
+					dm_dig->forbidden_igi--;
+					dm_dig->rx_gain_min =
+						dm_dig->forbidden_igi + 1;
+				}
+			} else {
+				dm_dig->large_fa_hit = 0;
+			}
 		}
-	} else {
-		if (rtlpriv->falsealm_cnt.cnt_all > 10000)
-			current_igi += 2;
-		else if (rtlpriv->falsealm_cnt.cnt_all > 8000)
-			current_igi ++;
-		else if (rtlpriv->falsealm_cnt.cnt_all < 500)
-			current_igi--;
 	}
 
-	if (current_igi > DM_DIG_FA_UPPER)
-		current_igi = DM_DIG_FA_UPPER;
-	else if (current_igi < DM_DIG_FA_LOWER)
-		current_igi = DM_DIG_FA_LOWER;
+	if (rtlpriv->dm.dbginfo.num_qry_beacon_pkt < 5)
+		dm_dig->rx_gain_min = dm_dig_min;
 
-	if (rtlpriv->falsealm_cnt.cnt_all > 10000)
-		current_igi = DM_DIG_FA_UPPER;
-
-	dm_digtable.cur_igvalue = current_igi;
-	rtl92ee_dm_write_dig(hw);
-	dm_digtable.b_media_connect_0= ((mac->link_state >= MAC80211_LINKED) ? true :false);
-	dm_digtable.dig_dynamic_min_0 = dig_dynamic_min;
-
-	rtl92ee_dm_cck_packet_detection_thresh(hw);
-}
-
-static void rtl92ee_dm_init_dynamic_txpower(struct ieee80211_hw *hw)
-{
-	struct rtl_priv *rtlpriv = rtl_priv(hw);
-
-	rtlpriv->dm.bdynamic_txpower_enable = false;
-
-	rtlpriv->dm.last_dtp_lvl = TXHIGHPWRLEVEL_NORMAL;
-	rtlpriv->dm.dynamic_txhighpower_lvl = TXHIGHPWRLEVEL_NORMAL;
-}
-
-static void rtl92c_dm_dynamic_txpower(struct ieee80211_hw *hw)
-{
-	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	struct rtl_phy *rtlphy = &(rtlpriv->phy);
-	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
-	long undecorated_smoothed_pwdb;
-
-	if (!rtlpriv->dm.bdynamic_txpower_enable)
-		return;
-
-	if (rtlpriv->dm.dm_flag & HAL_DM_HIPWR_DISABLE) {
-		rtlpriv->dm.dynamic_txhighpower_lvl = TXHIGHPWRLEVEL_NORMAL;
-		return;
-	}
-
-	if ((mac->link_state < MAC80211_LINKED) &&
-	    (rtlpriv->dm.entry_min_undecoratedsmoothed_pwdb == 0)) {
-		RT_TRACE(COMP_POWER, DBG_TRACE,
-			 ("Not connected to any \n"));
-
-		rtlpriv->dm.dynamic_txhighpower_lvl = TXHIGHPWRLEVEL_NORMAL;
-
-		rtlpriv->dm.last_dtp_lvl = TXHIGHPWRLEVEL_NORMAL;
-		return;
-	}
+	if (dm_dig->rx_gain_min > dm_dig->rx_gain_max)
+		dm_dig->rx_gain_min = dm_dig->rx_gain_max;
 
 	if (mac->link_state >= MAC80211_LINKED) {
-		if (mac->opmode == NL80211_IFTYPE_ADHOC) {
-			undecorated_smoothed_pwdb =
-			    rtlpriv->dm.entry_min_undecoratedsmoothed_pwdb;
-			RT_TRACE(COMP_POWER, DBG_LOUD,
-				 ("AP Client PWDB = 0x%lx \n",
-				  undecorated_smoothed_pwdb));
+		if (bfirstconnect) {
+			if (dm_dig->rssi_val_min <= dig_maxofmin)
+				current_igi = dm_dig->rssi_val_min;
+			else
+				current_igi = dig_maxofmin;
+
+			dm_dig->large_fa_hit = 0;
 		} else {
-			undecorated_smoothed_pwdb =
-			    rtlpriv->dm.undecorated_smoothed_pwdb;
-			RT_TRACE(COMP_POWER, DBG_LOUD,
-				 ("STA Default Port PWDB = 0x%lx \n",
-				  undecorated_smoothed_pwdb));
+			if (rtlpriv->falsealm_cnt.cnt_all > DM_DIG_FA_TH2)
+				current_igi += 4;
+			else if (rtlpriv->falsealm_cnt.cnt_all > DM_DIG_FA_TH1)
+				current_igi += 2;
+			else if (rtlpriv->falsealm_cnt.cnt_all < DM_DIG_FA_TH0)
+				current_igi -= 2;
+
+			if (rtlpriv->dm.dbginfo.num_qry_beacon_pkt < 5 &&
+			    rtlpriv->falsealm_cnt.cnt_all < DM_DIG_FA_TH1)
+				current_igi = dm_dig->rx_gain_min;
 		}
 	} else {
-		undecorated_smoothed_pwdb =
-		    rtlpriv->dm.entry_min_undecoratedsmoothed_pwdb;
-
-		RT_TRACE(COMP_POWER, DBG_LOUD,
-			 ("AP Ext Port PWDB = 0x%lx \n",
-			  undecorated_smoothed_pwdb));
+		if (bfirstdisconnect) {
+			current_igi = dm_dig->rx_gain_min;
+		} else {
+			if (rtlpriv->falsealm_cnt.cnt_all > 10000)
+				current_igi += 4;
+			else if (rtlpriv->falsealm_cnt.cnt_all > 8000)
+				current_igi += 2;
+			else if (rtlpriv->falsealm_cnt.cnt_all < 500)
+				current_igi -= 2;
+		}
 	}
 
-	if (undecorated_smoothed_pwdb >= TX_POWER_NEAR_FIELD_THRESH_LVL2) {
-		rtlpriv->dm.dynamic_txhighpower_lvl = TXHIGHPWRLEVEL_LEVEL1;
-		RT_TRACE(COMP_POWER, DBG_LOUD,
-			 ("TXHIGHPWRLEVEL_LEVEL1 (TxPwr=0x0)\n"));
-	} else if ((undecorated_smoothed_pwdb <
-		    (TX_POWER_NEAR_FIELD_THRESH_LVL2 - 3)) &&
-		   (undecorated_smoothed_pwdb >=
-		    TX_POWER_NEAR_FIELD_THRESH_LVL1)) {
+	if (current_igi > dm_dig->rx_gain_max)
+		current_igi = dm_dig->rx_gain_max;
+	if (current_igi < dm_dig->rx_gain_min)
+		current_igi = dm_dig->rx_gain_min;
 
-		rtlpriv->dm.dynamic_txhighpower_lvl = TXHIGHPWRLEVEL_LEVEL1;
-		RT_TRACE(COMP_POWER, DBG_LOUD,
-			 ("TXHIGHPWRLEVEL_LEVEL1 (TxPwr=0x10)\n"));
-	} else if (undecorated_smoothed_pwdb <
-		   (TX_POWER_NEAR_FIELD_THRESH_LVL1 - 5)) {
-		rtlpriv->dm.dynamic_txhighpower_lvl = TXHIGHPWRLEVEL_NORMAL;
-		RT_TRACE(COMP_POWER, DBG_LOUD,
-			 ("TXHIGHPWRLEVEL_NORMAL\n"));
-	}
-
-	if ((rtlpriv->dm.dynamic_txhighpower_lvl != rtlpriv->dm.last_dtp_lvl)) {
-		RT_TRACE(COMP_POWER, DBG_LOUD,
-			 ("PHY_SetTxPowerLevel8192S() Channel = %d \n",
-			  rtlphy->current_channel));
-		rtl92ee_phy_set_txpower_level(hw, rtlphy->current_channel);
-	}
-
-	rtlpriv->dm.last_dtp_lvl = rtlpriv->dm.dynamic_txhighpower_lvl;
+	rtl92ee_dm_write_dig(hw , current_igi);
+	dm_dig->media_connect_0 = ((mac->link_state >= MAC80211_LINKED) ?
+				   true : false);
+	dm_dig->dig_dynamic_min_0 = dig_dynamic_min;
 }
 
-void rtl92ee_dm_write_cck_cca_thres(struct ieee80211_hw *hw)
+void rtl92ee_dm_write_cck_cca_thres(struct ieee80211_hw *hw, u8 cur_thres)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	if (dm_digtable.pre_cck_cca_thres != dm_digtable.cur_cck_cca_thres) {
-		rtl_write_byte(rtlpriv, DM_REG_CCK_CCA_11N, dm_digtable.cur_cck_cca_thres);
-		dm_digtable.pre_cck_cca_thres = dm_digtable.cur_cck_cca_thres;
-	}
+	struct dig_t *dm_dig = &rtlpriv->dm_digtable;
+
+	if (dm_dig->cur_cck_cca_thres != cur_thres)
+		rtl_write_byte(rtlpriv, DM_REG_CCK_CCA_11N, cur_thres);
+
+	dm_dig->pre_cck_cca_thres = dm_dig->cur_cck_cca_thres;
+	dm_dig->cur_cck_cca_thres = cur_thres;
 }
 
-void rtl92ee_dm_write_dig(struct ieee80211_hw *hw)
+void rtl92ee_dm_write_dig(struct ieee80211_hw *hw, u8 current_igi)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	
-	if (dm_digtable.pre_igvalue != dm_digtable.cur_igvalue) {
-		rtl_set_bbreg(hw, DM_REG_IGI_A_11N, DM_BIT_IGI_11N,
-			      dm_digtable.cur_igvalue);
+	struct dig_t *dm_dig = &rtlpriv->dm_digtable;
+
+	if (dm_dig->stop_dig)
+		return;
+
+	if (dm_dig->cur_igvalue != current_igi) {
+		rtl_set_bbreg(hw, ROFDM0_XAAGCCORE1, 0x7f, current_igi);
 		if (rtlpriv->phy.rf_type != RF_1T1R)
-			rtl_set_bbreg(hw, DM_REG_IGI_B_11N, DM_BIT_IGI_11N,
-			      	dm_digtable.cur_igvalue);
-		dm_digtable.pre_igvalue = dm_digtable.cur_igvalue;
+			rtl_set_bbreg(hw, ROFDM0_XBAGCCORE1, 0x7f, current_igi);
 	}
+	dm_dig->pre_igvalue = dm_dig->cur_igvalue;
+	dm_dig->cur_igvalue = current_igi;
 }
 
-static void rtl92ee_dm_pwdb_monitor(struct ieee80211_hw *hw)
+static void rtl92ee_rssi_dump_to_register(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	struct rtl_hal *rtlhal = rtl_hal(rtl_priv(hw));
+	rtl_write_byte(rtlpriv, RA_RSSIDUMP,
+		       rtlpriv->stats.rx_rssi_percentage[0]);
+	rtl_write_byte(rtlpriv, RB_RSSIDUMP,
+		       rtlpriv->stats.rx_rssi_percentage[1]);
+	/*It seems the following values is not initialized.
+	  *According to Windows code,
+	  *these value will only be valid when JAGUAR chips*/
+	/* Rx EVM */
+	rtl_write_byte(rtlpriv, RS1_RXEVMDUMP, rtlpriv->stats.rx_evm_dbm[0]);
+	rtl_write_byte(rtlpriv, RS2_RXEVMDUMP, rtlpriv->stats.rx_evm_dbm[1]);
+	/* Rx SNR */
+	rtl_write_byte(rtlpriv, RA_RXSNRDUMP,
+		       (u8)(rtlpriv->stats.rx_snr_db[0]));
+	rtl_write_byte(rtlpriv, RB_RXSNRDUMP,
+		       (u8)(rtlpriv->stats.rx_snr_db[1]));
+	/* Rx Cfo_Short */
+	rtl_write_word(rtlpriv, RA_CFOSHORTDUMP,
+		       rtlpriv->stats.rx_cfo_short[0]);
+	rtl_write_word(rtlpriv, RB_CFOSHORTDUMP,
+		       rtlpriv->stats.rx_cfo_short[1]);
+	/* Rx Cfo_Tail */
+	rtl_write_word(rtlpriv, RA_CFOLONGDUMP, rtlpriv->stats.rx_cfo_tail[0]);
+	rtl_write_word(rtlpriv, RB_CFOLONGDUMP, rtlpriv->stats.rx_cfo_tail[1]);
+}
+
+static void rtl92ee_dm_find_minimum_rssi(struct ieee80211_hw *hw)
+{
+	struct rtl_priv *rtlpriv = rtl_priv(hw);
+	struct rtl_dig *rtl_dm_dig = &(rtlpriv->dm.dm_digtable);
+	struct rtl_mac *mac = rtl_mac(rtlpriv);
+
+	/* Determine the minimum RSSI  */
+	if ((mac->link_state < MAC80211_LINKED) &&
+	    (rtlpriv->dm.entry_min_undec_sm_pwdb == 0)) {
+		rtl_dm_dig->min_undecorated_pwdb_for_dm = 0;
+		RT_TRACE(rtlpriv, COMP_BB_POWERSAVING, DBG_LOUD,
+			 "Not connected to any\n");
+	}
+	if (mac->link_state >= MAC80211_LINKED) {
+		if (mac->opmode == NL80211_IFTYPE_AP ||
+		    mac->opmode == NL80211_IFTYPE_ADHOC) {
+			rtl_dm_dig->min_undecorated_pwdb_for_dm =
+				rtlpriv->dm.entry_min_undec_sm_pwdb;
+			RT_TRACE(rtlpriv, COMP_BB_POWERSAVING, DBG_LOUD,
+			      "AP Client PWDB = 0x%lx\n",
+			       rtlpriv->dm.entry_min_undec_sm_pwdb);
+		} else {
+			rtl_dm_dig->min_undecorated_pwdb_for_dm =
+			    rtlpriv->dm.undec_sm_pwdb;
+			RT_TRACE(rtlpriv, COMP_BB_POWERSAVING, DBG_LOUD,
+				"STA Default Port PWDB = 0x%x\n",
+				rtl_dm_dig->min_undecorated_pwdb_for_dm);
+		}
+	} else {
+		rtl_dm_dig->min_undecorated_pwdb_for_dm =
+			rtlpriv->dm.entry_min_undec_sm_pwdb;
+		RT_TRACE(rtlpriv, COMP_BB_POWERSAVING, DBG_LOUD,
+			"AP Ext Port or disconnet PWDB = 0x%x\n",
+			rtl_dm_dig->min_undecorated_pwdb_for_dm);
+	}
+	RT_TRACE(rtlpriv, COMP_DIG, DBG_LOUD, "MinUndecoratedPWDBForDM =%d\n",
+		rtl_dm_dig->min_undecorated_pwdb_for_dm);
+}
+
+static void rtl92ee_dm_check_rssi_monitor(struct ieee80211_hw *hw)
+{
+	struct rtl_priv *rtlpriv = rtl_priv(hw);
+	struct dig_t *dm_dig = &rtlpriv->dm_digtable;
+	struct rtl_mac *mac = rtl_mac(rtlpriv);
+	struct rtl_dm *dm = rtl_dm(rtlpriv);
 	struct rtl_sta_info *drv_priv;
-	static u64 last_record_txok_cnt = 0;
-	static u64 last_record_rxok_cnt = 0;
-	long tmp_entry_max_pwdb = 0, tmp_entry_min_pwdb = 0xff;
+	u8 h2c[4] = { 0 };
+	long max = 0, min = 0xff;
+	u8 i = 0;
 
-	if (rtlhal->oem_id == RT_CID_819x_HP){
-		u64 cur_txok_cnt = 0;
-		u64 cur_rxok_cnt = 0;
-		cur_txok_cnt = rtlpriv->stats.txbytesunicast - last_record_txok_cnt;
-		cur_rxok_cnt = rtlpriv->stats.rxbytesunicast - last_record_rxok_cnt;
-		last_record_txok_cnt = cur_txok_cnt;
-		last_record_rxok_cnt = cur_rxok_cnt;
+	if (mac->opmode == NL80211_IFTYPE_AP ||
+	    mac->opmode == NL80211_IFTYPE_ADHOC ||
+	    mac->opmode == NL80211_IFTYPE_MESH_POINT) {
+		/* AP & ADHOC & MESH */
+		spin_lock_bh(&rtlpriv->locks.entry_list_lock);
+		list_for_each_entry(drv_priv, &rtlpriv->entry_list, list) {
+			struct rssi_sta *stat = &(drv_priv->rssi_stat);
+			if (stat->undec_sm_pwdb < min)
+				min = stat->undec_sm_pwdb;
+			if (stat->undec_sm_pwdb > max)
+				max = stat->undec_sm_pwdb;
 
-		if (cur_rxok_cnt > (cur_txok_cnt * 6))
-			rtl_write_dword(rtlpriv, REG_ARFR0, 0x8f015);
-		else
-			rtl_write_dword(rtlpriv, REG_ARFR0, 0xff015);
+			h2c[3] = 0;
+			h2c[2] = (u8) (dm->undec_sm_pwdb & 0xFF);
+			h2c[1] = 0x20;
+			h2c[0] = ++i;
+			rtl92ee_fill_h2c_cmd(hw, H2C_92E_RSSI_REPORT, 4, h2c);
+		}
+		spin_unlock_bh(&rtlpriv->locks.entry_list_lock);
+
+		/* If associated entry is found */
+		if (max != 0) {
+			dm->entry_max_undec_sm_pwdb = max;
+			RTPRINT(rtlpriv, FDM, DM_PWDB,
+				"EntryMaxPWDB = 0x%lx(%ld)\n", max, max);
+		} else {
+			dm->entry_max_undec_sm_pwdb = 0;
+		}
+		/* If associated entry is found */
+		if (min != 0xff) {
+			dm->entry_min_undec_sm_pwdb = min;
+			RTPRINT(rtlpriv, FDM, DM_PWDB,
+				"EntryMinPWDB = 0x%lx(%ld)\n", min, min);
+		} else {
+			dm->entry_min_undec_sm_pwdb = 0;
+		}
 	}
 
-	/* AP & ADHOC & MESH */
-	spin_lock_bh(&rtlpriv->locks.entry_list_lock);
-	list_for_each_entry(drv_priv, &rtlpriv->entry_list, list) {
-		if(drv_priv->rssi_stat.undecorated_smoothed_pwdb < tmp_entry_min_pwdb)
-			tmp_entry_min_pwdb = drv_priv->rssi_stat.undecorated_smoothed_pwdb;
-		if(drv_priv->rssi_stat.undecorated_smoothed_pwdb > tmp_entry_max_pwdb)
-			tmp_entry_max_pwdb = drv_priv->rssi_stat.undecorated_smoothed_pwdb;
-	}
-	spin_unlock_bh(&rtlpriv->locks.entry_list_lock);
-
-	/* If associated entry is found */
-	if (tmp_entry_max_pwdb != 0) {
-		rtlpriv->dm.entry_max_undecoratedsmoothed_pwdb = tmp_entry_max_pwdb;
-		RTPRINT(rtlpriv, FDM, DM_PWDB, ("EntryMaxPWDB = 0x%lx(%ld)\n",
-			tmp_entry_max_pwdb, tmp_entry_max_pwdb));
-	} else {
-		rtlpriv->dm.entry_max_undecoratedsmoothed_pwdb = 0;
-	}
-	/* If associated entry is found */
-	if (tmp_entry_min_pwdb != 0xff) {
-		rtlpriv->dm.entry_min_undecoratedsmoothed_pwdb = tmp_entry_min_pwdb;
-		RTPRINT(rtlpriv, FDM, DM_PWDB, ("EntryMinPWDB = 0x%lx(%ld)\n",
-					tmp_entry_min_pwdb, tmp_entry_min_pwdb));
-	} else {
-		rtlpriv->dm.entry_min_undecoratedsmoothed_pwdb = 0;
-	}
 	/* Indicate Rx signal strength to FW. */
-	if (rtlpriv->dm.b_useramask) {
-		u8 h2c_parameter[3] = { 0 };
-		h2c_parameter[2] = (u8) (rtlpriv->dm.undecorated_smoothed_pwdb & 0xFF);
-		h2c_parameter[0] = 0x20;
-		/*rtl92ee_fill_h2c_cmd(hw, H2C_RSSI_REPORT, 3, h2c_parameter);*/
+	if (dm->useramask) {
+		h2c[3] = 0;
+		h2c[2] = (u8) (dm->undec_sm_pwdb & 0xFF);
+		h2c[1] = 0x20;
+		h2c[0] = 0;
+		rtl92ee_fill_h2c_cmd(hw, H2C_92E_RSSI_REPORT, 4, h2c);
 	} else {
-		rtl_write_byte(rtlpriv, 0x4fe, rtlpriv->dm.undecorated_smoothed_pwdb);
+		rtl_write_byte(rtlpriv, 0x4fe, dm->undec_sm_pwdb);
 	}
+	rtl92ee_rssi_dump_to_register(hw);
+	rtl92ee_dm_find_minimum_rssi(hw);
+	dm_dig->rssi_val_min = dm->dm_digtable.min_undecorated_pwdb_for_dm;
+}
+
+static void rtl92ee_dm_init_primary_cca_check(struct ieee80211_hw *hw)
+{
+	struct rtl_priv *rtlpriv = rtl_priv(hw);
+	struct rtl_hal *rtlhal = rtl_hal(rtlpriv);
+	struct dynamic_primary_cca *primarycca = &(rtlpriv->primarycca);
+
+	rtlhal->rts_en = 0;
+	primarycca->dup_rts_flag = 0;
+	primarycca->intf_flag = 0;
+	primarycca->intf_type = 0;
+	primarycca->monitor_flag = 0;
+	primarycca->ch_offset = 0;
+	primarycca->mf_state = 0;
+}
+
+static bool rtl92ee_dm_is_edca_turbo_disable(struct ieee80211_hw *hw)
+{
+	struct rtl_priv *rtlpriv = rtl_priv(hw);
+
+	if (rtlpriv->mac80211.mode == WIRELESS_MODE_B)
+		return true;
+
+	return false;
 }
 
 void rtl92ee_dm_init_edca_turbo(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
+
 	rtlpriv->dm.bcurrent_turbo_edca = false;
-	rtlpriv->dm.bis_any_nonbepkts = false;
-	rtlpriv->dm.bis_cur_rdlstate = false;
+	rtlpriv->dm.is_cur_rdlstate = false;
+	rtlpriv->dm.is_any_nonbepkts = false;
 }
 
 static void rtl92ee_dm_check_edca_turbo(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	struct rtl_pci_priv *rtlpcipriv = rtl_pcipriv(hw);
-	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
 
-	static u64 last_txok_cnt = 0;
-	static u64 last_rxok_cnt = 0;
-	static u32 last_bt_edca_ul = 0;
-	static u32 last_bt_edca_dl = 0;
+	static u64 last_txok_cnt;
+	static u64 last_rxok_cnt;
 	u64 cur_txok_cnt = 0;
 	u64 cur_rxok_cnt = 0;
 	u32 edca_be_ul = 0x5ea42b;
-	u32 edca_be_dl = 0x5ea42b;
-	bool b_bt_change_edca = false;
+	u32 edca_be_dl = 0x5ea42b; /*not sure*/
+	u32 edca_be = 0x5ea42b;
+	bool is_cur_rdlstate;
+	bool b_edca_turbo_on = false;
 
-	if ((last_bt_edca_ul != rtlpcipriv->btcoexist.bt_edca_ul) ||
-	    (last_bt_edca_dl != rtlpcipriv->btcoexist.bt_edca_dl)) {
-		rtlpriv->dm.bcurrent_turbo_edca = false;
-		last_bt_edca_ul = rtlpcipriv->btcoexist.bt_edca_ul;
-		last_bt_edca_dl = rtlpcipriv->btcoexist.bt_edca_dl;
-	}
+	if (rtlpriv->dm.dbginfo.num_non_be_pkt > 0x100)
+		rtlpriv->dm.is_any_nonbepkts = true;
+	rtlpriv->dm.dbginfo.num_non_be_pkt = 0;
 
-	if (rtlpcipriv->btcoexist.bt_edca_ul != 0) {
-		edca_be_ul = rtlpcipriv->btcoexist.bt_edca_ul;
-		b_bt_change_edca = true;
-	}
+	cur_txok_cnt = rtlpriv->stats.txbytesunicast - last_txok_cnt;
+	cur_rxok_cnt = rtlpriv->stats.rxbytesunicast - last_rxok_cnt;
 
-	if (rtlpcipriv->btcoexist.bt_edca_dl != 0) {
-		edca_be_ul = rtlpcipriv->btcoexist.bt_edca_dl;
-		b_bt_change_edca = true;
-	}
+	/*b_bias_on_rx = false;*/
+	b_edca_turbo_on = ((!rtlpriv->dm.is_any_nonbepkts) &&
+			   (!rtlpriv->dm.disable_framebursting)) ?
+			  true : false;
 
-	if (mac->link_state != MAC80211_LINKED) {
-		rtlpriv->dm.bcurrent_turbo_edca = false;
-		return;
-	}
+	if (rtl92ee_dm_is_edca_turbo_disable(hw))
+		goto dm_CheckEdcaTurbo_EXIT;
 
-	if ((!mac->ht_enable) && (!rtlpcipriv->btcoexist.bt_coexistence)) {
-		if (!(edca_be_ul & 0xffff0000))
-			edca_be_ul |= 0x005e0000;
+	if (b_edca_turbo_on) {
+		is_cur_rdlstate = (cur_rxok_cnt > cur_txok_cnt * 4) ?
+				    true : false;
 
-		if (!(edca_be_dl & 0xffff0000))
-			edca_be_dl |= 0x005e0000;
-	}
-
-	if ((b_bt_change_edca) ||((!rtlpriv->dm.bis_any_nonbepkts) &&
-	     (!rtlpriv->dm.b_disable_framebursting))) {
-
-		cur_txok_cnt = rtlpriv->stats.txbytesunicast - last_txok_cnt;
-		cur_rxok_cnt = rtlpriv->stats.rxbytesunicast - last_rxok_cnt;
-
-		if (cur_rxok_cnt > 4 * cur_txok_cnt) {
-			if (!rtlpriv->dm.bis_cur_rdlstate ||
-			    !rtlpriv->dm.bcurrent_turbo_edca) {
-				rtl_write_dword(rtlpriv,
-						REG_EDCA_BE_PARAM,
-						edca_be_dl);
-				rtlpriv->dm.bis_cur_rdlstate = true;
-			}
-		} else {
-			if (rtlpriv->dm.bis_cur_rdlstate ||
-			    !rtlpriv->dm.bcurrent_turbo_edca) {
-				rtl_write_dword(rtlpriv,
-						REG_EDCA_BE_PARAM,
-						edca_be_ul);
-				rtlpriv->dm.bis_cur_rdlstate = false;
-			}
-		}
+		edca_be = is_cur_rdlstate ? edca_be_dl : edca_be_ul;
+		rtl_write_dword(rtlpriv , REG_EDCA_BE_PARAM , edca_be);
+		rtlpriv->dm.is_cur_rdlstate = is_cur_rdlstate;
 		rtlpriv->dm.bcurrent_turbo_edca = true;
 	} else {
 		if (rtlpriv->dm.bcurrent_turbo_edca) {
 			u8 tmp = AC0_BE;
-			rtlpriv->cfg->ops->set_hw_reg(hw,
-						      HW_VAR_AC_PARAM,
+			rtlpriv->cfg->ops->set_hw_reg(hw, HW_VAR_AC_PARAM,
 						      (u8 *) (&tmp));
-			rtlpriv->dm.bcurrent_turbo_edca = false;
 		}
+		rtlpriv->dm.bcurrent_turbo_edca = false;
 	}
 
-	rtlpriv->dm.bis_any_nonbepkts = false;
+dm_CheckEdcaTurbo_EXIT:
+	rtlpriv->dm.is_any_nonbepkts = false;
 	last_txok_cnt = rtlpriv->stats.txbytesunicast;
 	last_rxok_cnt = rtlpriv->stats.rxbytesunicast;
 }
 
-static void rtl92ee_dm_txpower_tracking_callback_thermalmeter(struct ieee80211_hw
-							     *hw)
+static void rtl92ee_dm_dynamic_edcca(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
-	struct rtl_dm	*rtldm = rtl_dm(rtl_priv(hw));
-	struct rtl_hal *rtlhal = rtl_hal(rtl_priv(hw));
-	u8 thermalvalue = 0, delta, delta_lck, delta_iqk,offset;
-	u8 thermalvalue_avg_count = 0;
-	u32 thermalvalue_avg = 0;
-	long  ele_d,temp_cck;
-	char ofdm_index[2],cck_index = 0, ofdm_index_old[2] = {0,0}, cck_index_old = 0;
-	int i = 0;
-	bool is2t = false;
+	u8 reg_c50 , reg_c58;
+	bool fw_current_in_ps_mode = false;
 
-	u8 ofdm_min_index = 6, rf = (is2t) ? 2 : 1;
-	u8 index_for_channel;
-	enum _power_dec_inc {power_dec,power_inc};
-
-	/*0.1 the following TWO tables decide the final index of OFDM/CCK swing table*/
-	char		delta_swing_table_idx[2][15]  = {
-                        {0,0,2,3,4,4,5,6,7,7,8,9,10,10,11}, {0,0,-1,-2,-3,-4,-4,-4,-4,-5,-7,-8,-9,-9,-10}
-                    };
-	u8	thermal_threshold[2][15]={
-					    {0,2,4,6,8,10,12,14,16,18,20,22,24,26,27}, {0,2,4,6,8,10,12,14,16,18,20,22,25,25,25}
-                    };
-
-
-	/*Initilization ( 7 steps in total )*/
-	rtlpriv->dm.btxpower_trackinginit = true;
-	RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD,
-		 ("rtl92ee_dm_txpower_tracking_callback_thermalmeter\n"));
-
-	thermalvalue = (u8) rtl_get_rfreg(hw, RF90_PATH_A, RF_T_METER, 0xfc00);
-	if (!thermalvalue)
+	rtlpriv->cfg->ops->get_hw_reg(hw, HW_VAR_FW_PSMODE_STATUS,
+				      (u8 *)(&fw_current_in_ps_mode));
+	if (fw_current_in_ps_mode)
 		return;
-	RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD,
-	 ("Readback Thermal Meter = 0x%x pre thermal meter 0x%x "
-	  "eeprom_thermalmeter 0x%x\n",
-	  thermalvalue, rtlpriv->dm.thermalvalue,
-	  rtlefuse->eeprom_thermalmeter));
 
-	/*1. Query OFDM Default Setting: Path A*/
-	ele_d = rtl_get_bbreg(hw, ROFDM0_XATXIQIMBALANCE, MASKDWORD) & MASKOFDM_D;
-	for (i = 0; i < OFDM_TABLE_LENGTH; i++) {
-		if (ele_d == (ofdmswing_table[i] & MASKOFDM_D)) {
-			ofdm_index_old[0] = (u8) i;
-			rtldm->bb_swing_idx_ofdm_base = (u8)i;
-			RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD,
-				 ("Initial pathA ele_d reg0x%x = 0x%lx, "
-				  "ofdm_index=0x%x\n",
-				  ROFDM0_XATXIQIMBALANCE,
-				  ele_d, ofdm_index_old[0]));
-			break;
+	reg_c50 = rtl_get_bbreg(hw, ROFDM0_XAAGCCORE1, MASKBYTE0);
+	reg_c58 = rtl_get_bbreg(hw, ROFDM0_XBAGCCORE1, MASKBYTE0);
+
+	if (reg_c50 > 0x28 && reg_c58 > 0x28) {
+		if (!rtlpriv->rtlhal.pre_edcca_enable) {
+			rtl_write_byte(rtlpriv, ROFDM0_ECCATHRESHOLD, 0x03);
+			rtl_write_byte(rtlpriv, ROFDM0_ECCATHRESHOLD + 2, 0x00);
+			rtlpriv->rtlhal.pre_edcca_enable = true;
+		}
+	} else if (reg_c50 < 0x25 && reg_c58 < 0x25) {
+		if (rtlpriv->rtlhal.pre_edcca_enable) {
+			rtl_write_byte(rtlpriv, ROFDM0_ECCATHRESHOLD, 0x7f);
+			rtl_write_byte(rtlpriv, ROFDM0_ECCATHRESHOLD + 2, 0x7f);
+			rtlpriv->rtlhal.pre_edcca_enable = false;
 		}
 	}
+}
 
-	if (is2t) {
-		ele_d = rtl_get_bbreg(hw, ROFDM0_XBTXIQIMBALANCE,
-				      MASKDWORD) & MASKOFDM_D;
-		for (i = 0; i < OFDM_TABLE_LENGTH; i++) {
-			if (ele_d == (ofdmswing_table[i] & MASKOFDM_D)) {
-				ofdm_index_old[1] = (u8) i;
+static void rtl92ee_dm_adaptivity(struct ieee80211_hw *hw)
+{
+	rtl92ee_dm_dynamic_edcca(hw);
+}
 
-				RT_TRACE(COMP_POWER_TRACKING,
-					 DBG_LOUD,
-					 ("Initial pathB ele_d reg0x%x = "
-					  "0x%lx, ofdm_index=0x%x\n",
-					  ROFDM0_XBTXIQIMBALANCE, ele_d,
-					  ofdm_index_old[1]));
-				break;
+static void rtl92ee_dm_write_dynamic_cca(struct ieee80211_hw *hw, u8 cur_mf_state)
+{
+	struct dynamic_primary_cca *primarycca = &(rtl_priv(hw)->primarycca);
+
+	if (primarycca->mf_state != cur_mf_state)
+		rtl_set_bbreg(hw, DM_REG_L1SBD_PD_CH_11N, BIT(8) | BIT(7),
+			      cur_mf_state);
+
+	primarycca->mf_state = cur_mf_state;
+}
+
+static void rtl92ee_dm_dynamic_primary_cca_ckeck(struct ieee80211_hw *hw)
+{
+	struct rtl_priv *rtlpriv = rtl_priv(hw);
+	struct false_alarm_statistics *falsealm_cnt = &(rtlpriv->falsealm_cnt);
+	struct dynamic_primary_cca *primarycca = &(rtlpriv->primarycca);
+	bool is40mhz = false;
+	u64 ofdm_cca, ofdm_fa, bw_usc_cnt, bw_lsc_cnt;
+	u8 sec_ch_offset;
+	u8 cur_mf_state;
+	static u8 count_down = MONITOR_TIME;
+
+	ofdm_cca = falsealm_cnt->cnt_ofdm_cca;
+	ofdm_fa = falsealm_cnt->cnt_ofdm_fail;
+	bw_usc_cnt = falsealm_cnt->cnt_bw_usc;
+	bw_lsc_cnt = falsealm_cnt->cnt_bw_lsc;
+	is40mhz = rtlpriv->mac80211.bw_40;
+	sec_ch_offset = rtlpriv->mac80211.cur_40_prime_sc;
+	/* NIC: 2: sec is below,  1: sec is above */
+
+	if (rtlpriv->mac80211.opmode == NL80211_IFTYPE_AP) {
+		cur_mf_state = MF_USC_LSC;
+		rtl92ee_dm_write_dynamic_cca(hw, cur_mf_state);
+		return;
+	}
+
+	if (rtlpriv->mac80211.link_state < MAC80211_LINKED)
+		return;
+
+	if (is40mhz)
+		return;
+
+	if (primarycca->pricca_flag == 0) {
+		/* Primary channel is above
+		 * NOTE: duplicate CTS can remove this condition*/
+		if (sec_ch_offset == 2) {
+			if ((ofdm_cca > OFDMCCA_TH) &&
+			    (bw_lsc_cnt > (bw_usc_cnt + BW_IND_BIAS)) &&
+			    (ofdm_fa > (ofdm_cca >> 1))) {
+				primarycca->intf_type = 1;
+				primarycca->intf_flag = 1;
+				cur_mf_state = MF_USC;
+				rtl92ee_dm_write_dynamic_cca(hw, cur_mf_state);
+				primarycca->pricca_flag = 1;
+			} else if ((ofdm_cca > OFDMCCA_TH) &&
+				   (bw_lsc_cnt > (bw_usc_cnt + BW_IND_BIAS)) &&
+				   (ofdm_fa < (ofdm_cca >> 1))) {
+				primarycca->intf_type = 2;
+				primarycca->intf_flag = 1;
+				cur_mf_state = MF_USC;
+				rtl92ee_dm_write_dynamic_cca(hw, cur_mf_state);
+				primarycca->pricca_flag = 1;
+				primarycca->dup_rts_flag = 1;
+				rtlpriv->rtlhal.rts_en = 1;
+			} else {
+				primarycca->intf_type = 0;
+				primarycca->intf_flag = 0;
+				cur_mf_state = MF_USC_LSC;
+				rtl92ee_dm_write_dynamic_cca(hw, cur_mf_state);
+				rtlpriv->rtlhal.rts_en = 0;
+				primarycca->dup_rts_flag = 0;
+			}
+		} else if (sec_ch_offset == 1) {
+			if ((ofdm_cca > OFDMCCA_TH) &&
+			    (bw_usc_cnt > (bw_lsc_cnt + BW_IND_BIAS)) &&
+			    (ofdm_fa > (ofdm_cca >> 1))) {
+				primarycca->intf_type = 1;
+				primarycca->intf_flag = 1;
+				cur_mf_state = MF_LSC;
+				rtl92ee_dm_write_dynamic_cca(hw, cur_mf_state);
+				primarycca->pricca_flag = 1;
+			} else if ((ofdm_cca > OFDMCCA_TH) &&
+				   (bw_usc_cnt > (bw_lsc_cnt + BW_IND_BIAS)) &&
+				   (ofdm_fa < (ofdm_cca >> 1))) {
+				primarycca->intf_type = 2;
+				primarycca->intf_flag = 1;
+				cur_mf_state = MF_LSC;
+				rtl92ee_dm_write_dynamic_cca(hw, cur_mf_state);
+				primarycca->pricca_flag = 1;
+				primarycca->dup_rts_flag = 1;
+				rtlpriv->rtlhal.rts_en = 1;
+			} else {
+				primarycca->intf_type = 0;
+				primarycca->intf_flag = 0;
+				cur_mf_state = MF_USC_LSC;
+				rtl92ee_dm_write_dynamic_cca(hw, cur_mf_state);
+				rtlpriv->rtlhal.rts_en = 0;
+				primarycca->dup_rts_flag = 0;
 			}
 		}
-	}
-	/*2.Query CCK default setting From 0xa24*/
-	temp_cck = rtl_get_bbreg(hw, RCCK0_TXFILTER2, MASKDWORD) & MASKCCK;
-	for (i = 0; i < CCK_TABLE_LENGTH; i++) {
-		if (rtlpriv->dm.b_cck_inch14) {
-			if (memcmp((void *)&temp_cck,
-				   (void *)&cckswing_table_ch14[i][2],
-				   4) == 0) {
-				cck_index_old = (u8) i;
-				rtldm->bb_swing_idx_cck_base = (u8)i;
-				RT_TRACE(COMP_POWER_TRACKING,
-					 DBG_LOUD,
-					 ("Initial reg0x%x = 0x%lx, "
-					  "cck_index=0x%x, ch 14 %d\n",
-					  RCCK0_TXFILTER2, temp_cck,
-					  cck_index_old,
-					  rtlpriv->dm.b_cck_inch14));
-				break;
-			}
-		} else {
-			if (memcmp((void *)&temp_cck,
-				   (void *)
-				   &cckswing_table_ch1ch13[i][2],
-				   4) == 0) {
-				cck_index_old = (u8) i;
-				rtldm->bb_swing_idx_cck_base = (u8)i;
-				RT_TRACE(COMP_POWER_TRACKING,
-					 DBG_LOUD,
-					 ("Initial reg0x%x = 0x%lx, "
-					  "cck_index=0x%x, ch14 %d\n",
-					  RCCK0_TXFILTER2, temp_cck,
-					  cck_index_old,
-					  rtlpriv->dm.b_cck_inch14));
-				break;
-			}
+	} else {/* PrimaryCCA->PriCCA_flag==1 */
+		count_down--;
+		if (count_down == 0) {
+			count_down = MONITOR_TIME;
+			primarycca->pricca_flag = 0;
+			cur_mf_state = MF_USC_LSC;
+			/* default */
+			rtl92ee_dm_write_dynamic_cca(hw, cur_mf_state);
+			rtlpriv->rtlhal.rts_en = 0;
+			primarycca->dup_rts_flag = 0;
+			primarycca->intf_type = 0;
+			primarycca->intf_flag = 0;
 		}
 	}
+}
 
+static void rtl92ee_dm_dynamic_atc_switch(struct ieee80211_hw *hw)
+{
+	struct rtl_priv *rtlpriv = rtl_priv(hw);
+	struct rtl_dm *rtldm = rtl_dm(rtl_priv(hw));
+	u8 crystal_cap;
+	u32 packet_count;
+	int cfo_khz_a , cfo_khz_b , cfo_ave = 0, adjust_xtal = 0;
+	int cfo_ave_diff;
 
-	/*3 Initialize ThermalValues of RFCalibrateInfo*/
-	if (!rtldm->thermalvalue){
-		rtlpriv->dm.thermalvalue = rtlefuse->eeprom_thermalmeter;
-		rtlpriv->dm.thermalvalue_lck = thermalvalue;
-		rtlpriv->dm.thermalvalue_iqk = thermalvalue;
-		for (i = 0; i < rf; i++)
-			rtlpriv->dm.ofdm_index[i] = ofdm_index_old[i];
-		rtlpriv->dm.cck_index = cck_index_old;
-	}
-
-	/*4 Calculate average thermal meter*/
-	rtldm->thermalvalue_avg[rtldm->thermalvalue_avg_index] = thermalvalue;
-	rtldm->thermalvalue_avg_index++;
-	if (rtldm->thermalvalue_avg_index == AVG_THERMAL_NUM_92E)
-		rtldm->thermalvalue_avg_index = 0;
-
-	for (i = 0;i < AVG_THERMAL_NUM_92E; i++){
-		if (rtldm->thermalvalue_avg[i]){
-			thermalvalue_avg +=rtldm->thermalvalue_avg[i];
-			thermalvalue_avg_count++;
+	if (rtlpriv->mac80211.link_state < MAC80211_LINKED) {
+		if (rtldm->atc_status == ATC_STATUS_OFF) {
+			rtl_set_bbreg(hw, ROFDM1_CFOTRACKING, BIT(11),
+				      ATC_STATUS_ON);
+			rtldm->atc_status = ATC_STATUS_ON;
 		}
-	}
-
-	if (thermalvalue_avg_count)
-		thermalvalue = (u8)(thermalvalue_avg / thermalvalue_avg_count);
-
-	/* 5 Calculate delta, delta_LCK, delta_IQK.*/
-	if (rtlhal->reloadtxpowerindex) {
-		delta = (thermalvalue > rtlefuse->eeprom_thermalmeter) ?
-		    (thermalvalue - rtlefuse->eeprom_thermalmeter) :
-		    (rtlefuse->eeprom_thermalmeter - thermalvalue);
-		rtlhal->reloadtxpowerindex = false;
-		rtlpriv->dm.bdone_txpower = false;
-	} else if (rtlpriv->dm.bdone_txpower) {
-		delta = (thermalvalue > rtlpriv->dm.thermalvalue) ?
-		    (thermalvalue - rtlpriv->dm.thermalvalue) :
-		    (rtlpriv->dm.thermalvalue - thermalvalue);
+		/* Disable CFO tracking for BT */
+		if (rtlpriv->cfg->ops->get_btc_status()) {
+			if (!rtlpriv->btcoexist.btc_ops->btc_is_bt_disabled(rtlpriv)) {
+				RT_TRACE(rtlpriv, COMP_BT_COEXIST, DBG_LOUD,
+					"odm_DynamicATCSwitch(): Disable CFO tracking for BT!!\n");
+				return;
+			}
+		}
+		/* Reset Crystal Cap */
+		if (rtldm->crystal_cap != rtlpriv->efuse.crystalcap) {
+			rtldm->crystal_cap = rtlpriv->efuse.crystalcap;
+			crystal_cap = rtldm->crystal_cap & 0x3f;
+			rtl_set_bbreg(hw, REG_MAC_PHY_CTRL, 0xFFF000,
+				      (crystal_cap | (crystal_cap << 6)));
+		}
 	} else {
-		delta = (thermalvalue > rtlefuse->eeprom_thermalmeter) ?
-		    (thermalvalue - rtlefuse->eeprom_thermalmeter) :
-		    (rtlefuse->eeprom_thermalmeter - thermalvalue);
-	}
-	delta_lck = (thermalvalue > rtlpriv->dm.thermalvalue_lck) ?
-	    (thermalvalue - rtlpriv->dm.thermalvalue_lck) :
-	    (rtlpriv->dm.thermalvalue_lck - thermalvalue);
-	delta_iqk = (thermalvalue > rtlpriv->dm.thermalvalue_iqk) ?
-	    (thermalvalue - rtlpriv->dm.thermalvalue_iqk) :
-	    (rtlpriv->dm.thermalvalue_iqk - thermalvalue);
+		cfo_khz_a = (int)(rtldm->cfo_tail[0] * 3125) / 1280;
+		cfo_khz_b = (int)(rtldm->cfo_tail[1] * 3125) / 1280;
+		packet_count = rtldm->packet_count;
 
-	RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD,
-		 ("Readback Thermal Meter = 0x%x pre thermal meter 0x%x "
-		  "eeprom_thermalmeter 0x%x delta 0x%x "
-		  "delta_lck 0x%x delta_iqk 0x%x\n",
-		  thermalvalue, rtlpriv->dm.thermalvalue,
-		  rtlefuse->eeprom_thermalmeter, delta, delta_lck,
-		  delta_iqk));
-	/* 6 If necessary, do LCK.*/
-	if (delta_lck >= 8) {
-		rtlpriv->dm.thermalvalue_lck = thermalvalue;
-		rtl92ee_phy_lc_calibrate(hw);
-	}
+		if (packet_count == rtldm->packet_count_pre)
+			return;
 
-	/* 7 If necessary, move the index of swing table to adjust Tx power.	*/
-	if (delta > 0 && rtlpriv->dm.txpower_track_control) {
-		delta = (thermalvalue > rtlefuse->eeprom_thermalmeter) ?
-		    (thermalvalue - rtlefuse->eeprom_thermalmeter) :
-		    (rtlefuse->eeprom_thermalmeter - thermalvalue);
+		rtldm->packet_count_pre = packet_count;
 
-		/*7.1 Get the final CCK_index and OFDM_index for each swing table.*/
-		if (thermalvalue > rtlefuse->eeprom_thermalmeter) {
-			CALCULATE_SWINGTALBE_OFFSET(offset, power_inc, index_mapping_NUM, delta);
-			for (i =0; i<rf; i++)
-				ofdm_index[i] = rtldm->ofdm_index[i] + delta_swing_table_idx[power_inc][offset];
-			cck_index = rtldm->cck_index + delta_swing_table_idx[power_inc][offset];
+		if (rtlpriv->phy.rf_type == RF_1T1R)
+			cfo_ave = cfo_khz_a;
+		else
+			cfo_ave = (int)(cfo_khz_a + cfo_khz_b) >> 1;
+
+		cfo_ave_diff = (rtldm->cfo_ave_pre >= cfo_ave) ?
+			       (rtldm->cfo_ave_pre - cfo_ave) :
+			       (cfo_ave - rtldm->cfo_ave_pre);
+
+		if (cfo_ave_diff > 20 && rtldm->large_cfo_hit == 0) {
+			rtldm->large_cfo_hit = 1;
+			return;
 		} else {
-			CALCULATE_SWINGTALBE_OFFSET(offset, power_dec, index_mapping_NUM, delta);
-			for (i =0; i<rf; i++)
-				ofdm_index[i] = rtldm->ofdm_index[i] + delta_swing_table_idx[power_dec][offset];
-			cck_index = rtldm->cck_index + delta_swing_table_idx[power_dec][offset];
+			rtldm->large_cfo_hit = 0;
 		}
 
-		/* 7.2 Handle boundary conditions of index.*/
-		for (i=0; i < rf; i++){
-			if (ofdm_index[i] > OFDM_TABLE_SIZE-1)
-				ofdm_index[i] = OFDM_TABLE_SIZE-1;
-			else if (rtldm->ofdm_index[i] < ofdm_min_index)
-				ofdm_index[i] = ofdm_min_index;
-		}
+		rtldm->cfo_ave_pre = cfo_ave;
 
-		if (cck_index > CCK_TABLE_SIZE-1)
-			cck_index = CCK_TABLE_SIZE-1;
-		else if (cck_index < 0)
-			cck_index= 0;
-
-		/*7.3Configure the Swing Table to adjust Tx Power.*/
-		if (rtlpriv->dm.txpower_track_control ) {
-			rtldm->bdone_txpower = true;
-			rtldm->bb_swing_idx_ofdm[RF90_PATH_A] = (u8)ofdm_index[RF90_PATH_A];
-			if (is2t)
-			rtldm->bb_swing_idx_ofdm[RF90_PATH_B] = (u8)ofdm_index[RF90_PATH_B];
-			rtldm->bb_swing_idx_cck = cck_index;
-			if (rtldm->bb_swing_idx_ofdm_current != rtldm->bb_swing_idx_ofdm[0]) {
-				rtldm->bb_swing_idx_ofdm_current = rtldm->bb_swing_idx_ofdm[0];
-				rtldm->bb_swing_flag_Ofdm = true;
+		if (cfo_ave >= -rtldm->cfo_threshold &&
+		    cfo_ave <= rtldm->cfo_threshold && rtldm->is_freeze == 0) {
+			if (rtldm->cfo_threshold == CFO_THRESHOLD_XTAL) {
+				rtldm->cfo_threshold = CFO_THRESHOLD_XTAL + 10;
+				rtldm->is_freeze = 1;
+			} else {
+				rtldm->cfo_threshold = CFO_THRESHOLD_XTAL;
 			}
-
-			if (rtldm->bb_swing_idx_cck_current != rtldm->bb_swing_idx_cck) {
-				rtldm->bb_swing_idx_cck_current = rtldm->bb_swing_idx_cck;
-				rtldm->bb_swing_flag_cck = true;
-			}
-
-			rtl92ee_dm_tx_power_track_set_power(hw, TXAGC, 0, 0);
-
-			if (is2t)
-			rtl92ee_dm_tx_power_track_set_power(hw, BBSWING,
-											RF90_PATH_B, index_for_channel);
 		}
 
+		if (cfo_ave > rtldm->cfo_threshold && rtldm->crystal_cap < 0x3f)
+			adjust_xtal = ((cfo_ave - CFO_THRESHOLD_XTAL) >> 2) + 1;
+		else if ((cfo_ave < -rtlpriv->dm.cfo_threshold) &&
+			 rtlpriv->dm.crystal_cap > 0)
+			adjust_xtal = ((cfo_ave + CFO_THRESHOLD_XTAL) >> 2) - 1;
+
+		if (adjust_xtal != 0) {
+			rtldm->is_freeze = 0;
+			rtldm->crystal_cap += adjust_xtal;
+
+			if (rtldm->crystal_cap > 0x3f)
+				rtldm->crystal_cap = 0x3f;
+			else if (rtldm->crystal_cap < 0)
+				rtldm->crystal_cap = 0;
+
+			crystal_cap = rtldm->crystal_cap & 0x3f;
+			rtl_set_bbreg(hw, REG_MAC_PHY_CTRL, 0xFFF000,
+				      (crystal_cap | (crystal_cap << 6)));
+		}
+
+		if (cfo_ave < CFO_THRESHOLD_ATC &&
+		    cfo_ave > -CFO_THRESHOLD_ATC) {
+			if (rtldm->atc_status == ATC_STATUS_ON) {
+				rtl_set_bbreg(hw, ROFDM1_CFOTRACKING, BIT(11),
+					      ATC_STATUS_OFF);
+				rtldm->atc_status = ATC_STATUS_OFF;
+			}
+		} else {
+			if (rtldm->atc_status == ATC_STATUS_OFF) {
+				rtl_set_bbreg(hw, ROFDM1_CFOTRACKING, BIT(11),
+					      ATC_STATUS_ON);
+				rtldm->atc_status = ATC_STATUS_ON;
+			}
+		}
 	}
-
-	if (delta_iqk >= 8) {
-		rtlpriv->dm.thermalvalue_iqk = thermalvalue;
-		rtl92ee_phy_iq_calibrate(hw, false);
-	}
-
-	if (rtldm->txpower_track_control)
-		rtldm->thermalvalue = thermalvalue;
-	rtldm->txpowercount = 0;
-	RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD, ("end\n"));
-
 }
 
 static void rtl92ee_dm_init_txpower_tracking(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
+	struct rtl_dm *dm = rtl_dm(rtlpriv);
+	u8 path;
 
-	rtlpriv->dm.btxpower_tracking = true;
-	rtlpriv->dm.btxpower_trackinginit = false;
-	rtlpriv->dm.txpowercount = 0;
-	rtlpriv->dm.txpower_track_control = true;
+	dm->txpower_tracking = true;
+	dm->default_ofdm_index = 30;
+	dm->default_cck_index = 20;
 
-	rtlpriv->dm.bb_swing_idx_ofdm[RF90_PATH_A] = 12;
-	rtlpriv->dm.bb_swing_idx_ofdm_current = 12;
-	rtlpriv->dm.bb_swing_flag_Ofdm = false;
-	RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD,
-		 ("  rtlpriv->dm.btxpower_tracking = %d\n",
-		  rtlpriv->dm.btxpower_tracking));
-}
+	dm->bb_swing_idx_cck_base = dm->default_cck_index;
+	dm->cck_index = dm->default_cck_index;
 
-void rtl92ee_dm_check_txpower_tracking(struct ieee80211_hw *hw)
-{
-	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	static u8 tm_trigger = 0;
-
-	if (!rtlpriv->dm.btxpower_tracking)
-		return;
-
-	if (!tm_trigger) {
-		rtl_set_rfreg(hw, RF90_PATH_A, RF_T_METER, BIT(17)|BIT(16),
-			      0x03);
-		RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD,
-			 ("Trigger 92E Thermal Meter!!\n"));
-		tm_trigger = 1;
-		return;
-	} else {
-		RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD,
-			 ("Schedule TxPowerTracking !!\n"));
-		rtl92ee_dm_txpower_tracking_callback_thermalmeter(hw);
-		tm_trigger = 0;
+	for (path = RF90_PATH_A; path < MAX_RF_PATH; path++) {
+		dm->bb_swing_idx_ofdm_base[path] = dm->default_ofdm_index;
+		dm->ofdm_index[path] = dm->default_ofdm_index;
+		dm->delta_power_index[path] = 0;
+		dm->delta_power_index_last[path] = 0;
+		dm->power_index_offset[path] = 0;
 	}
 }
 
@@ -1167,78 +970,109 @@ void rtl92ee_dm_init_rate_adaptive_mask(struct ieee80211_hw *hw)
 	p_ra->pre_ratr_state = DM_RATR_STA_INIT;
 
 	if (rtlpriv->dm.dm_type == DM_TYPE_BYDRIVER)
-		rtlpriv->dm.b_useramask = true;
+		rtlpriv->dm.useramask = true;
 	else
-		rtlpriv->dm.b_useramask = false;
+		rtlpriv->dm.useramask = false;
+
+	p_ra->ldpc_thres = 35;
+	p_ra->use_ldpc = false;
+	p_ra->high_rssi_thresh_for_ra = 50;
+	p_ra->low_rssi_thresh_for_ra = 20;
 
 }
 
-void rtl92ee_dm_refresh_rate_adaptive_mask(struct ieee80211_hw *hw)
+static bool _rtl92ee_dm_ra_state_check(struct ieee80211_hw *hw,
+				s32 rssi, u8 *ratr_state)
+{
+	struct rtl_priv *rtlpriv = rtl_priv(hw);
+	struct rate_adaptive *p_ra = &(rtlpriv->ra);
+	const u8 go_up_gap = 5;
+	u32 high_rssithresh_for_ra = p_ra->high_rssi_thresh_for_ra;
+	u32 low_rssithresh_for_ra = p_ra->low_rssi_thresh_for_ra;
+	u8 state;
+
+	/* Threshold Adjustment:
+	 * when RSSI state trends to go up one or two levels,
+	 * make sure RSSI is high enough.
+	 * Here GoUpGap is added to solve
+	 * the boundary's level alternation issue.
+	 */
+	switch (*ratr_state) {
+	case DM_RATR_STA_INIT:
+	case DM_RATR_STA_HIGH:
+			break;
+
+	case DM_RATR_STA_MIDDLE:
+			high_rssithresh_for_ra += go_up_gap;
+			break;
+
+	case DM_RATR_STA_LOW:
+			high_rssithresh_for_ra += go_up_gap;
+			low_rssithresh_for_ra += go_up_gap;
+			break;
+
+	default:
+			RT_TRACE(rtlpriv, COMP_RATR, DBG_DMESG,
+				"wrong rssi level setting %d !", *ratr_state);
+			break;
+	}
+
+	/* Decide RATRState by RSSI. */
+	if (rssi > high_rssithresh_for_ra)
+		state = DM_RATR_STA_HIGH;
+	else if (rssi > low_rssithresh_for_ra)
+		state = DM_RATR_STA_MIDDLE;
+	else
+		state = DM_RATR_STA_LOW;
+
+	if (*ratr_state != state) {
+		*ratr_state = state;
+		return true;
+	}
+
+	return false;
+}
+
+static void rtl92ee_dm_refresh_rate_adaptive_mask(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_hal *rtlhal = rtl_hal(rtl_priv(hw));
 	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
 	struct rate_adaptive *p_ra = &(rtlpriv->ra);
-	u32 low_rssithresh_for_ra, high_rssithresh_for_ra;
 	struct ieee80211_sta *sta = NULL;
 
 	if (is_hal_stop(rtlhal)) {
-		RT_TRACE(COMP_RATE, DBG_LOUD,
-			 ("driver is going to unload\n"));
+		RT_TRACE(rtlpriv, COMP_RATE, DBG_LOUD,
+			 "driver is going to unload\n");
 		return;
 	}
 
-	if (!rtlpriv->dm.b_useramask) {
-		RT_TRACE(COMP_RATE, DBG_LOUD,
-			 ("driver does not control rate adaptive mask\n"));
+	if (!rtlpriv->dm.useramask) {
+		RT_TRACE(rtlpriv, COMP_RATE, DBG_LOUD,
+			 "driver does not control rate adaptive mask\n");
 		return;
 	}
 
 	if (mac->link_state == MAC80211_LINKED &&
 		mac->opmode == NL80211_IFTYPE_STATION) {
 
-		switch (p_ra->pre_ratr_state) {
-		case DM_RATR_STA_HIGH:
-			high_rssithresh_for_ra = 50;
-			low_rssithresh_for_ra = 20;
-			break;
-		case DM_RATR_STA_MIDDLE:
-			high_rssithresh_for_ra = 55;
-			low_rssithresh_for_ra = 20;
-			break;
-		case DM_RATR_STA_LOW:
-			high_rssithresh_for_ra = 50;
-			low_rssithresh_for_ra = 25;
-			break;
-		default:
-			high_rssithresh_for_ra = 50;
-			low_rssithresh_for_ra = 20;
-			break;
+		if (rtlpriv->dm.undec_sm_pwdb < p_ra->ldpc_thres) {
+			p_ra->use_ldpc = true;
+			p_ra->lower_rts_rate = true;
+		} else if (rtlpriv->dm.undec_sm_pwdb >
+			   (p_ra->ldpc_thres - 5)) {
+			p_ra->use_ldpc = false;
+			p_ra->lower_rts_rate = false;
 		}
-
-		if (rtlpriv->dm.undecorated_smoothed_pwdb >
-		    (long)high_rssithresh_for_ra)
-			p_ra->ratr_state = DM_RATR_STA_HIGH;
-		else if (rtlpriv->dm.undecorated_smoothed_pwdb >
-			 (long)low_rssithresh_for_ra)
-			p_ra->ratr_state = DM_RATR_STA_MIDDLE;
-		else
-			p_ra->ratr_state = DM_RATR_STA_LOW;
-
-		if (p_ra->pre_ratr_state != p_ra->ratr_state) {
-			RT_TRACE(COMP_RATE, DBG_LOUD,
-				 ("RSSI = %ld\n",
-				  rtlpriv->dm.undecorated_smoothed_pwdb));
-			RT_TRACE(COMP_RATE, DBG_LOUD,
-				 ("RSSI_LEVEL = %d\n", p_ra->ratr_state));
-			RT_TRACE(COMP_RATE, DBG_LOUD,
-				 ("PreState = %d, CurState = %d\n",
-				  p_ra->pre_ratr_state, p_ra->ratr_state));
+		if (_rtl92ee_dm_ra_state_check(hw,
+					rtlpriv->dm.undec_sm_pwdb,
+					&(p_ra->ratr_state))) {
 
 			rcu_read_lock();
 			sta = rtl_find_sta(hw, mac->bssid);
 			if (sta)
-			rtlpriv->cfg->ops->update_rate_tbl(hw, sta, p_ra->ratr_state);
+				rtlpriv->cfg->ops->update_rate_tbl(hw, sta,
+							      p_ra->ratr_state);
 			rcu_read_unlock();
 
 			p_ra->pre_ratr_state = p_ra->ratr_state;
@@ -1246,477 +1080,14 @@ void rtl92ee_dm_refresh_rate_adaptive_mask(struct ieee80211_hw *hw)
 	}
 }
 
-static void rtl92c_dm_init_dynamic_bb_powersaving(struct ieee80211_hw *hw)
-{
-	dm_pstable.pre_ccastate = CCA_MAX;
-	dm_pstable.cur_ccasate = CCA_MAX;
-	dm_pstable.pre_rfstate = RF_MAX;
-	dm_pstable.cur_rfstate = RF_MAX;
-	dm_pstable.rssi_val_min = 0;
-}
-
-static void rtl92ee_dm_update_rx_idle_ant(struct ieee80211_hw *hw,
-	u8 ant)
+static void rtl92ee_dm_init_dynamic_atc_switch(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
-	struct rtl_dm *rtldm = rtl_dm(rtl_priv(hw));
-	struct fast_ant_trainning *pfat_table= &(rtldm->fat_table);
-	u32 default_ant, optional_ant;
 
-	if (pfat_table->rx_idle_ant != ant) {
-		RT_TRACE(COMP_INIT,DBG_LOUD,("need to update rx idle ant\n"));
-		if (ant == MAIN_ANT) {
-			default_ant = (pfat_table->rx_idle_ant == CG_TRX_HW_ANTDIV ) ? MAIN_ANT_CG_TRX : MAIN_ANT_CGCS_RX;
-			optional_ant = (pfat_table->rx_idle_ant == CG_TRX_HW_ANTDIV ) ? AUX_ANT_CG_TRX : AUX_ANT_CGCS_RX;
-		} else {
-			default_ant = (pfat_table->rx_idle_ant == CG_TRX_HW_ANTDIV ) ? AUX_ANT_CG_TRX : AUX_ANT_CGCS_RX;
-			optional_ant = (pfat_table->rx_idle_ant == CG_TRX_HW_ANTDIV ) ? MAIN_ANT_CG_TRX : MAIN_ANT_CGCS_RX;
-		}
+	rtlpriv->dm.crystal_cap = rtlpriv->efuse.crystalcap;
 
-		if (rtlefuse->antenna_div_type == CG_TRX_HW_ANTDIV) {
-			rtl_set_bbreg(hw, DM_REG_RX_ANT_CTRL_11N, BIT(5) | BIT(4) | BIT(3), default_ant);
-			rtl_set_bbreg(hw, DM_REG_RX_ANT_CTRL_11N, BIT(8) | BIT(7) | BIT(6), optional_ant);
-			rtl_set_bbreg(hw, DM_REG_ANTSEL_CTRL_11N, BIT(14) | BIT(13) | BIT(12), default_ant);
-			rtl_set_bbreg(hw, DM_REG_RESP_TX_11N, BIT(6) | BIT(7), default_ant);
-		} else if (rtlefuse->antenna_div_type == CGCS_RX_HW_ANTDIV) {
-			rtl_set_bbreg(hw, DM_REG_RX_ANT_CTRL_11N, BIT(5) | BIT(4) | BIT(3), default_ant);
-			rtl_set_bbreg(hw, DM_REG_RX_ANT_CTRL_11N, BIT(8) | BIT(7) | BIT(6), optional_ant);
-		}
-	}
-	pfat_table->rx_idle_ant = ant;
-	RT_TRACE(COMP_INIT,DBG_LOUD,("RxIdleAnt %s \n",((ant == MAIN_ANT)? ("MAIN_ANT"):("AUX_ANT") )));
-}
-
-static void rtl92ee_dm_update_tx_ant(struct ieee80211_hw *hw,
-	u8 ant, u32 mac_id)
-{
-	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	struct rtl_dm *rtldm = rtl_dm(rtl_priv(hw));
-	struct fast_ant_trainning *pfat_table= &(rtldm->fat_table);
-	u8 target_ant;
-
-	if (ant == MAIN_ANT)
-		target_ant = MAIN_ANT_CG_TRX;
-	else
-		target_ant = AUX_ANT_CG_TRX;
-
-	pfat_table->antsel_a[mac_id] = target_ant & BIT(0);
-	pfat_table->antsel_b[mac_id] = (target_ant & BIT(1)) >> 1;
-	pfat_table->antsel_c[mac_id] = (target_ant & BIT(2)) >> 2;
-	RT_TRACE(COMP_INIT,DBG_LOUD,("txfrominfo target ant %s \n",((ant == MAIN_ANT)? ("MAIN_ANT"):("AUX_ANT") )));
-	RT_TRACE(COMP_INIT,DBG_LOUD,("antsel_tr_mux = 3'b%d%d%d\n",pfat_table->antsel_c[mac_id],
-		pfat_table->antsel_b[mac_id],pfat_table->antsel_a[mac_id]));
-
-}
-
-static void rtl92ee_dm_rx_hw_antena_div_init(struct ieee80211_hw *hw)
-{
-	u32  value32;
-	/*MAC Setting*/
-	value32 = rtl_get_bbreg(hw, DM_REG_ANTSEL_PIN_11N, MASKDWORD);
-	rtl_set_bbreg(hw, DM_REG_ANTSEL_PIN_11N, MASKDWORD, value32 | (BIT(23) | BIT(25)));
-	/*Pin Setting*/
-	rtl_set_bbreg(hw, DM_REG_PIN_CTRL_11N, BIT(9) | BIT(8), 0);
-	rtl_set_bbreg(hw, DM_REG_RX_ANT_CTRL_11N, BIT(10), 0);
-	rtl_set_bbreg(hw, DM_REG_LNA_SWITCH_11N, BIT(22), 1);
-	rtl_set_bbreg(hw, DM_REG_LNA_SWITCH_11N, BIT(31), 1);
-	/*OFDM Setting*/
-	rtl_set_bbreg(hw, DM_REG_ANTDIV_PARA1_11N, MASKDWORD, 0x000000a0);
-	/*CCK Setting*/
-	rtl_set_bbreg(hw, DM_REG_BB_PWR_SAV4_11N, BIT(7), 1);
-	rtl_set_bbreg(hw, DM_REG_CCK_ANTDIV_PARA2_11N, BIT(4), 1);
-	rtl92ee_dm_update_rx_idle_ant(hw, MAIN_ANT);
-	rtl_set_bbreg(hw, DM_REG_ANT_MAPPING1_11N, MASKLWORD, 0x0201);
-}
-
-static void rtl92ee_dm_trx_hw_antenna_div_init(struct ieee80211_hw *hw)
-{
-	u32  value32;
-	/*MAC Setting*/
-	value32 = rtl_get_bbreg(hw, DM_REG_ANTSEL_PIN_11N, MASKDWORD);
-	rtl_set_bbreg(hw, DM_REG_ANTSEL_PIN_11N, MASKDWORD, value32 | (BIT(23) | BIT(25)));
-	/*Pin Setting*/
-	rtl_set_bbreg(hw, DM_REG_PIN_CTRL_11N, BIT(9) | BIT(8), 0);
-	rtl_set_bbreg(hw, DM_REG_RX_ANT_CTRL_11N, BIT(10), 0);
-	rtl_set_bbreg(hw, DM_REG_LNA_SWITCH_11N, BIT(22), 0);
-	rtl_set_bbreg(hw, DM_REG_LNA_SWITCH_11N, BIT(31), 1);
-	/*OFDM Setting*/
-	rtl_set_bbreg(hw, DM_REG_ANTDIV_PARA1_11N, MASKDWORD, 0x000000a0);
-	/*CCK Setting*/
-	rtl_set_bbreg(hw, DM_REG_BB_PWR_SAV4_11N, BIT(7), 1);
-	rtl_set_bbreg(hw, DM_REG_CCK_ANTDIV_PARA2_11N, BIT(4), 1);
-	/*TX Setting*/
-	rtl_set_bbreg(hw, DM_REG_TX_ANT_CTRL_11N, BIT(21), 0);
-	rtl92ee_dm_update_rx_idle_ant(hw, MAIN_ANT);
-	rtl_set_bbreg(hw, DM_REG_ANT_MAPPING1_11N, MASKLWORD, 0x0201);
-}
-
-static void rtl92ee_dm_fast_training_init(struct ieee80211_hw *hw)
-{
-	struct rtl_dm *rtldm = rtl_dm(rtl_priv(hw));
-	struct fast_ant_trainning *pfat_table= &(rtldm->fat_table);
-	u32 ant_combination = 2;
-	u32 value32, i;
-
-	for(i = 0; i<6; i++){
-		pfat_table->bssid[i] = 0;
-		pfat_table->ant_sum_rssi[i] = 0;
-		pfat_table->ant_rssi_cnt[i] = 0;
-		pfat_table->ant_ave_rssi[i] = 0;
-	}
-	pfat_table->train_idx = 0;
-	pfat_table->fat_state = FAT_NORMAL_STATE;
-
-	/*MAC Setting*/
-	value32 = rtl_get_bbreg(hw, DM_REG_ANTSEL_PIN_11N, MASKDWORD);
-	rtl_set_bbreg(hw, DM_REG_ANTSEL_PIN_11N, MASKDWORD, value32 | (BIT(23) | BIT(25)));
-	value32 = rtl_get_bbreg(hw, DM_REG_ANT_TRAIN_PARA2_11N, MASKDWORD);
-	rtl_set_bbreg(hw, DM_REG_ANT_TRAIN_PARA2_11N, MASKDWORD, value32 | (BIT(16) | BIT(17)));
-	rtl_set_bbreg(hw, DM_REG_ANT_TRAIN_PARA2_11N, MASKLWORD, 0);
-	rtl_set_bbreg(hw, DM_REG_ANT_TRAIN_PARA1_11N, MASKDWORD, 0);
-
-	/*Pin Setting*/
-	rtl_set_bbreg(hw, DM_REG_PIN_CTRL_11N, BIT(9) | BIT(8), 0);
-	rtl_set_bbreg(hw, DM_REG_RX_ANT_CTRL_11N, BIT(10), 0);
-	rtl_set_bbreg(hw, DM_REG_LNA_SWITCH_11N, BIT(22), 0);
-	rtl_set_bbreg(hw, DM_REG_LNA_SWITCH_11N, BIT(31), 1);
-
-	/*OFDM Setting*/
-	rtl_set_bbreg(hw, DM_REG_ANTDIV_PARA1_11N, MASKDWORD, 0x000000a0);
-	/*antenna mapping table*/
-	if (ant_combination == 2){
-		rtl_set_bbreg(hw, DM_REG_ANT_MAPPING1_11N, MASKBYTE0, 1);
-		rtl_set_bbreg(hw, DM_REG_ANT_MAPPING1_11N, MASKBYTE1, 2);
-	} else if (ant_combination == 7) {
-		rtl_set_bbreg(hw, DM_REG_ANT_MAPPING1_11N, MASKBYTE0, 1);
-		rtl_set_bbreg(hw, DM_REG_ANT_MAPPING1_11N, MASKBYTE1, 2);
-		rtl_set_bbreg(hw, DM_REG_ANT_MAPPING1_11N, MASKBYTE2, 2);
-		rtl_set_bbreg(hw, DM_REG_ANT_MAPPING1_11N, MASKBYTE3, 3);
-		rtl_set_bbreg(hw, DM_REG_ANT_MAPPING2_11N, MASKBYTE0, 4);
-		rtl_set_bbreg(hw, DM_REG_ANT_MAPPING2_11N, MASKBYTE1, 5);
-		rtl_set_bbreg(hw, DM_REG_ANT_MAPPING2_11N, MASKBYTE2, 6);
-		rtl_set_bbreg(hw, DM_REG_ANT_MAPPING2_11N, MASKBYTE3, 7);
-	}
-
-	/*TX Setting*/
-	rtl_set_bbreg(hw, DM_REG_TX_ANT_CTRL_11N, BIT(21), 1);
-	rtl_set_bbreg(hw, DM_REG_RX_ANT_CTRL_11N, BIT(5)| BIT(4) | BIT(3), 0);
-	rtl_set_bbreg(hw, DM_REG_RX_ANT_CTRL_11N, BIT(8)| BIT(7) | BIT(6), 1);
-	rtl_set_bbreg(hw, DM_REG_RX_ANT_CTRL_11N, BIT(2)| BIT(1) | BIT(0), (ant_combination - 1));
-
-	rtl_set_bbreg(hw, DM_REG_IGI_A_11N, BIT(7), 1);
-}
-
-static void rtl92ee_dm_antenna_div_init(struct ieee80211_hw *hw)
-{
-	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
-
-	if (rtlefuse->antenna_div_type == CGCS_RX_HW_ANTDIV)
-		rtl92ee_dm_rx_hw_antena_div_init(hw);
-	else if (rtlefuse->antenna_div_type == CG_TRX_HW_ANTDIV)
-		rtl92ee_dm_trx_hw_antenna_div_init(hw);
-	else if (rtlefuse->antenna_div_type == CG_TRX_SMART_ANTDIV)
-		rtl92ee_dm_fast_training_init(hw);
-
-}
-void rtl92ee_dm_set_tx_ant_by_tx_info(struct ieee80211_hw *hw,
-	u8 *pdesc, u32 mac_id)
-{
-	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
-	struct rtl_dm *rtldm = rtl_dm(rtl_priv(hw));
-	struct fast_ant_trainning *pfat_table= &(rtldm->fat_table);
-
-	if ((rtlefuse->antenna_div_type == CG_TRX_HW_ANTDIV) ||
-		(rtlefuse->antenna_div_type == CG_TRX_HW_ANTDIV)){
-		SET_TX_DESC_ANTSEL_A(pdesc, pfat_table->antsel_a[mac_id]);
-		SET_TX_DESC_ANTSEL_B(pdesc, pfat_table->antsel_b[mac_id]);
-		SET_TX_DESC_ANTSEL_C(pdesc, pfat_table->antsel_c[mac_id]);
-
-	}
-}
-
-void rtl92ee_dm_ant_sel_statistics(struct ieee80211_hw *hw,
-	u8 antsel_tr_mux, u32 mac_id, u32 rx_pwdb_all)
-{
-	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
-	struct rtl_dm *rtldm = rtl_dm(rtl_priv(hw));
-	struct fast_ant_trainning *pfat_table= &(rtldm->fat_table);
-
-	if (rtlefuse->antenna_div_type == CG_TRX_HW_ANTDIV) {
-		if ( antsel_tr_mux == MAIN_ANT_CG_TRX) {
-			pfat_table->main_ant_sum[mac_id] += rx_pwdb_all;
-			pfat_table->main_ant_cnt[mac_id]++;
-		} else {
-			pfat_table->aux_ant_sum[mac_id] += rx_pwdb_all;
-			pfat_table->aux_ant_cnt[mac_id]++;
-		}
-	} else if (rtlefuse->antenna_div_type == CGCS_RX_HW_ANTDIV) {
-		if ( antsel_tr_mux == MAIN_ANT_CGCS_RX) {
-			pfat_table->main_ant_sum[mac_id] += rx_pwdb_all;
-			pfat_table->main_ant_cnt[mac_id]++;
-		} else {
-			pfat_table->aux_ant_sum[mac_id] += rx_pwdb_all;
-			pfat_table->aux_ant_cnt[mac_id]++;
-		}
-	}
-}
-#define TX_BY_REG 0
-static void rtl92ee_dm_hw_ant_div(struct ieee80211_hw *hw)
-{
-	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
-	struct rtl_dm *rtldm = rtl_dm(rtl_priv(hw));
-	struct rtl_sta_info *drv_priv;
-	struct fast_ant_trainning *pfat_table= &(rtldm->fat_table);
-	u32 i, min_rssi = 0xff, ant_div_max_rssi = 0, max_rssi = 0, local_min_rssi, local_max_rssi;
-	u32 main_rssi, aux_rssi;
-	u8 rx_idle_ant = 0, target_ant = 7;
-
-	/*for sta its self*/
-	i = 0;
-	main_rssi = (pfat_table->main_ant_cnt[i] != 0) ?
-		(pfat_table->main_ant_sum[i] / pfat_table->main_ant_cnt[i]) : 0;
-	aux_rssi = (pfat_table->aux_ant_cnt[i] != 0) ?
-		(pfat_table->aux_ant_sum[i] / pfat_table->aux_ant_cnt[i]) : 0;
-	target_ant = (main_rssi == aux_rssi) ?
-		pfat_table->rx_idle_ant : ((main_rssi >= aux_rssi) ? MAIN_ANT : AUX_ANT);
-	RT_TRACE(COMP_INIT,DBG_LOUD,("main_ant_sum %d main_ant_cnt %d\n",pfat_table->main_ant_sum[i],pfat_table->main_ant_cnt[i]));
-	RT_TRACE(COMP_INIT,DBG_LOUD,("aux_ant_sum %d aux_ant_cnt %d\n",pfat_table->aux_ant_sum[i],pfat_table->aux_ant_cnt[i]));
-	RT_TRACE(COMP_INIT,DBG_LOUD,("main_rssi %d aux_rssi%d\n",main_rssi,aux_rssi));
-	local_max_rssi = (main_rssi > aux_rssi) ? main_rssi : aux_rssi;
-	if ((local_max_rssi > ant_div_max_rssi) && (local_max_rssi < 40))
-		ant_div_max_rssi = local_max_rssi;
-	if (local_max_rssi > max_rssi)
-		max_rssi = local_max_rssi;
-
-	if ((pfat_table->rx_idle_ant == MAIN_ANT) && (main_rssi == 0))
-		main_rssi = aux_rssi;
-	else if ((pfat_table->rx_idle_ant == AUX_ANT) && (aux_rssi == 0))
-		aux_rssi = main_rssi;
-
-	local_min_rssi = (main_rssi > aux_rssi) ? aux_rssi : main_rssi;
-	if (local_min_rssi < min_rssi) {
-		min_rssi = local_min_rssi;
-		rx_idle_ant = target_ant;
-	}
-#if TX_BY_REG
-#else
-	if (rtlefuse->antenna_div_type == CG_TRX_HW_ANTDIV)
-		rtl92ee_dm_update_tx_ant(hw, target_ant, i);
-#endif
-
-	if (rtlpriv->mac80211.opmode == NL80211_IFTYPE_AP ||
-		rtlpriv->mac80211.opmode == NL80211_IFTYPE_ADHOC) {
-		spin_lock_bh(&rtlpriv->locks.entry_list_lock);
-		list_for_each_entry(drv_priv, &rtlpriv->entry_list, list) {
-			i++;
-			main_rssi = (pfat_table->main_ant_cnt[i] != 0) ?
-				(pfat_table->main_ant_sum[i] / pfat_table->main_ant_cnt[i]) : 0;
-			aux_rssi = (pfat_table->aux_ant_cnt[i] != 0) ?
-				(pfat_table->aux_ant_sum[i] / pfat_table->aux_ant_cnt[i]) : 0;
-			target_ant = (main_rssi == aux_rssi) ?
-				pfat_table->rx_idle_ant : ((main_rssi >= aux_rssi) ? MAIN_ANT : AUX_ANT);
-
-
-			local_max_rssi = (main_rssi > aux_rssi) ? main_rssi : aux_rssi;
-			if ((local_max_rssi > ant_div_max_rssi) && (local_max_rssi < 40))
-				ant_div_max_rssi = local_max_rssi;
-			if (local_max_rssi > max_rssi)
-				max_rssi = local_max_rssi;
-
-			if ((pfat_table->rx_idle_ant == MAIN_ANT) && (main_rssi == 0))
-				main_rssi = aux_rssi;
-			else if ((pfat_table->rx_idle_ant == AUX_ANT) && (aux_rssi == 0))
-				aux_rssi = main_rssi;
-
-			local_min_rssi = (main_rssi > aux_rssi) ? aux_rssi : main_rssi;
-			if (local_min_rssi < min_rssi) {
-				min_rssi = local_min_rssi;
-				rx_idle_ant = target_ant;
-			}
-#if TX_BY_REG
-#else
-			if (rtlefuse->antenna_div_type == CG_TRX_HW_ANTDIV)
-				rtl92ee_dm_update_tx_ant(hw, target_ant, i);
-#endif
-		}
-		spin_unlock_bh(&rtlpriv->locks.entry_list_lock);
-	}
-
-	for (i=0; i < ASSOCIATE_ENTRY_NUM; i++) {
-		pfat_table->main_ant_sum[i] = 0;
-		pfat_table->aux_ant_sum[i] = 0;
-		pfat_table->main_ant_cnt[i] = 0;
-		pfat_table->aux_ant_cnt[i] = 0;
-	}
-
-	rtl92ee_dm_update_rx_idle_ant(hw, rx_idle_ant);
-
-	dm_digtable.antdiv_rssi_max = ant_div_max_rssi;
-	dm_digtable.rssi_max = max_rssi;
-}
-
-static void rtl92ee_set_next_mac_address_target(struct ieee80211_hw *hw)
-{
-	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
-	struct rtl_dm *rtldm = rtl_dm(rtl_priv(hw));
-	struct rtl_sta_info *drv_priv;
-	struct fast_ant_trainning *pfat_table= &(rtldm->fat_table);
-	u32 value32, i,j = 0;
-
-	if (mac->link_state >= MAC80211_LINKED) {
-
-		for (i=0; i < ASSOCIATE_ENTRY_NUM; i++) {
-			if ((pfat_table->train_idx + 1) == ASSOCIATE_ENTRY_NUM)
-				pfat_table->train_idx = 0;
-			else
-				pfat_table->train_idx++;
-
-			if (pfat_table->train_idx == 0) {
-				value32 = (mac->mac_addr[5] << 8) | mac->mac_addr[4];
-				rtl_set_bbreg(hw, DM_REG_ANT_TRAIN_PARA2_11N, MASKLWORD, value32);
-
-				value32 = (mac->mac_addr[3] << 24) | (mac->mac_addr[2] << 16) |
-					(mac->mac_addr[1] << 8) |mac->mac_addr[0];
-				rtl_set_bbreg(hw, DM_REG_ANT_TRAIN_PARA1_11N, MASKDWORD, value32);
-				break;
-			}
-
-			if (rtlpriv->mac80211.opmode != NL80211_IFTYPE_STATION) {
-				spin_lock_bh(&rtlpriv->locks.entry_list_lock);
-				list_for_each_entry(drv_priv, &rtlpriv->entry_list, list) {
-					j++;
-					if (j != pfat_table->train_idx)
-						continue;
-
-					value32 = (drv_priv->mac_addr[5] << 8) | drv_priv->mac_addr[4];
-					rtl_set_bbreg(hw, DM_REG_ANT_TRAIN_PARA2_11N, MASKLWORD, value32);
-
-					value32 = (drv_priv->mac_addr[3] << 24) | (drv_priv->mac_addr[2] << 16) |
-						(drv_priv->mac_addr[1] << 8) |drv_priv->mac_addr[0];
-					rtl_set_bbreg(hw, DM_REG_ANT_TRAIN_PARA1_11N, MASKDWORD, value32);
-					break;
-				}
-				spin_unlock_bh(&rtlpriv->locks.entry_list_lock);
-				/*find entry, break*/
-				if (j == pfat_table->train_idx)
-					break;
-			}
-
-		}
-	}
-
-}
-static void rtl92ee_dm_fast_ant_trainning(struct ieee80211_hw *hw)
-{
-	struct rtl_dm *rtldm = rtl_dm(rtl_priv(hw));
-	struct fast_ant_trainning *pfat_table= &(rtldm->fat_table);
-	u32 i, max_rssi = 0;
-	u8 target_ant = 2;
-	bool bpkt_filter_match = false;
-
-	if (pfat_table->fat_state == FAT_TRAINING_STATE) {
-		for (i = 0; i < 7; i++) {
-			if (pfat_table->ant_rssi_cnt[i] == 0)
-				pfat_table->ant_ave_rssi[i] = 0;
-			else {
-				pfat_table->ant_ave_rssi[i] = pfat_table->ant_sum_rssi[i] /
-					pfat_table->ant_rssi_cnt[i];
-				bpkt_filter_match = true;
-			}
-
-			if (pfat_table->ant_ave_rssi[i] > max_rssi) {
-				max_rssi = pfat_table->ant_ave_rssi[i];
-				target_ant = (u8) i;
-			}
-		}
-
-		if (bpkt_filter_match == false) {
-			rtl_set_bbreg(hw, DM_REG_TXAGC_A_1_MCS32_11N, BIT(16), 0);
-			rtl_set_bbreg(hw, DM_REG_IGI_A_11N, BIT(7), 0);
-		} else {
-			rtl_set_bbreg(hw, DM_REG_TXAGC_A_1_MCS32_11N, BIT(16), 0);
-			rtl_set_bbreg(hw, DM_REG_RX_ANT_CTRL_11N, BIT(8) | BIT(7) |BIT(6), target_ant);
-			rtl_set_bbreg(hw, DM_REG_TX_ANT_CTRL_11N, BIT(21), 1);
-
-			pfat_table->antsel_a[pfat_table->train_idx] = target_ant & BIT(0);
-			pfat_table->antsel_b[pfat_table->train_idx] = (target_ant & BIT(1)) >> 1;
-			pfat_table->antsel_c[pfat_table->train_idx] = (target_ant & BIT(2)) >> 2;
-
-			if (target_ant == 0)
-				rtl_set_bbreg(hw, DM_REG_IGI_A_11N, BIT(7), 0);
-		}
-
-		for (i = 0; i < 7; i++) {
-			pfat_table->ant_sum_rssi[i] = 0;
-			pfat_table->ant_rssi_cnt[i] = 0;
-		}
-
-		pfat_table->fat_state = FAT_NORMAL_STATE;
-		return;
-	}
-
-	if (pfat_table->fat_state == FAT_NORMAL_STATE) {
-		rtl92ee_set_next_mac_address_target(hw);
-
-		pfat_table->fat_state = FAT_TRAINING_STATE;
-		rtl_set_bbreg(hw, DM_REG_TXAGC_A_1_MCS32_11N, BIT(16), 1);
-		rtl_set_bbreg(hw, DM_REG_IGI_A_11N, BIT(7), 1);
-
-		/*mod_timer(&rtlpriv->works.fast_antenna_trainning_timer,
-		  		jiffies + MSECS(RTL_WATCH_DOG_TIME));*/
-	}
-
-}
-void rtl92ee_dm_fast_antenna_trainning_callback(unsigned long data)
-{
-	struct ieee80211_hw *hw = (struct ieee80211_hw *)data;
-	rtl92ee_dm_fast_ant_trainning(hw);
-}
-static void rtl92ee_dm_antenna_diversity(struct ieee80211_hw *hw)
-{
-	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
-	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
-	struct rtl_dm *rtldm = rtl_dm(rtl_priv(hw));
-	struct fast_ant_trainning *pfat_table= &(rtldm->fat_table);
-
-	if (mac->link_state < MAC80211_LINKED) {
-		RT_TRACE(COMP_DIG, DBG_LOUD, ("No Link\n"));
-		if (pfat_table->b_becomelinked == true) {
-			RT_TRACE(COMP_DIG, DBG_LOUD, ("need to turn off HW AntDiv\n"));
-			rtl_set_bbreg(hw, DM_REG_IGI_A_11N, BIT(7), 0);
-			rtl_set_bbreg(hw, DM_REG_CCK_ANTDIV_PARA1_11N, BIT(15), 0);
-			if (rtlefuse->antenna_div_type == CG_TRX_HW_ANTDIV)
-				rtl_set_bbreg(hw, DM_REG_TX_ANT_CTRL_11N, BIT(21), 0);
-			pfat_table->b_becomelinked = (mac->link_state == MAC80211_LINKED) ? true : false;
-		}
-		return;
-	} else {
-		if (pfat_table->b_becomelinked == false) {
-			RT_TRACE(COMP_DIG, DBG_LOUD, ("Need to turn on HW AntDiv\n"));
-			rtl_set_bbreg(hw, DM_REG_IGI_A_11N, BIT(7), 1);
-			rtl_set_bbreg(hw, DM_REG_CCK_ANTDIV_PARA1_11N, BIT(15), 1);
-			if (rtlefuse->antenna_div_type == CG_TRX_HW_ANTDIV) {
-#if TX_BY_REG
-				rtl_set_bbreg(hw, DM_REG_TX_ANT_CTRL_11N, BIT(21), 0);
-#else
-				rtl_set_bbreg(hw, DM_REG_TX_ANT_CTRL_11N, BIT(21), 1);
-#endif
-			}
-			pfat_table->b_becomelinked = (mac->link_state >= MAC80211_LINKED) ? true : false;
-		}
-
-	}
-
-	if ((rtlefuse->antenna_div_type == CG_TRX_HW_ANTDIV) ||
-		(rtlefuse->antenna_div_type == CGCS_RX_HW_ANTDIV))
-		rtl92ee_dm_hw_ant_div(hw);
-	else if (rtlefuse->antenna_div_type == CG_TRX_SMART_ANTDIV)
-		rtl92ee_dm_fast_ant_trainning(hw);
-
+	rtlpriv->dm.atc_status = rtl_get_bbreg(hw, ROFDM1_CFOTRACKING, BIT(11));
+	rtlpriv->dm.cfo_threshold = CFO_THRESHOLD_XTAL;
 }
 
 void rtl92ee_dm_init(struct ieee80211_hw *hw)
@@ -1724,40 +1095,174 @@ void rtl92ee_dm_init(struct ieee80211_hw *hw)
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
 	rtlpriv->dm.dm_type = DM_TYPE_BYDRIVER;
+
 	rtl92ee_dm_diginit(hw);
-	rtl92ee_dm_init_dynamic_txpower(hw);
-	rtl92ee_dm_init_edca_turbo(hw);
 	rtl92ee_dm_init_rate_adaptive_mask(hw);
+	rtl92ee_dm_init_primary_cca_check(hw);
+	rtl92ee_dm_init_edca_turbo(hw);
 	rtl92ee_dm_init_txpower_tracking(hw);
-	rtl92c_dm_init_dynamic_bb_powersaving(hw);
-	rtl92ee_dm_antenna_div_init(hw);
+	rtl92ee_dm_init_dynamic_atc_switch(hw);
+}
+
+static void rtl92ee_dm_common_info_self_update(struct ieee80211_hw *hw)
+{
+	struct rtl_priv *rtlpriv = rtl_priv(hw);
+	u8 cnt = 0;
+	struct rtl_sta_info *drv_priv;
+
+	rtlpriv->dm.one_entry_only = false;
+
+	if (rtlpriv->mac80211.opmode == NL80211_IFTYPE_STATION &&
+		rtlpriv->mac80211.link_state >= MAC80211_LINKED) {
+		rtlpriv->dm.one_entry_only = true;
+		return;
+	}
+
+	if (rtlpriv->mac80211.opmode == NL80211_IFTYPE_AP ||
+	    rtlpriv->mac80211.opmode == NL80211_IFTYPE_ADHOC ||
+	    rtlpriv->mac80211.opmode == NL80211_IFTYPE_MESH_POINT) {
+		spin_lock_bh(&rtlpriv->locks.entry_list_lock);
+		list_for_each_entry(drv_priv, &rtlpriv->entry_list, list) {
+			cnt++;
+		}
+		spin_unlock_bh(&rtlpriv->locks.entry_list_lock);
+
+		if (cnt == 1)
+			rtlpriv->dm.one_entry_only = true;
+	}
+}
+
+void rtl92ee_dm_dynamic_arfb_select(struct ieee80211_hw *hw,
+				    u8 rate, bool collision_state)
+{
+	struct rtl_priv *rtlpriv = rtl_priv(hw);
+
+	if (rate >= DESC92C_RATEMCS8  && rate <= DESC92C_RATEMCS12) {
+		if (collision_state == 1) {
+			if (rate == DESC92C_RATEMCS12) {
+				rtl_write_dword(rtlpriv, REG_DARFRC, 0x0);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x07060501);
+			} else if (rate == DESC92C_RATEMCS11) {
+				rtl_write_dword(rtlpriv, REG_DARFRC, 0x0);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x07070605);
+			} else if (rate == DESC92C_RATEMCS10) {
+				rtl_write_dword(rtlpriv, REG_DARFRC, 0x0);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x08080706);
+			} else if (rate == DESC92C_RATEMCS9) {
+				rtl_write_dword(rtlpriv, REG_DARFRC, 0x0);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x08080707);
+			} else {
+				rtl_write_dword(rtlpriv, REG_DARFRC, 0x0);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x09090808);
+			}
+		} else {   /* collision_state == 0 */
+			if (rate == DESC92C_RATEMCS12) {
+				rtl_write_dword(rtlpriv, REG_DARFRC,
+						0x05010000);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x09080706);
+			} else if (rate == DESC92C_RATEMCS11) {
+				rtl_write_dword(rtlpriv, REG_DARFRC,
+						0x06050000);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x09080807);
+			} else if (rate == DESC92C_RATEMCS10) {
+				rtl_write_dword(rtlpriv, REG_DARFRC,
+						0x07060000);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x0a090908);
+			} else if (rate == DESC92C_RATEMCS9) {
+				rtl_write_dword(rtlpriv, REG_DARFRC,
+						0x07070000);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x0a090808);
+			} else {
+				rtl_write_dword(rtlpriv, REG_DARFRC,
+						0x08080000);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x0b0a0909);
+			}
+		}
+	} else {  /* MCS13~MCS15,  1SS, G-mode */
+		if (collision_state == 1) {
+			if (rate == DESC92C_RATEMCS15) {
+				rtl_write_dword(rtlpriv, REG_DARFRC,
+						0x00000000);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x05040302);
+			} else if (rate == DESC92C_RATEMCS14) {
+				rtl_write_dword(rtlpriv, REG_DARFRC,
+						0x00000000);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x06050302);
+			} else if (rate == DESC92C_RATEMCS13) {
+				rtl_write_dword(rtlpriv, REG_DARFRC,
+						0x00000000);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x07060502);
+			} else {
+				rtl_write_dword(rtlpriv, REG_DARFRC,
+						0x00000000);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x06050402);
+			}
+		} else{   /* collision_state == 0 */
+			if (rate == DESC92C_RATEMCS15) {
+				rtl_write_dword(rtlpriv, REG_DARFRC,
+						0x03020000);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x07060504);
+			} else if (rate == DESC92C_RATEMCS14) {
+				rtl_write_dword(rtlpriv, REG_DARFRC,
+						0x03020000);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x08070605);
+			} else if (rate == DESC92C_RATEMCS13) {
+				rtl_write_dword(rtlpriv, REG_DARFRC,
+						0x05020000);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x09080706);
+			} else {
+				rtl_write_dword(rtlpriv, REG_DARFRC,
+						0x04020000);
+				rtl_write_dword(rtlpriv, REG_DARFRC + 4,
+						0x08070605);
+			}
+		}
+	}
 }
 
 void rtl92ee_dm_watchdog(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_ps_ctl *ppsc = rtl_psc(rtl_priv(hw));
-	bool b_fw_current_inpsmode = false;
-	bool b_fw_ps_awake = true;
-	return;
-	rtlpriv->cfg->ops->get_hw_reg(hw, HW_VAR_FW_PSMODE_STATUS,
-				      (u8 *) (&b_fw_current_inpsmode));
-	rtlpriv->cfg->ops->get_hw_reg(hw, HW_VAR_FWLPS_RF_ON,
-				      (u8 *) (&b_fw_ps_awake));
-	if (ppsc->p2p_ps_info.p2p_ps_mode)
-		b_fw_ps_awake = false;
+	bool fw_current_inpsmode = false;
+	bool fw_ps_awake = true;
 
-	if ((ppsc->rfpwr_state == ERFON) && ((!b_fw_current_inpsmode) &&
-					     b_fw_ps_awake)
-	    && (!ppsc->rfchange_inprogress)) {
-		rtl92ee_dm_pwdb_monitor(hw);
-		rtl92ee_dm_dig(hw);
+	rtlpriv->cfg->ops->get_hw_reg(hw, HW_VAR_FW_PSMODE_STATUS,
+				      (u8 *) (&fw_current_inpsmode));
+	rtlpriv->cfg->ops->get_hw_reg(hw, HW_VAR_FWLPS_RF_ON,
+				      (u8 *) (&fw_ps_awake));
+	if (ppsc->p2p_ps_info.p2p_ps_mode)
+		fw_ps_awake = false;
+
+	if ((ppsc->rfpwr_state == ERFON) &&
+	    ((!fw_current_inpsmode) && fw_ps_awake) &&
+	    (!ppsc->rfchange_inprogress)) {
+		rtl92ee_dm_common_info_self_update(hw);
 		rtl92ee_dm_false_alarm_counter_statistics(hw);
-		rtl92c_dm_dynamic_txpower(hw);
-		rtl92ee_dm_check_txpower_tracking(hw);
+		rtl92ee_dm_check_rssi_monitor(hw);
+		rtl92ee_dm_dig(hw);
+		rtl92ee_dm_adaptivity(hw);
+		rtl92ee_dm_cck_packet_detection_thresh(hw);
 		rtl92ee_dm_refresh_rate_adaptive_mask(hw);
 		rtl92ee_dm_check_edca_turbo(hw);
-		rtl92ee_dm_antenna_diversity(hw);
+		rtl92ee_dm_dynamic_atc_switch(hw);
+		rtl92ee_dm_dynamic_primary_cca_ckeck(hw);
 	}
 }
-

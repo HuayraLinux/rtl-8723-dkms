@@ -27,8 +27,8 @@
  *
  *****************************************************************************/
 
-#ifndef __rtl8723be_SW_H__
-#define __rtl8723be_SW_H__
+#ifndef __RTL8723BE_SW_H__
+#define __RTL8723BE_SW_H__
 
 int rtl8723be_init_sw_vars(struct ieee80211_hw *hw);
 void rtl8723be_deinit_sw_vars(struct ieee80211_hw *hw);

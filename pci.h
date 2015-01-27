@@ -39,10 +39,12 @@
 #define RTL_PCI_RX_CMD_QUEUE			1
 #define RTL_PCI_MAX_RX_QUEUE			2
 
-#define RTL_PCI_MAX_RX_COUNT			64
+#define RX_DESC_NUM_92E				512
+#define RTL_PCI_MAX_RX_COUNT			512/*64*/
 #define RTL_PCI_MAX_TX_QUEUE_COUNT		9
 
 #define RT_TXDESC_NUM				128
+#define TX_DESC_NUM_92E				512
 #define RT_TXDESC_NUM_BE_QUEUE			256
 
 #define BK_QUEUE				0
@@ -72,7 +74,7 @@
 #define PCI_MAX_DEVICES				32
 #define PCI_MAX_FUNCTION			8
 
-#define PCI_CONF_ADDRESS   	0x0CF8	/*PCI Configuration Space Address */
+#define PCI_CONF_ADDRESS	0x0CF8	/*PCI Configuration Space Address */
 #define PCI_CONF_DATA		0x0CFC	/*PCI Configuration Space Data */
 
 #define PCI_CLASS_BRIDGE_DEV		0x06
@@ -80,9 +82,9 @@
 #define PCI_CAPABILITY_ID_PCI_EXPRESS	0x10
 #define PCI_CAP_ID_EXP			0x10
 
-#define U1DONTCARE 			0xFF
-#define U2DONTCARE 			0xFFFF
-#define U4DONTCARE 			0xFFFFFFFF
+#define U1DONTCARE			0xFF
+#define U2DONTCARE			0xFFFF
+#define U4DONTCARE			0xFFFFFFFF
 
 #define RTL_PCI_8192_DID	0x8192	/*8192 PCI-E */
 #define RTL_PCI_8192SE_DID	0x8192	/*8192 SE */
@@ -97,7 +99,7 @@
 #define RTL_PCI_700F_DID	0x700F
 #define RTL_PCI_701F_DID	0x701F
 #define RTL_PCI_DLINK_DID	0x3304
-#define RTL_PCI_8723AE_DID  0x8723	/*8723e */
+#define RTL_PCI_8723AE_DID	0x8723	/*8723e */
 #define RTL_PCI_8192CET_DID	0x8191	/*8192ce */
 #define RTL_PCI_8192CE_DID	0x8178	/*8192ce */
 #define RTL_PCI_8191CE_DID	0x8177	/*8192ce */
@@ -108,9 +110,11 @@
 #define RTL_PCI_8188EE_DID	0x8179  /*8188ee*/
 #define RTL_PCI_8723BE_DID	0xB723  /*8723be*/
 #define RTL_PCI_8192EE_DID	0x818B	/*8192ee*/
+#define RTL_PCI_8821AE_DID	0x8821	/*8821ae*/
+#define RTL_PCI_8812AE_DID	0x8812	/*8812ae*/
 
 /*8192 support 16 pages of IO registers*/
-#define RTL_MEM_MAPPED_IO_RANGE_8190PCI 	0x1000
+#define RTL_MEM_MAPPED_IO_RANGE_8190PCI		0x1000
 #define RTL_MEM_MAPPED_IO_RANGE_8192PCIE	0x4000
 #define RTL_MEM_MAPPED_IO_RANGE_8192SE		0x4000
 #define RTL_MEM_MAPPED_IO_RANGE_8192CE		0x4000
@@ -126,24 +130,41 @@
 
 enum pci_bridge_vendor {
 	PCI_BRIDGE_VENDOR_INTEL = 0x0,	/*0b'0000,0001 */
-	PCI_BRIDGE_VENDOR_ATI,			/*0b'0000,0010*/
-	PCI_BRIDGE_VENDOR_AMD,			/*0b'0000,0100*/
-	PCI_BRIDGE_VENDOR_SIS,			/*0b'0000,1000*/
-	PCI_BRIDGE_VENDOR_UNKNOWN,		/*0b'0100,0000*/
-	PCI_BRIDGE_VENDOR_MAX,	
+	PCI_BRIDGE_VENDOR_ATI,		/*0b'0000,0010*/
+	PCI_BRIDGE_VENDOR_AMD,		/*0b'0000,0100*/
+	PCI_BRIDGE_VENDOR_SIS,		/*0b'0000,1000*/
+	PCI_BRIDGE_VENDOR_UNKNOWN,	/*0b'0100,0000*/
+	PCI_BRIDGE_VENDOR_MAX,
 };
 
 struct rtl_pci_capabilities_header {
-    u8 capability_id;
-    u8 next;
+	u8 capability_id;
+	u8 next;
 };
 
-struct rtl_rx_desc {
-	u32 dword[8];
+/* In new TRX flow, Buffer_desc is new concept
+  * But TX wifi info == TX descriptor in old flow
+  * RX wifi info == RX descriptor in old flow */
+struct rtl_tx_buffer_desc {
+#if (RTL8192EE_SEG_NUM == 2)
+	u32 dword[2*(DMA_IS_64BIT + 1)*8]; /*seg = 8*/
+#elif (RTL8192EE_SEG_NUM == 1)
+	u32 dword[2*(DMA_IS_64BIT + 1)*4]; /*seg = 4*/
+#elif (RTL8192EE_SEG_NUM == 0)
+	u32 dword[2*(DMA_IS_64BIT + 1)*2]; /*seg = 2*/
+#endif
 } __packed;
 
-struct rtl_tx_desc {
+struct rtl_tx_desc {/*old: tx desc new: tx wifi info*/
 	u32 dword[16];
+} __packed;
+
+struct rtl_rx_buffer_desc { /*rx buffer desc*/
+	u32 dword[2];
+} __packed;
+
+struct rtl_rx_desc { /*old: rx desc new: rx wifi info*/
+	u32 dword[8];
 } __packed;
 
 struct rtl_tx_cmd_desc {
@@ -151,18 +172,28 @@ struct rtl_tx_cmd_desc {
 } __packed;
 
 struct rtl8192_tx_ring {
-	struct rtl_tx_desc *desc;
-	dma_addr_t dma;
+	struct rtl_tx_desc *desc; /*tx desc / tx wifi info*/
+	dma_addr_t dma; /*tx desc dma memory / tx wifi info dma memory*/
 	unsigned int idx;
 	unsigned int entries;
 	struct sk_buff_head queue;
+	/*add for new trx flow*/
+	struct rtl_tx_buffer_desc *buffer_desc; /*tx buffer descriptor*/
+	dma_addr_t buffer_desc_dma; /*tx bufferd desc dma memory*/
+	u16 avl_desc; /* available_desc_to_write */
+	u16 cur_tx_wp; /* current_tx_write_point */
+	u16 cur_tx_rp; /* current_tx_read_point */
 };
 
 struct rtl8192_rx_ring {
-	struct rtl_rx_desc *desc;
+	struct rtl_rx_desc *desc;/*for old trx flow, not uesd in new trx*/
+	/*dma matches either 'desc' or 'buffer_desc'*/
 	dma_addr_t dma;
 	unsigned int idx;
 	struct sk_buff *rx_buf[RTL_PCI_MAX_RX_COUNT];
+	/*add for new trx flow*/
+	struct rtl_rx_buffer_desc *buffer_desc; /*rx buffer descriptor*/
+	u16 next_rx_rp; /* next_rx_read_point */
 };
 
 struct rtl_pci {
@@ -198,14 +229,18 @@ struct rtl_pci {
 	u8 const_devicepci_aspm_setting;
 	/*If it supports ASPM, Offset[560h] = 0x40,
 	   otherwise Offset[560h] = 0x00. */
-	bool b_support_aspm;
-	bool b_support_backdoor;
+	bool support_aspm;
+	bool support_backdoor;
 
 	/*QOS & EDCA */
 	enum acm_method acm_method;
 
 	u16 shortretry_limit;
 	u16 longretry_limit;
+
+	/* MSI support */
+	bool msi_support;
+	bool using_msi;
 };
 
 struct mp_adapter {
@@ -236,7 +271,6 @@ struct rtl_pci_priv {
 	struct rtl_pci dev;
 	struct mp_adapter ndis_adapter;
 	struct rtl_led_ctl ledctl;
-	struct bt_coexist_info btcoexist;
 };
 
 #define rtl_pcipriv(hw)		(((struct rtl_pci_priv *)(rtl_priv(hw))->priv))
@@ -246,20 +280,15 @@ int rtl_pci_reset_trx_ring(struct ieee80211_hw *hw);
 
 extern struct rtl_intf_ops rtl_pci_ops;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,8,0))
 int rtl_pci_probe(struct pci_dev *pdev,
-                            const struct pci_device_id *id);
-#else
-int __devinit rtl_pci_probe(struct pci_dev *pdev,
-			    const struct pci_device_id *id);
-#endif
+			const struct pci_device_id *id);
 void rtl_pci_disconnect(struct pci_dev *pdev);
 int rtl_pci_suspend(struct device *dev);
 int rtl_pci_resume(struct device *dev);
 
 static inline u8 pci_read8_sync(struct rtl_priv *rtlpriv, u32 addr)
 {
-	return 0xff & readb((u8 __iomem *) rtlpriv->io.pci_mem_start + addr);
+	return readb((u8 __iomem *)rtlpriv->io.pci_mem_start + addr);
 }
 
 static inline u16 pci_read16_sync(struct rtl_priv *rtlpriv, u32 addr)
@@ -299,19 +328,33 @@ static inline void rtl_pci_raw_write_port_uchar(u32 port, u8 val)
 	outb(val, port);
 }
 
-static inline void rtl_pci_raw_read_port_uchar(u32 port, u8 * pval)
+static inline void rtl_pci_raw_read_port_uchar(u32 port, u8 *pval)
 {
 	*pval = inb(port);
 }
 
-static inline void rtl_pci_raw_read_port_ushort(u32 port, u16 * pval)
+static inline void rtl_pci_raw_read_port_ushort(u32 port, u16 *pval)
 {
 	*pval = inw(port);
 }
 
-static inline void rtl_pci_raw_read_port_ulong(u32 port, u32 * pval)
+static inline void rtl_pci_raw_read_port_ulong(u32 port, u32 *pval)
 {
 	*pval = inl(port);
 }
+
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,17,0))
+static inline void *
+pci_zalloc_consistent(struct pci_dev *hwdev, size_t size,
+		      dma_addr_t *dma_handle)
+{
+	void *tmp;
+
+	tmp = pci_alloc_consistent(hwdev, size, dma_handle);
+	if (tmp)
+		memset(tmp, 0, size);
+	return tmp;
+}
+#endif
 
 #endif
