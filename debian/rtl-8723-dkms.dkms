@@ -35,8 +35,8 @@ DEST_MODULE_LOCATION[1]="/updates/dkms/rtlwifi/rtl8723be/"
 #BUILT_MODULE_LOCATION[2]="./rtl8723e/"
 #DEST_MODULE_LOCATION[2]="/updates/dkms/rtlwifi/rtl8723e/"
 
-BUILT_MODULE_NAME[3]="rtlwifi"
-BUILT_MODULE_LOCATION[3]="./"
-DEST_MODULE_LOCATION[3]="/updates/dkms/rtlwifi/"
+BUILT_MODULE_NAME[2]="rtlwifi"
+BUILT_MODULE_LOCATION[2]="./"
+DEST_MODULE_LOCATION[2]="/updates/dkms/rtlwifi/"
 
 AUTOINSTALL="yes"
