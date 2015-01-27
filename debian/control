@@ -21,7 +21,8 @@ Description: Realtek 8723 firmware files (non-free)
 
 Package: rtl-8723-firmware-jessie
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, firmware-realtek
+Conflicts: rtl-8723-firmware
 Description: Realtek 8723 firmware files (non-free) (dummy package)
  This package have the non-free firmware for the Realtek 8723 wireless adapter.
  This package only exists for transition.

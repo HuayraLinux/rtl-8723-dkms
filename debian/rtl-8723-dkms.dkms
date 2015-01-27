@@ -31,9 +31,9 @@ BUILT_MODULE_NAME[1]="rtl8723be"
 BUILT_MODULE_LOCATION[1]="./rtl8723be/"
 DEST_MODULE_LOCATION[1]="/updates/dkms/rtlwifi/rtl8723be/"
 
-BUILT_MODULE_NAME[2]="rtl8723e"
-BUILT_MODULE_LOCATION[2]="./rtl8723e/"
-DEST_MODULE_LOCATION[2]="/updates/dkms/rtlwifi/rtl8723e/"
+#BUILT_MODULE_NAME[2]="rtl8723e"
+#BUILT_MODULE_LOCATION[2]="./rtl8723e/"
+#DEST_MODULE_LOCATION[2]="/updates/dkms/rtlwifi/rtl8723e/"
 
 BUILT_MODULE_NAME[3]="rtlwifi"
 BUILT_MODULE_LOCATION[3]="./"
