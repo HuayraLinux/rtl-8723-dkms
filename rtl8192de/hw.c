@@ -1069,7 +1069,7 @@ int rtl92de_hw_init(struct ieee80211_hw *hw)
 		/* Mac1 */
 		if (!rtlpriv->dm.supp_phymode_switch ||
 			(rtlpriv->dm.supp_phymode_switch && (!rtlhal->slave_of_dmsp)))
-		rtl_set_bbreg(hw, RFPGA0_ANALOGPARAMETER2, BIT(11) | BIT(10), 3);
+			rtl_set_bbreg(hw, RFPGA0_ANALOGPARAMETER2, BIT(11) | BIT(10), 3);
 	}
 
 	_rtl92de_hw_configure(hw);
@@ -1272,22 +1272,11 @@ void rtl92de_set_qos(struct ieee80211_hw *hw, int aci)
 	return;
 }
 
-static void rtl92de_clear_interrupt(struct ieee80211_hw *hw)
-{
-	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	u32 tmp;
-	tmp = rtl_read_dword(rtlpriv, REG_HISR);
-	rtl_write_dword(rtlpriv, REG_HISR, tmp);
-
-	tmp = rtl_read_dword(rtlpriv, REG_HISRE);
-	rtl_write_dword(rtlpriv, REG_HISRE, tmp);
-}
-
 void rtl92de_enable_interrupt(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
-	rtl92de_clear_interrupt(hw);/*clear it here first*/
+
 	rtl_write_dword(rtlpriv, REG_HIMR, rtlpci->irq_mask[0] & 0xFFFFFFFF);
 	rtl_write_dword(rtlpriv, REG_HIMRE, rtlpci->irq_mask[1] & 0xFFFFFFFF);
 	rtlpci->irq_enabled = true;
@@ -1864,7 +1853,7 @@ static void _rtl92de_read_adapter_info(struct ieee80211_hw *hw)
 	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
 	struct rtl_hal *rtlhal = rtl_hal(rtl_priv(hw));
 	u16 i, usvalue;
-	u8 hwinfo[HWSET_MAX_SIZE];
+	u8 hwinfo[HWSET_MAX_SIZE] = {0};
 	u16 eeprom_id;
 	unsigned long flags;
 

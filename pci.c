@@ -593,7 +593,8 @@ static void _rtl_pci_tx_isr(struct ieee80211_hw *hw, int prio)
 			return;
 		}
 
-		if (!rtlpriv->cfg->ops->is_tx_desc_closed(hw, prio, ring->idx))
+		if (prio != BEACON_QUEUE &&
+		    !rtlpriv->cfg->ops->is_tx_desc_closed(hw, prio, ring->idx))
 			return;
 
 		ring->idx = (ring->idx + 1) % ring->entries;
@@ -811,7 +812,9 @@ static void _rtl_pci_rx_interrupt(struct ieee80211_hw *hw)
 								      hw_queue);
 			if (rx_remained_cnt == 0)
 				return;
-
+			buffer_desc = &rtlpci->rx_ring[rxring_idx].buffer_desc[
+				rtlpci->rx_ring[rxring_idx].idx];
+			pdesc = (struct rtl_rx_desc *)skb->data;
 		} else {	/* rx descriptor */
 			pdesc = &rtlpci->rx_ring[rxring_idx].desc[
 				rtlpci->rx_ring[rxring_idx].idx];
@@ -832,17 +835,8 @@ static void _rtl_pci_rx_interrupt(struct ieee80211_hw *hw)
 
 		/* get a new skb - if fail, old one will be reused */
 		new_skb = dev_alloc_skb(rtlpci->rxbuffersize);
-		if (unlikely(!new_skb)) {
-			pr_err("Allocation of new skb failed in %s\n",
-			       __func__);
+		if (unlikely(!new_skb))
 			goto no_new;
-		}
-		if (rtlpriv->use_new_trx_flow) {
-			buffer_desc = &rtlpci->rx_ring[rxring_idx].buffer_desc[
-				rtlpci->rx_ring[rxring_idx].idx];
-			/*means rx wifi info*/
-			pdesc = (struct rtl_rx_desc *)skb->data;
-		}
 		memset(&rx_status , 0 , sizeof(rx_status));
 		rtlpriv->cfg->ops->query_rx_desc(hw, &status,
 						 &rx_status, (u8 *) pdesc, skb);
@@ -1137,12 +1131,22 @@ static void _rtl_pci_prepare_bcn_tasklet(struct ieee80211_hw *hw)
 	/*This is for new trx flow*/
 	struct rtl_tx_buffer_desc *pbuffer_desc = NULL;
 	u8 temp_one = 1;
+	u8 *entry;
 
 	memset(&tcb_desc, 0, sizeof(struct rtl_tcb_desc));
 	ring = &rtlpci->tx_ring[BEACON_QUEUE];
 	pskb = __skb_dequeue(&ring->queue);
-	if (pskb)
+	if (rtlpriv->use_new_trx_flow)
+		entry = (u8 *)(&ring->buffer_desc[ring->idx]);
+	else
+		entry = (u8 *)(&ring->desc[ring->idx]);
+	if (pskb) {
+		pci_unmap_single(rtlpci->pdev,
+				 rtlpriv->cfg->ops->get_desc(
+				 (u8 *)entry, true, HW_DESC_TXBUFF_ADDR),
+				 pskb->len, PCI_DMA_TODEVICE);
 		kfree_skb(pskb);
+	}
 
 	/*NB: the beacon data buffer must be 32-bit aligned. */
 	pskb = ieee80211_beacon_get(hw, mac->vif);
@@ -1242,6 +1246,8 @@ static void _rtl_pci_init_struct(struct ieee80211_hw *hw,
 	tasklet_init(&rtlpriv->works.irq_prepare_bcn_tasklet,
 		     (void (*)(unsigned long))_rtl_pci_prepare_bcn_tasklet,
 		     (unsigned long)hw);
+	INIT_WORK(&rtlpriv->works.lps_change_work,
+		  rtl_lps_change_work_callback);
 }
 
 static int _rtl_pci_init_tx_ring(struct ieee80211_hw *hw,
@@ -2121,12 +2127,14 @@ static int rtl_pci_intr_mode_msi(struct ieee80211_hw *hw)
 	struct rtl_pci *rtlpci = rtl_pcidev(pcipriv);
 	int ret;
 	ret = pci_enable_msi(rtlpci->pdev);
-	if (ret < 0)
+	if (ret < 0) {
+		pr_info("pci_enable_msi returned %d\n", ret);
 		return ret;
-
+	}
 	ret = request_irq(rtlpci->pdev->irq, &_rtl_pci_interrupt,
 			  IRQF_SHARED, KBUILD_MODNAME, hw);
 	if (ret < 0) {
+		pr_info("MSI disabled\n");
 		pci_disable_msi(rtlpci->pdev);
 		return ret;
 	}

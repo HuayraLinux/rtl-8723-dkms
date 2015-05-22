@@ -292,7 +292,7 @@ void rtl92se_set_hw_reg(struct ieee80211_hw *hw, u8 variable, u8 *val)
 					acm_ctrl &= (~AcmHw_ViqEn);
 					break;
 				case AC3_VO:
-					acm_ctrl &= (~AcmHw_BeqEn);
+					acm_ctrl &= (~AcmHw_VoqEn);
 					break;
 				default:
 					RT_TRACE(rtlpriv, COMP_ERR, DBG_LOUD,
@@ -1299,6 +1299,7 @@ void rtl92se_enable_interrupt(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
+
 	rtl_write_dword(rtlpriv, INTA_MASK, rtlpci->irq_mask[0]);
 	/* Support Bit 32-37(Assign as Bit 0-5) interrupt setting now */
 	rtl_write_dword(rtlpriv, INTA_MASK + 4, rtlpci->irq_mask[1] & 0x3F);
@@ -1717,7 +1718,7 @@ static void _rtl92se_read_adapter_info(struct ieee80211_hw *hw)
 	u16 i, usvalue;
 	u16	eeprom_id;
 	u8 tempval;
-	u8 hwinfo[HWSET_MAX_SIZE_92S];
+	u8 hwinfo[HWSET_MAX_SIZE_92S] = {0};
 	u8 rf_path, index;
 
 	if (rtlefuse->epromtype == EEPROM_93C46) {

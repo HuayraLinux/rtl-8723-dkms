@@ -362,7 +362,7 @@ void rtl92ce_set_hw_reg(struct ieee80211_hw *hw, u8 variable, u8 *val)
 					acm_ctrl &= (~AcmHw_ViqEn);
 					break;
 				case AC3_VO:
-					acm_ctrl &= (~AcmHw_BeqEn);
+					acm_ctrl &= (~AcmHw_VoqEn);
 					break;
 				default:
 					RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG,
@@ -1302,24 +1302,11 @@ void rtl92ce_set_qos(struct ieee80211_hw *hw, int aci)
 	}
 }
 
-
-static void rtl92ce_clear_interrupt(struct ieee80211_hw *hw)
-{
-	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	u32 tmp;
-	tmp = rtl_read_dword(rtlpriv, REG_HISR);
-	rtl_write_dword(rtlpriv, REG_HISR, tmp);
-
-	tmp = rtl_read_dword(rtlpriv, REG_HISRE);
-	rtl_write_dword(rtlpriv, REG_HISRE, tmp);
-}
-
-
 void rtl92ce_enable_interrupt(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
-	rtl92ce_clear_interrupt(hw);/*clear it here first*/
+
 	rtl_write_dword(rtlpriv,
 		REG_HIMR, rtlpci->irq_mask[0] & 0xFFFFFFFF);
 	rtl_write_dword(rtlpriv,
@@ -1703,7 +1690,7 @@ static void _rtl92ce_read_adapter_info(struct ieee80211_hw *hw)
 	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
 	struct rtl_hal *rtlhal = rtl_hal(rtl_priv(hw));
 	u16 i, usvalue;
-	u8 hwinfo[HWSET_MAX_SIZE];
+	u8 hwinfo[HWSET_MAX_SIZE] = {0};
 	u16 eeprom_id;
 
 	if (rtlefuse->epromtype == EEPROM_BOOT_EFUSE) {

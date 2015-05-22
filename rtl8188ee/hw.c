@@ -594,7 +594,7 @@ void rtl88ee_set_hw_reg(struct ieee80211_hw *hw, u8 variable, u8 *val)
 					acm_ctrl &= (~AcmHw_ViqEn);
 					break;
 				case AC3_VO:
-					acm_ctrl &= (~AcmHw_BeqEn);
+					acm_ctrl &= (~AcmHw_VoqEn);
 					break;
 				default:
 					RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG,
@@ -1468,29 +1468,11 @@ void rtl88ee_set_qos(struct ieee80211_hw *hw, int aci)
 	}
 }
 
-
-static void rtl88ee_clear_interrupt(struct ieee80211_hw *hw)
-{
-	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	u32 tmp;
-	tmp = rtl_read_dword(rtlpriv, REG_HISR);
-	rtl_write_dword(rtlpriv, REG_HISR, tmp);
-
-	tmp = rtl_read_dword(rtlpriv, REG_HISRE);
-	rtl_write_dword(rtlpriv, REG_HISRE, tmp);
-
-	tmp = rtl_read_dword(rtlpriv, REG_HSISR);
-	rtl_write_dword(rtlpriv, REG_HSISR, tmp);
-}
-
-
-
 void rtl88ee_enable_interrupt(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
 
-	rtl88ee_clear_interrupt(hw);/*clear it here first*/
 	rtl_write_dword(rtlpriv, REG_HIMR,
 		rtlpci->irq_mask[0] & 0xFFFFFFFF);
 	rtl_write_dword(rtlpriv, REG_HIMRE,
@@ -1838,7 +1820,7 @@ static void _rtl8188e_read_power_value_fromprom(struct ieee80211_hw *hw,
 				else {
 					pwrinfo5g->bw40_diff[rfPath][TxCount] = (hwinfo[eeAddr]&0xf0)>>4;
 					if (pwrinfo5g->bw40_diff[rfPath][TxCount] & BIT(3))
-					pwrinfo5g->bw40_diff[rfPath][TxCount] |= 0xF0;
+						pwrinfo5g->bw40_diff[rfPath][TxCount] |= 0xF0;
 				}
 
 				if (hwinfo[eeAddr] == 0xFF)
@@ -1846,7 +1828,7 @@ static void _rtl8188e_read_power_value_fromprom(struct ieee80211_hw *hw,
 				else {
 					pwrinfo5g->bw20_diff[rfPath][TxCount] = (hwinfo[eeAddr]&0x0f);
 					if (pwrinfo5g->bw20_diff[rfPath][TxCount] & BIT(3))
-					pwrinfo5g->bw20_diff[rfPath][TxCount] |= 0xF0;
+						pwrinfo5g->bw20_diff[rfPath][TxCount] |= 0xF0;
 				}
 				eeAddr++;
 			}
@@ -1944,7 +1926,7 @@ static void _rtl88ee_read_adapter_info(struct ieee80211_hw *hw)
 	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
 	struct rtl_hal *rtlhal = rtl_hal(rtl_priv(hw));
 	u16 i, usvalue;
-	u8 hwinfo[HWSET_MAX_SIZE];
+	u8 hwinfo[HWSET_MAX_SIZE] = {0};
 	u16 eeprom_id;
 
 	if (rtlefuse->epromtype == EEPROM_BOOT_EFUSE) {
@@ -2009,10 +1991,13 @@ static void _rtl88ee_read_adapter_info(struct ieee80211_hw *hw)
 
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_DMESG,
 		 "dev_addr: %pM\n", rtlefuse->dev_addr);
+
 	/*channel plan */
 	rtlefuse->eeprom_channelplan = *(u8 *) &hwinfo[EEPROM_CHANNELPLAN];
-	/* set channel paln to world wide 13 */
-	rtlefuse->channel_plan = COUNTRY_CODE_WORLD_WIDE_13;
+
+	/* set channel plan from efuse */
+	rtlefuse->channel_plan = rtlefuse->eeprom_channelplan;
+
 	/*tx power*/
 	_rtl88ee_read_txpower_info_from_hwpg(hw,
 					     rtlefuse->autoload_failflag,
