@@ -97,6 +97,7 @@ int rtl8723be_init_sw_vars(struct ieee80211_hw *hw)
 	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
 
 	rtl8723be_bt_reg_init(hw);
+	rtlpci->msi_support = rtlpriv->cfg->mod_params->msi_support;
 	rtlpriv->btcoexist.btc_ops = rtl_btc_get_ops_pointer();
 
 	rtlpriv->dm.dm_initialgain_enable = 1;
@@ -189,7 +190,7 @@ int rtl8723be_init_sw_vars(struct ieee80211_hw *hw)
 	pr_info("Using firmware %s\n", rtlpriv->cfg->fw_name);
 	err = request_firmware_nowait(THIS_MODULE, 1, rtlpriv->cfg->fw_name,
 				      rtlpriv->io.dev, GFP_KERNEL, hw,
-				      rtl_fw_cb);
+				      rtl_normal_fw_cb);
 	if (err) {
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG,
 			 "Failed to request firmware!\n");
@@ -349,21 +350,21 @@ static struct rtl_hal_cfg rtl8723be_hal_cfg = {
 	.maps[RTL_IMR_HSISR_IND] = IMR_HSISR_IND_ON_INT,
 	.maps[RTL_IBSS_INT_MASKS] = (IMR_BCNDMAINT0 | IMR_TBDOK | IMR_TBDER),
 
-	.maps[RTL_RC_CCK_RATE1M] = DESC_RATE1M,
-	.maps[RTL_RC_CCK_RATE2M] = DESC_RATE2M,
-	.maps[RTL_RC_CCK_RATE5_5M] = DESC_RATE5_5M,
-	.maps[RTL_RC_CCK_RATE11M] = DESC_RATE11M,
-	.maps[RTL_RC_OFDM_RATE6M] = DESC_RATE6M,
-	.maps[RTL_RC_OFDM_RATE9M] = DESC_RATE9M,
-	.maps[RTL_RC_OFDM_RATE12M] = DESC_RATE12M,
-	.maps[RTL_RC_OFDM_RATE18M] = DESC_RATE18M,
-	.maps[RTL_RC_OFDM_RATE24M] = DESC_RATE24M,
-	.maps[RTL_RC_OFDM_RATE36M] = DESC_RATE36M,
-	.maps[RTL_RC_OFDM_RATE48M] = DESC_RATE48M,
-	.maps[RTL_RC_OFDM_RATE54M] = DESC_RATE54M,
+	.maps[RTL_RC_CCK_RATE1M] = DESC92C_RATE1M,
+	.maps[RTL_RC_CCK_RATE2M] = DESC92C_RATE2M,
+	.maps[RTL_RC_CCK_RATE5_5M] = DESC92C_RATE5_5M,
+	.maps[RTL_RC_CCK_RATE11M] = DESC92C_RATE11M,
+	.maps[RTL_RC_OFDM_RATE6M] = DESC92C_RATE6M,
+	.maps[RTL_RC_OFDM_RATE9M] = DESC92C_RATE9M,
+	.maps[RTL_RC_OFDM_RATE12M] = DESC92C_RATE12M,
+	.maps[RTL_RC_OFDM_RATE18M] = DESC92C_RATE18M,
+	.maps[RTL_RC_OFDM_RATE24M] = DESC92C_RATE24M,
+	.maps[RTL_RC_OFDM_RATE36M] = DESC92C_RATE36M,
+	.maps[RTL_RC_OFDM_RATE48M] = DESC92C_RATE48M,
+	.maps[RTL_RC_OFDM_RATE54M] = DESC92C_RATE54M,
 
-	.maps[RTL_RC_HT_RATEMCS7] = DESC_RATEMCS7,
-	.maps[RTL_RC_HT_RATEMCS15] = DESC_RATEMCS15,
+	.maps[RTL_RC_HT_RATEMCS7] = DESC92C_RATEMCS7,
+	.maps[RTL_RC_HT_RATEMCS15] = DESC92C_RATEMCS15,
 };
 
 static struct pci_device_id rtl8723be_pci_ids[] = {

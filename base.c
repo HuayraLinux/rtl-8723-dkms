@@ -927,20 +927,20 @@ static u8 _rtl_get_highest_n_rate(struct ieee80211_hw *hw,
  *
  * B/G rate:
  * (rx_status->flag & RX_FLAG_HT) = 0,
- * DESC_RATE1M-->DESC_RATE54M ==> idx is 0-->11,
+ * DESC92_RATE1M-->DESC92_RATE54M ==> idx is 0-->11,
  *
  * N rate:
  * (rx_status->flag & RX_FLAG_HT) = 1,
- * DESC_RATEMCS0-->DESC_RATEMCS15 ==> idx is 0-->15
+ * DESC92_RATEMCS0-->DESC92_RATEMCS15 ==> idx is 0-->15
  *
  * 5G band:rx_status->band == IEEE80211_BAND_5GHZ
  * A rate:
  * (rx_status->flag & RX_FLAG_HT) = 0,
- * DESC_RATE6M-->DESC_RATE54M ==> idx is 0-->7,
+ * DESC92_RATE6M-->DESC92_RATE54M ==> idx is 0-->7,
  *
  * N rate:
  * (rx_status->flag & RX_FLAG_HT) = 1,
- * DESC_RATEMCS0-->DESC_RATEMCS15 ==> idx is 0-->15
+ * DESC92_RATEMCS0-->DESC92_RATEMCS15 ==> idx is 0-->15
  */
 int rtlwifi_rate_mapping(struct ieee80211_hw *hw,
 			 bool isht, u8 desc_rate, bool first_ampdu)
@@ -954,40 +954,40 @@ int rtlwifi_rate_mapping(struct ieee80211_hw *hw,
 		if (IEEE80211_BAND_2GHZ == hw->conf.channel->band) {
 #endif
 			switch (desc_rate) {
-			case DESC_RATE1M:
+			case DESC92_RATE1M:
 				rate_idx = 0;
 				break;
-			case DESC_RATE2M:
+			case DESC92_RATE2M:
 				rate_idx = 1;
 				break;
-			case DESC_RATE5_5M:
+			case DESC92_RATE5_5M:
 				rate_idx = 2;
 				break;
-			case DESC_RATE11M:
+			case DESC92_RATE11M:
 				rate_idx = 3;
 				break;
-			case DESC_RATE6M:
+			case DESC92_RATE6M:
 				rate_idx = 4;
 				break;
-			case DESC_RATE9M:
+			case DESC92_RATE9M:
 				rate_idx = 5;
 				break;
-			case DESC_RATE12M:
+			case DESC92_RATE12M:
 				rate_idx = 6;
 				break;
-			case DESC_RATE18M:
+			case DESC92_RATE18M:
 				rate_idx = 7;
 				break;
-			case DESC_RATE24M:
+			case DESC92_RATE24M:
 				rate_idx = 8;
 				break;
-			case DESC_RATE36M:
+			case DESC92_RATE36M:
 				rate_idx = 9;
 				break;
-			case DESC_RATE48M:
+			case DESC92_RATE48M:
 				rate_idx = 10;
 				break;
-			case DESC_RATE54M:
+			case DESC92_RATE54M:
 				rate_idx = 11;
 				break;
 			default:
@@ -996,28 +996,28 @@ int rtlwifi_rate_mapping(struct ieee80211_hw *hw,
 			}
 		} else {
 			switch (desc_rate) {
-			case DESC_RATE6M:
+			case DESC92_RATE6M:
 				rate_idx = 0;
 				break;
-			case DESC_RATE9M:
+			case DESC92_RATE9M:
 				rate_idx = 1;
 				break;
-			case DESC_RATE12M:
+			case DESC92_RATE12M:
 				rate_idx = 2;
 				break;
-			case DESC_RATE18M:
+			case DESC92_RATE18M:
 				rate_idx = 3;
 				break;
-			case DESC_RATE24M:
+			case DESC92_RATE24M:
 				rate_idx = 4;
 				break;
-			case DESC_RATE36M:
+			case DESC92_RATE36M:
 				rate_idx = 5;
 				break;
-			case DESC_RATE48M:
+			case DESC92_RATE48M:
 				rate_idx = 6;
 				break;
-			case DESC_RATE54M:
+			case DESC92_RATE54M:
 				rate_idx = 7;
 				break;
 			default:
@@ -1027,52 +1027,52 @@ int rtlwifi_rate_mapping(struct ieee80211_hw *hw,
 		}
 	} else {
 		switch (desc_rate) {
-		case DESC_RATEMCS0:
+		case DESC92_RATEMCS0:
 			rate_idx = 0;
 			break;
-		case DESC_RATEMCS1:
+		case DESC92_RATEMCS1:
 			rate_idx = 1;
 			break;
-		case DESC_RATEMCS2:
+		case DESC92_RATEMCS2:
 			rate_idx = 2;
 			break;
-		case DESC_RATEMCS3:
+		case DESC92_RATEMCS3:
 			rate_idx = 3;
 			break;
-		case DESC_RATEMCS4:
+		case DESC92_RATEMCS4:
 			rate_idx = 4;
 			break;
-		case DESC_RATEMCS5:
+		case DESC92_RATEMCS5:
 			rate_idx = 5;
 			break;
-		case DESC_RATEMCS6:
+		case DESC92_RATEMCS6:
 			rate_idx = 6;
 			break;
-		case DESC_RATEMCS7:
+		case DESC92_RATEMCS7:
 			rate_idx = 7;
 			break;
-		case DESC_RATEMCS8:
+		case DESC92_RATEMCS8:
 			rate_idx = 8;
 			break;
-		case DESC_RATEMCS9:
+		case DESC92_RATEMCS9:
 			rate_idx = 9;
 			break;
-		case DESC_RATEMCS10:
+		case DESC92_RATEMCS10:
 			rate_idx = 10;
 			break;
-		case DESC_RATEMCS11:
+		case DESC92_RATEMCS11:
 			rate_idx = 11;
 			break;
-		case DESC_RATEMCS12:
+		case DESC92_RATEMCS12:
 			rate_idx = 12;
 			break;
-		case DESC_RATEMCS13:
+		case DESC92_RATEMCS13:
 			rate_idx = 13;
 			break;
-		case DESC_RATEMCS14:
+		case DESC92_RATEMCS14:
 			rate_idx = 14;
 			break;
-		case DESC_RATEMCS15:
+		case DESC92_RATEMCS15:
 			rate_idx = 15;
 			break;
 		default:
@@ -1192,6 +1192,37 @@ EXPORT_SYMBOL_GPL(rtl_tx_mgmt_proc);
 
 struct sk_buff *rtl_make_del_ba(struct ieee80211_hw *hw, u8 *sa,
 				u8 *bssid, u16 tid);
+
+static void process_agg_start(struct ieee80211_hw *hw,
+			      struct ieee80211_hdr *hdr, u16 tid)
+{
+	struct rtl_priv *rtlpriv = rtl_priv(hw);
+	struct ieee80211_rx_status rx_status = { 0 };
+	struct sk_buff *skb_delba = NULL;
+
+	skb_delba = rtl_make_del_ba(hw, hdr->addr2, hdr->addr3, tid);
+	if (skb_delba) {
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0))
+		rx_status.freq = hw->conf.chandef.chan->center_freq;
+		rx_status.band = hw->conf.chandef.chan->band;
+#else
+		rx_status.freq = hw->conf.channel->center_freq;
+		rx_status.band = hw->conf.channel->band;
+#endif
+		rx_status.flag |= RX_FLAG_DECRYPTED;
+		rx_status.flag |= RX_FLAG_MACTIME_START;
+		rx_status.rate_idx = 0;
+		rx_status.signal = 50 + 10;
+		memcpy(IEEE80211_SKB_RXCB(skb_delba),
+		       &rx_status, sizeof(rx_status));
+		RT_PRINT_DATA(rtlpriv, COMP_INIT, DBG_DMESG,
+			      "fake del\n",
+			      skb_delba->data,
+			      skb_delba->len);
+		ieee80211_rx_irqsafe(hw, skb_delba);
+	}
+}
+
 bool rtl_action_proc(struct ieee80211_hw *hw, struct sk_buff *skb, u8 is_tx)
 {
 	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
@@ -1224,8 +1255,6 @@ bool rtl_action_proc(struct ieee80211_hw *hw, struct sk_buff *skb, u8 is_tx)
 				struct rtl_tid_data *tid_data;
 				struct ieee80211_mgmt *mgmt = (void *)skb->data;
 				u16 capab = 0, tid = 0;
-				struct sk_buff *skb_delba = NULL;
-				struct ieee80211_rx_status rx_status = { 0 };
 
 				rcu_read_lock();
 				sta = rtl_find_sta(hw, hdr->addr3);
@@ -1247,35 +1276,8 @@ bool rtl_action_proc(struct ieee80211_hw *hw, struct sk_buff *skb, u8 is_tx)
 					IEEE80211_ADDBA_PARAM_TID_MASK) >> 2;
 				tid_data = &sta_entry->tids[tid];
 				if (tid_data->agg.rx_agg_state ==
-				    RTL_RX_AGG_START) {
-					skb_delba = rtl_make_del_ba(hw,
-									hdr->addr2,
-									hdr->addr3,
-									tid);
-					if (skb_delba) {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0))
-						rx_status.freq =
-							hw->conf.chandef.chan->center_freq;
-						rx_status.band =
-							hw->conf.chandef.chan->band;
-#else
-						rx_status.freq =
-							hw->conf.channel->center_freq;
-						rx_status.band =
-							hw->conf.channel->band;
-#endif
-						rx_status.flag |= RX_FLAG_DECRYPTED;
-						rx_status.flag |= RX_FLAG_MACTIME_MPDU;
-						rx_status.rate_idx = 0;
-						rx_status.signal = 50 + 10;
-						memcpy(IEEE80211_SKB_RXCB(skb_delba),
-							&rx_status, sizeof(rx_status));
-						RT_PRINT_DATA(rtlpriv, COMP_INIT,
-							DBG_DMESG, "fake del\n",
-							skb_delba->data, skb_delba->len);
-						ieee80211_rx_irqsafe(hw, skb_delba);
-					}
-				}
+				    RTL_RX_AGG_START)
+					process_agg_start(hw, hdr, tid);
 				rcu_read_unlock();
 			}
 			break;
@@ -1298,26 +1300,74 @@ bool rtl_action_proc(struct ieee80211_hw *hw, struct sk_buff *skb, u8 is_tx)
 }
 EXPORT_SYMBOL_GPL(rtl_action_proc);
 
-/*should call before software enc*/
-u8 rtl_is_special_data(struct ieee80211_hw *hw, struct sk_buff *skb, u8 is_tx)
+static void setup_arp_tx(struct rtl_priv *rtlpriv, struct rtl_ps_ctl *ppsc)
+{
+	rtlpriv->ra.is_special_data = true;
+	if (rtlpriv->cfg->ops->get_btc_status())
+		rtlpriv->btcoexist.btc_ops->btc_special_packet_notify(
+					rtlpriv, 1);
+	rtlpriv->enter_ps = false;
+	schedule_work(&rtlpriv->works.lps_change_work);
+	ppsc->last_delaylps_stamp_jiffies = jiffies;
+}
+
+/* This function is called by 3 routines:
+ * 1.RX
+ * 2.rtl_tx_status
+ * 3._rtl_rc_get_highest_rix
+ *
+ * 1 and 2 have encryption header
+ * 3 does not
+ *
+ * data in 2 and 3 are same.
+ *
+ * if we return false to _rtl_rc_get_highest_rix(), this will cause the rate
+ * to be too high when EAPOL. After a while, the connection will fail
+ */
+
+u8 rtl_is_special_data(struct ieee80211_hw *hw, struct sk_buff *skb, u8 is_tx, bool with_encrypt_header)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_ps_ctl *ppsc = rtl_psc(rtl_priv(hw));
 	__le16 fc = rtl_get_fc(skb);
+	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
 	u16 ether_type;
 	u8 mac_hdr_len = ieee80211_get_hdrlen_from_skb(skb);
+   	u8 encrypt_header_len = 0;
 	const struct iphdr *ip;
 
 	if (!ieee80211_is_data(fc))
 		goto end;
 
+	/* mac80211 use sw IV */
+	/* give len when tx will cause fail */
+	if (with_encrypt_header && mac->link_state >= MAC80211_LINKED) {
+		switch(rtlpriv->sec.pairwise_enc_algorithm) {
+		case WEP40_ENCRYPTION:
+		case WEP104_ENCRYPTION:
+			encrypt_header_len = 4;/*WEP_IV_LEN*/
+			break;
+		case TKIP_ENCRYPTION:
+			encrypt_header_len = 8;/*TKIP_IV_LEN*/
+			break;
+		case AESCCMP_ENCRYPTION:
+			encrypt_header_len = 8;/*CCMP_HDR_LEN;*/
+			break;
+		default:
+			RT_TRACE(rtlpriv, (COMP_SEND | COMP_RECV),
+					 DBG_LOUD, "ecrypt not set!\n");
+			break;
+		}
+	}
 
-	ip = (struct iphdr *)((u8 *) skb->data + mac_hdr_len +
-			      SNAP_SIZE + PROTOC_TYPE_SIZE);
+
 	ether_type = be16_to_cpup((__be16 *)
-				  (skb->data + mac_hdr_len + SNAP_SIZE));
+				  (skb->data + mac_hdr_len + SNAP_SIZE + encrypt_header_len));
+
 
 	if (ETH_P_IP == ether_type) {
+		ip = (struct iphdr *)((u8 *) skb->data + mac_hdr_len +
+			      SNAP_SIZE + PROTOC_TYPE_SIZE + encrypt_header_len);
 		if (IPPROTO_UDP == ip->protocol) {
 			struct udphdr *udp = (struct udphdr *)((u8 *) ip +
 							       (ip->ihl << 2));
@@ -1329,35 +1379,31 @@ u8 rtl_is_special_data(struct ieee80211_hw *hw, struct sk_buff *skb, u8 is_tx)
 				 * 68 : UDP BOOTP client
 				 * 67 : UDP BOOTP server
 				 */
+				if (!with_encrypt_header)
+					return true;
+
 				RT_TRACE(rtlpriv, (COMP_SEND | COMP_RECV),
 					 DBG_DMESG, "dhcp %s !!\n",
-						     (is_tx) ? "Tx" : "Rx");
+					 (is_tx) ? "Tx" : "Rx");
 
-				if (is_tx) {
-					rtlpriv->ra.is_special_data = true;
-					if (rtlpriv->cfg->ops->get_btc_status())
-						rtlpriv->btcoexist.btc_ops->btc_special_packet_notify(
-									rtlpriv, 1);
-					rtl_lps_leave(hw);
-					ppsc->last_delaylps_stamp_jiffies =
-									jiffies;
-				}
+				if (is_tx)
+					setup_arp_tx(rtlpriv, ppsc);
 
 				return true;
 			}
 		}
 	} else if (ETH_P_ARP == ether_type) {
-		if (is_tx) {
-			rtlpriv->ra.is_special_data = true;
-			if (rtlpriv->cfg->ops->get_btc_status())
-				rtlpriv->btcoexist.btc_ops->btc_special_packet_notify(
-							rtlpriv, 1);
-			rtl_lps_leave(hw);
-			ppsc->last_delaylps_stamp_jiffies = jiffies;
-		}
+		if (!with_encrypt_header)
+			return true;
 
+		if (is_tx)
+			setup_arp_tx(rtlpriv, ppsc);
+		RT_TRACE(rtlpriv, (COMP_SEND | COMP_RECV),
+					 DBG_DMESG, "ARP %s !!\n", (is_tx) ? "Tx" : "Rx");
 		return true;
 	} else if (ETH_P_PAE == ether_type) {
+		if (!with_encrypt_header)
+			return true;
 		RT_TRACE(rtlpriv, (COMP_SEND | COMP_RECV), DBG_DMESG,
 			 "802.1X %s EAPOL pkt!!\n", (is_tx) ? "Tx" : "Rx");
 
@@ -1422,12 +1468,6 @@ int rtl_tx_agg_stop(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 	if (sta == NULL)
 		return -EINVAL;
 
-	/* Comparing an array to null is not useful */
-	/*if (!sta->addr) {
-		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG, "ra = NULL\n");
-		return -EINVAL;
-	}*/
-
 	RT_TRACE(rtlpriv, COMP_SEND, DBG_DMESG,
 		 "on ra = %pM tid = %d\n", sta->addr, tid);
 
@@ -1477,12 +1517,6 @@ int rtl_rx_agg_stop(struct ieee80211_hw *hw,
 	if (sta == NULL)
 		return -EINVAL;
 
-	/* Comparing an array to null is not useful */
-	/*if (!sta->addr) {
-		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG, "ra = NULL\n");
-		return -EINVAL;
-	}*/
-
 	RT_TRACE(rtlpriv, COMP_SEND, DBG_DMESG,
 		 "on ra = %pM tid = %d\n", sta->addr, tid);
 
@@ -1502,12 +1536,6 @@ int rtl_tx_agg_oper(struct ieee80211_hw *hw,
 
 	if (sta == NULL)
 		return -EINVAL;
-
-	/* Comparing an array to null is not useful */
-	/*if (!sta->addr) {
-		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG, "ra = NULL\n");
-		return -EINVAL;
-	}*/
 
 	RT_TRACE(rtlpriv, COMP_SEND, DBG_DMESG,
 		 "on ra = %pM tid = %d\n", sta->addr, tid);

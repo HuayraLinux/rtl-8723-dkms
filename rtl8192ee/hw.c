@@ -43,6 +43,7 @@
 #include "hw.h"
 #include "pwrseqcmd.h"
 #include "pwrseq.h"
+#include "table.h"
 
 #define LLT_CONFIG	5
 
@@ -2107,7 +2108,7 @@ static void _rtl92ee_read_txpower_info_from_hwpg(struct ieee80211_hw *hw,
 	}
 
 	efu->thermalmeter[0] = efu->eeprom_thermalmeter;
-	RTPRINT(rtlpriv, FINIT, INIT_TXPOWER,
+	RTPRINT(rtlpriv, FINIT, INIT_TxPower,
 		"thermalmeter = 0x%x\n", efu->eeprom_thermalmeter);
 
 	if (!autoload_fail) {
@@ -2118,7 +2119,7 @@ static void _rtl92ee_read_txpower_info_from_hwpg(struct ieee80211_hw *hw,
 	} else {
 		efu->eeprom_regulatory = 0;
 	}
-	RTPRINT(rtlpriv, FINIT, INIT_TXPOWER,
+	RTPRINT(rtlpriv, FINIT, INIT_TxPower,
 		"eeprom_regulatory = 0x%x\n", efu->eeprom_regulatory);
 }
 
@@ -2138,8 +2139,13 @@ static void _rtl92ee_read_adapter_info(struct ieee80211_hw *hw)
 		       HWSET_MAX_SIZE);
 	} else if (rtlefuse->epromtype == EEPROM_93C46) {
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG,
-			 "RTL819X Not boot from eeprom, check it !!");
+			 "RTL819X Not boot from eeprom, check EESK pin!!");
+#ifdef ERROR_RESUME
+		memcpy(hwinfo, RTL8192EE_FAKE_EFUSE,HWSET_MAX_SIZE);
+#else
 		return;
+#endif
+
 	}  else {
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG,
 			 "boot from neither eeprom nor efuse, check it !!");
@@ -2228,7 +2234,7 @@ static void _rtl92ee_read_adapter_info(struct ieee80211_hw *hw)
 			if (rtlefuse->eeprom_did == 0x818B) {
 				if ((rtlefuse->eeprom_svid == 0x10EC) &&
 				    (rtlefuse->eeprom_smid == 0x001B))
-					rtlhal->oem_id = RT_CID_819X_LENOVO;
+					rtlhal->oem_id = RT_CID_819x_Lenovo;
 			} else {
 				rtlhal->oem_id = RT_CID_DEFAULT;
 			}

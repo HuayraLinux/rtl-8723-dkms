@@ -1262,7 +1262,7 @@ int rtl88ee_hw_init(struct ieee80211_hw *hw)
 
 		if ((rtlefuse->antenna_div_type == CGCS_RX_HW_ANTDIV) ||
 			((rtlefuse->antenna_div_type == CG_TRX_HW_ANTDIV) &&
-			(rtlhal->oem_id == RT_CID_819X_HP))) {
+			(rtlhal->oem_id == RT_CID_819x_HP))) {
 			rtl88e_phy_set_rfpath_switch(hw, true);
 			rtlpriv->dm.fat_table.rx_idle_ant = MAIN_ANT;
 		} else {
@@ -1886,7 +1886,7 @@ static void _rtl88ee_read_txpower_info_from_hwpg(struct ieee80211_hw *hw,
 		}
 
 		for (i = 0; i < 14; i++) {
-			RTPRINT(rtlpriv, FINIT, INIT_TXPOWER,
+			RTPRINT(rtlpriv, FINIT, INIT_TxPower,
 				"RF(%d)-Ch(%d) [CCK / HT40_1S ] = [0x%x / 0x%x ]\n",
 				rf_path, i,
 				rtlefuse->txpwrlevel_cck[rf_path][i],
@@ -1905,7 +1905,7 @@ static void _rtl88ee_read_txpower_info_from_hwpg(struct ieee80211_hw *hw,
 	}
 
 	rtlefuse->thermalmeter[0] = rtlefuse->eeprom_thermalmeter;
-	RTPRINT(rtlpriv, FINIT, INIT_TXPOWER,
+	RTPRINT(rtlpriv, FINIT, INIT_TxPower,
 		"thermalmeter = 0x%x\n", rtlefuse->eeprom_thermalmeter);
 
 	if (!autoload_fail) {
@@ -1916,7 +1916,7 @@ static void _rtl88ee_read_txpower_info_from_hwpg(struct ieee80211_hw *hw,
 	} else {
 		rtlefuse->eeprom_regulatory = 0;
 	}
-	RTPRINT(rtlpriv, FINIT, INIT_TXPOWER,
+	RTPRINT(rtlpriv, FINIT, INIT_TxPower,
 	"eeprom_regulatory = 0x%x\n", rtlefuse->eeprom_regulatory);
 }
 
@@ -2040,15 +2040,15 @@ static void _rtl88ee_read_adapter_info(struct ieee80211_hw *hw)
 		case EEPROM_CID_DEFAULT:
 			if (rtlefuse->eeprom_did == 0x8179) {
 				if (rtlefuse->eeprom_svid == 0x1025) {
-					rtlhal->oem_id = RT_CID_819X_ACER;
+					rtlhal->oem_id = RT_CID_819x_Acer;
 				} else if ((rtlefuse->eeprom_svid == 0x10EC &&
 				     rtlefuse->eeprom_smid == 0x0179) ||
 				     (rtlefuse->eeprom_svid == 0x17AA &&
 				     rtlefuse->eeprom_smid == 0x0179))
-					rtlhal->oem_id = RT_CID_819X_LENOVO;
+					rtlhal->oem_id = RT_CID_819x_Lenovo;
 				else if (rtlefuse->eeprom_svid == 0x103c &&
 						rtlefuse->eeprom_smid == 0x197d)
-					rtlhal->oem_id = RT_CID_819X_HP;
+					rtlhal->oem_id = RT_CID_819x_HP;
 				else
 					rtlhal->oem_id = RT_CID_DEFAULT;
 			} else {
@@ -2059,7 +2059,7 @@ static void _rtl88ee_read_adapter_info(struct ieee80211_hw *hw)
 			rtlhal->oem_id = RT_CID_TOSHIBA;
 			break;
 		case EEPROM_CID_QMI:
-			rtlhal->oem_id = RT_CID_819X_QMI;
+			rtlhal->oem_id = RT_CID_819x_QMI;
 			break;
 		case EEPROM_CID_WHQL:
 		default:
@@ -2079,14 +2079,14 @@ static void _rtl88ee_hal_customized_behavior(struct ieee80211_hw *hw)
 	pcipriv->ledctl.led_opendrain = true;
 
 	switch (rtlhal->oem_id) {
-	case RT_CID_819X_HP:
+	case RT_CID_819x_HP:
 		pcipriv->ledctl.led_opendrain = true;
 		break;
-	case RT_CID_819X_LENOVO:
+	case RT_CID_819x_Lenovo:
 	case RT_CID_DEFAULT:
 	case RT_CID_TOSHIBA:
 	case RT_CID_CCX:
-	case RT_CID_819X_ACER:
+	case RT_CID_819x_Acer:
 	case RT_CID_WHQL:
 	default:
 		break;

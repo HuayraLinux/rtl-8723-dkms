@@ -38,7 +38,8 @@
 #include <linux/usb.h>
 #include <net/mac80211.h>
 #include "debug.h"
-
+#include "btcoexist/halbtc8812a_ext.h"
+/*#define ERROR_RESUME*/
 
 #define RF_CHANGE_BY_INIT		0
 #define RF_CHANGE_BY_IPS		BIT(28)
@@ -285,12 +286,6 @@ enum hardware_type {
 	HARDWARE_TYPE_NUM
 };
 
-#define RX_HAL_IS_CCK_RATE(rxmcs)			\
-	((rxmcs) == DESC_RATE1M ||			\
-	 (rxmcs) == DESC_RATE2M ||			\
-	 (rxmcs) == DESC_RATE5_5M ||			\
-	 (rxmcs) == DESC_RATE11M)
-
 enum scan_operation_backup_opt {
 	SCAN_OPT_BACKUP = 0,
 	SCAN_OPT_BACKUP_BAND0 = 0,
@@ -465,14 +460,14 @@ enum rt_oem_id {
 	RT_CID_819x_ALPHA = 15,
 	RT_CID_819x_Sitecom = 16,
 	RT_CID_CCX = 17,
-	RT_CID_819X_LENOVO = 18,
-	RT_CID_819X_QMI = 19,
+	RT_CID_819x_Lenovo = 18,
+	RT_CID_819x_QMI = 19,
 	RT_CID_819x_Edimax_Belkin = 20,
 	RT_CID_819x_Sercomm_Belkin = 21,
 	RT_CID_819x_CAMEO1 = 22,
 	RT_CID_819x_MSI = 23,
-	RT_CID_819X_ACER = 24,
-	RT_CID_819X_HP = 27,
+	RT_CID_819x_Acer = 24,
+	RT_CID_819x_HP = 27,
 	RT_CID_819x_CLEVO = 28,
 	RT_CID_819x_Arcadyan_Belkin = 29,
 	RT_CID_819x_SAMSUNG = 30,
@@ -534,59 +529,38 @@ enum rtl_hal_state {
 };
 
 enum rtl_desc92_rate {
-	DESC_RATE1M = 0x00,
-	DESC_RATE2M = 0x01,
-	DESC_RATE5_5M = 0x02,
-	DESC_RATE11M = 0x03,
+	DESC92_RATE1M = 0x00,
+	DESC92_RATE2M = 0x01,
+	DESC92_RATE5_5M = 0x02,
+	DESC92_RATE11M = 0x03,
 
-	DESC_RATE6M = 0x04,
-	DESC_RATE9M = 0x05,
-	DESC_RATE12M = 0x06,
-	DESC_RATE18M = 0x07,
-	DESC_RATE24M = 0x08,
-	DESC_RATE36M = 0x09,
-	DESC_RATE48M = 0x0a,
-	DESC_RATE54M = 0x0b,
+	DESC92_RATE6M = 0x04,
+	DESC92_RATE9M = 0x05,
+	DESC92_RATE12M = 0x06,
+	DESC92_RATE18M = 0x07,
+	DESC92_RATE24M = 0x08,
+	DESC92_RATE36M = 0x09,
+	DESC92_RATE48M = 0x0a,
+	DESC92_RATE54M = 0x0b,
 
-	DESC_RATEMCS0 = 0x0c,
-	DESC_RATEMCS1 = 0x0d,
-	DESC_RATEMCS2 = 0x0e,
-	DESC_RATEMCS3 = 0x0f,
-	DESC_RATEMCS4 = 0x10,
-	DESC_RATEMCS5 = 0x11,
-	DESC_RATEMCS6 = 0x12,
-	DESC_RATEMCS7 = 0x13,
-	DESC_RATEMCS8 = 0x14,
-	DESC_RATEMCS9 = 0x15,
-	DESC_RATEMCS10 = 0x16,
-	DESC_RATEMCS11 = 0x17,
-	DESC_RATEMCS12 = 0x18,
-	DESC_RATEMCS13 = 0x19,
-	DESC_RATEMCS14 = 0x1a,
-	DESC_RATEMCS15 = 0x1b,
-	DESC_RATEMCS15_SG = 0x1c,
-	DESC_RATEMCS32 = 0x20,
-
-	DESC_RATEVHT1SS_MCS0 = 0x2c,
-	DESC_RATEVHT1SS_MCS1 = 0x2d,
-	DESC_RATEVHT1SS_MCS2 = 0x2e,
-	DESC_RATEVHT1SS_MCS3 = 0x2f,
-	DESC_RATEVHT1SS_MCS4 = 0x30,
-	DESC_RATEVHT1SS_MCS5 = 0x31,
-	DESC_RATEVHT1SS_MCS6 = 0x32,
-	DESC_RATEVHT1SS_MCS7 = 0x33,
-	DESC_RATEVHT1SS_MCS8 = 0x34,
-	DESC_RATEVHT1SS_MCS9 = 0x35,
-	DESC_RATEVHT2SS_MCS0 = 0x36,
-	DESC_RATEVHT2SS_MCS1 = 0x37,
-	DESC_RATEVHT2SS_MCS2 = 0x38,
-	DESC_RATEVHT2SS_MCS3 = 0x39,
-	DESC_RATEVHT2SS_MCS4 = 0x3a,
-	DESC_RATEVHT2SS_MCS5 = 0x3b,
-	DESC_RATEVHT2SS_MCS6 = 0x3c,
-	DESC_RATEVHT2SS_MCS7 = 0x3d,
-	DESC_RATEVHT2SS_MCS8 = 0x3e,
-	DESC_RATEVHT2SS_MCS9 = 0x3f,
+	DESC92_RATEMCS0 = 0x0c,
+	DESC92_RATEMCS1 = 0x0d,
+	DESC92_RATEMCS2 = 0x0e,
+	DESC92_RATEMCS3 = 0x0f,
+	DESC92_RATEMCS4 = 0x10,
+	DESC92_RATEMCS5 = 0x11,
+	DESC92_RATEMCS6 = 0x12,
+	DESC92_RATEMCS7 = 0x13,
+	DESC92_RATEMCS8 = 0x14,
+	DESC92_RATEMCS9 = 0x15,
+	DESC92_RATEMCS10 = 0x16,
+	DESC92_RATEMCS11 = 0x17,
+	DESC92_RATEMCS12 = 0x18,
+	DESC92_RATEMCS13 = 0x19,
+	DESC92_RATEMCS14 = 0x1a,
+	DESC92_RATEMCS15 = 0x1b,
+	DESC92_RATEMCS15_SG = 0x1c,
+	DESC92_RATEMCS32 = 0x20,
 };
 
 enum rtl_var_map {
@@ -790,17 +764,6 @@ enum wireless_mode {
 	WIRELESS_MODE_MAX = 0x800
 };
 
-#define IS_WIRELESS_MODE_A(wirelessmode)	\
-	(wirelessmode == WIRELESS_MODE_A)
-#define IS_WIRELESS_MODE_B(wirelessmode)	\
-	(wirelessmode == WIRELESS_MODE_B)
-#define IS_WIRELESS_MODE_G(wirelessmode)	\
-	(wirelessmode == WIRELESS_MODE_G)
-#define IS_WIRELESS_MODE_N_24G(wirelessmode)	\
-	(wirelessmode == WIRELESS_MODE_N_24G)
-#define IS_WIRELESS_MODE_N_5G(wirelessmode)	\
-	(wirelessmode == WIRELESS_MODE_N_5G)
-
 enum ratr_table_mode {
 	RATR_INX_WIRELESS_NGB = 0,
 	RATR_INX_WIRELESS_NG = 1,
@@ -810,7 +773,6 @@ enum ratr_table_mode {
 	RATR_INX_WIRELESS_G = 5,
 	RATR_INX_WIRELESS_B = 6,
 	RATR_INX_WIRELESS_MC = 7,
-	RATR_INX_WIRELESS_A = 8,
 	RATR_INX_WIRELESS_AC_5N = 8,
 	RATR_INX_WIRELESS_AC_24N = 9,
 };
@@ -1604,12 +1566,11 @@ struct dm_phy_dbg_info {
 struct rtl_dm {
 	/*PHY status for DM */
 	long entry_min_undec_sm_pwdb;
-	long undec_sm_cck;
 	long undec_sm_pwdb;	/*out dm */
 	long entry_max_undec_sm_pwdb;
 	bool dm_initialgain_enable;
 	bool dynamic_txpower_enable;
-	bool bcurrent_turbo_edca;
+	bool current_turbo_edca;
 	bool is_any_nonbepkts;	/*out dm */
 	bool is_cur_rdlstate;
 	bool txpower_trackinginit;
@@ -1724,7 +1685,6 @@ struct rtl_efuse {
 
 	u8 dev_addr[6];
 	u8 board_type;
-	u8 external_pa;
 	u8 wowlan_enable;
 	u8 antenna_div_cfg;
 	u8 antenna_div_type;
@@ -1737,7 +1697,7 @@ struct rtl_efuse {
 	u8 eeprom_pwrlimit_ht40[CHANNEL_GROUP_MAX];
 	u8 eeprom_chnlarea_txpwr_cck[2][CHANNEL_GROUP_MAX_2G];
 	u8 eeprom_chnlarea_txpwr_ht40_1s[2][CHANNEL_GROUP_MAX];
-	u8 eprom_chnl_txpwr_ht40_2sdf[2][CHANNEL_GROUP_MAX];
+	u8 eeprom_chnlarea_txpwr_ht40_2sdif[2][CHANNEL_GROUP_MAX];
 
 
 	u8 internal_pa_5g[2];	/* pathA / pathB */
@@ -2227,6 +2187,7 @@ struct rtl_hal_cfg {
 	char *name;
 	char *fw_name;
 	char *alt_fw_name;
+	char *wowlan_fw_name;
 	struct rtl_hal_ops *ops;
 	struct rtl_mod_params *mod_params;
 	struct rtl_hal_usbint_cfg *usb_interface_cfg;
@@ -2280,6 +2241,7 @@ struct rtl_works {
 	struct workqueue_struct *rtl_wq;
 	struct delayed_work watchdog_wq;
 	struct delayed_work ips_nic_off_wq;
+	struct delayed_work socket_wq;
 
 	/* For SW LPS */
 	struct delayed_work ps_work;
@@ -2335,34 +2297,32 @@ struct ps_t {
 };
 
 struct dig_t {
+
+	long rssi_val;
+	u32 rssi_max;
+	u8 rssi_val_min;
+	u32 antdiv_rssi_max;
 	u32 rssi_lowthresh;
 	u32 rssi_highthresh;
-	u32 fa_lowthresh;
-	u32 fa_highthresh;
-	long last_min_undec_pwdb_for_dm;
 	long rssi_highpower_lowthresh;
 	long rssi_highpower_highthresh;
+
+
+	u32 fa_lowthresh;
+	u32 fa_highthresh;
+	u8 large_fa_hit;
+	u8 forbidden_igi;
 	u32 recover_cnt;
+	u8 bt30_cur_igi;
+	bool media_connect_0;
+	bool media_connect_1;
+
+	
+
+	u8 pre_sta_cstate;	
+	u8 cur_sta_cstate;
 	u32 pre_igvalue;
 	u32 cur_igvalue;
-	long rssi_val;
-	u8 dig_enable_flag;
-	u8 dig_ext_port_stage;
-	u8 dig_algorithm;
-	u8 dig_twoport_algorithm;
-	u8 dig_dbgmode;
-	u8 dig_slgorithm_switch;
-	u8 cursta_cstate;
-	u8 presta_cstate;
-	u8 curmultista_cstate;
-	u8 stop_dig;
-	u8 back_val;
-	u8 back_range_max;
-	s8 back_range_min;
-	u8 rx_gain_max;
-	u8 rx_gain_min;
-	u8 min_undec_pwdb_for_dm;
-	u8 rssi_val_min;
 	u8 pre_cck_cca_thres;
 	u8 cur_cck_cca_thres;
 	u8 pre_cck_pd_state;
@@ -2371,29 +2331,44 @@ struct dig_t {
 	u8 cur_cck_fa_state;
 	u8 pre_ccastate;
 	u8 cur_ccasate;
-	u8 large_fa_hit;
-	u8 dig_dynamic_min_0;
-	u8 dig_dynamic_min_1;
-	u8 forbidden_igi;
+	u8 pre_ap_cstate;
+	u8 cur_ap_cstate;
+	u8 pre_pd_thstate;
+	u8 cur_pd_thstate;
+	u8 pre_cs_ratiostate;
+	u8 cur_cs_ratiostate;
+	u8 curmultista_cstate;
+
+
+
+	u8 stop_dig;
+	u8 dig_enable_flag;
+	u8 dig_ext_port_stage;
+	u8 dig_algorithm;
+	u8 dig_twoport_algorithm;
+	u8 dig_dbgmode;
+	u8 dig_slgorithm_switch;
 	u8 dig_state;
 	u8 dig_highpwrstate;
-	u8 cur_sta_cstate;
-	u8 pre_sta_cstate;
-	u8 cur_ap_cstate;
-	u8 pre_ap_cstate;
-	u8 cur_pd_thstate;
-	u8 pre_pd_thstate;
-	u8 cur_cs_ratiostate;
-	u8 pre_cs_ratiostate;
-	u8 backoff_enable_flag;
 	u8 dig_min_0;
 	u8 dig_min_1;
-	u8 bt30_cur_igi;
-	bool media_connect_0;
-	bool media_connect_1;
+	u8 dig_dynamic_min_0;
+	u8 dig_dynamic_min_1;
 
-	u32 antdiv_rssi_max;
-	u32 rssi_max;
+
+
+	
+
+	u8 backoff_enable_flag;
+	u8 back_val;
+	u8 back_range_max;
+	s8 back_range_min;
+
+	u8 rx_gain_max;
+	u8 rx_gain_min;
+
+	u8 min_undec_pwdb_for_dm;
+	long last_min_undec_pwdb_for_dm;
 };
 
 struct rtl_global_var {
@@ -2428,6 +2403,11 @@ struct rtl_btc_ops {
 	bool (*btc_is_bt_disabled)(struct rtl_priv *rtlpriv);
 	void (*btc_special_packet_notify)(struct rtl_priv *rtlpriv,
 					u8 pkt_type);
+	void (*btc_set_hci_version) (u16 hci_version);
+	void (*btc_set_bt_patch_version) (u16 bt_hci_version, u16 bt_patch_version);
+	void (*btc_stack_update_profile_info) (void);
+	void (*btc_init_socket) (struct rtl_priv *rtlpriv);
+	void (*btc_close_socket) (struct rtl_priv *rtlpriv);
 };
 
 struct rtl_bt_coexist {
@@ -2493,8 +2473,6 @@ struct rtl_bt_coexist {
 
 struct rtl_priv {
 	struct ieee80211_hw *hw;
-	/* Used to load a second firmware */
-	void (*rtl_fw_second_cb)(struct rtl_priv *rtlpriv);
 	struct list_head list;
 	struct completion firmware_loading_complete;
 #ifdef VIF_TODO
@@ -2515,6 +2493,9 @@ struct rtl_priv {
 	struct rtl_dm dm;
 	struct rtl_security sec;
 	struct rtl_efuse efuse;
+
+    /*troy add for 8812AE+8761AU coex*/
+    struct bt_coex_info coex_info;
 
 	struct rtl_ps_ctl psc;
 	struct rate_adaptive ra;

@@ -100,7 +100,7 @@ void rtl_bb_delay(struct ieee80211_hw *hw, u32 addr, u32 data)
 }
 EXPORT_SYMBOL(rtl_bb_delay);
 
-void rtl_fw_cb(const struct firmware *firmware, void *context)
+void rtl_fw_cb(const struct firmware *firmware, void *context, bool is_wowlan)
 {
 	struct ieee80211_hw *hw = context;
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
@@ -108,7 +108,12 @@ void rtl_fw_cb(const struct firmware *firmware, void *context)
 
 	RT_TRACE(rtlpriv, COMP_ERR, DBG_LOUD,
 		 "Firmware callback routine entered!\n");
-	complete(&rtlpriv->firmware_loading_complete);
+
+	if (rtlpriv->cfg->wowlan_fw_name == NULL && is_wowlan == false)
+		complete(&rtlpriv->firmware_loading_complete);
+	if (rtlpriv->cfg->wowlan_fw_name && is_wowlan == true)
+		complete(&rtlpriv->firmware_loading_complete);
+
 	if (!firmware) {
 		if (rtlpriv->cfg->alt_fw_name) {
 			err = request_firmware(&firmware,
@@ -130,11 +135,42 @@ found_alt:
 		release_firmware(firmware);
 		return;
 	}
-	memcpy(rtlpriv->rtlhal.pfirmware, firmware->data, firmware->size);
-	rtlpriv->rtlhal.fwsize = firmware->size;
-	release_firmware(firmware);
+	if (!is_wowlan) {
+		memcpy(rtlpriv->rtlhal.pfirmware, firmware->data, firmware->size);
+		rtlpriv->rtlhal.fwsize = firmware->size;
+		release_firmware(firmware);
+
+		if (rtlpriv->cfg->wowlan_fw_name) {
+			/*load wowlan firmware*/
+			pr_info("Using firmware %s\n", rtlpriv->cfg->wowlan_fw_name);
+			err = request_firmware_nowait(THIS_MODULE, 1, rtlpriv->cfg->wowlan_fw_name,
+						      rtlpriv->io.dev, GFP_KERNEL, hw,
+						      rtl_wowlan_fw_cb);
+			if (err) {
+				RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG,
+					 "Failed to request firmware!\n");
+			}
+		}
+
+
+	} else {
+		memcpy(rtlpriv->rtlhal.wowlan_firmware, firmware->data, firmware->size);
+		rtlpriv->rtlhal.wowlan_fwsize = firmware->size;
+		release_firmware(firmware);
+	}
+
 }
-EXPORT_SYMBOL(rtl_fw_cb);
+void rtl_normal_fw_cb(const struct firmware *firmware, void *context)
+{
+	rtl_fw_cb(firmware, context, false);
+}
+EXPORT_SYMBOL(rtl_normal_fw_cb);
+
+void rtl_wowlan_fw_cb(const struct firmware *firmware, void *context)
+{
+	rtl_fw_cb(firmware, context, true);
+}
+EXPORT_SYMBOL(rtl_wowlan_fw_cb);
 
 /*mutex for start & stop is must here. */
 static int rtl_op_start(struct ieee80211_hw *hw)
@@ -150,7 +186,18 @@ static int rtl_op_start(struct ieee80211_hw *hw)
 	mutex_lock(&rtlpriv->locks.conf_mutex);
 	err = rtlpriv->intf_ops->adapter_start(hw);
 	if (!err)
+	{
+		/*add troy for 8812AE bt coex*/
+		if (1 == rtlpriv->btcoexist.btc_info.btcoexist &&
+			rtlhal->hw_type == HARDWARE_TYPE_RTL8812AE)
+		{
+			printk("now that bt exists ,init socket for 8812AE");
+			rtlpriv->btcoexist.btc_ops->btc_init_socket(rtlpriv);
+			rtlpriv->coex_info.BtMgnt.ext_config.hci_extension_ver = 0x04;
+			rtlpriv->btcoexist.btc_ops->btc_set_hci_version(0x04);
+		}
 		rtl_watch_dog_timer_callback((unsigned long)hw);
+	}
 	mutex_unlock(&rtlpriv->locks.conf_mutex);
 	return err;
 }
@@ -189,10 +236,18 @@ static void rtl_op_stop(struct ieee80211_hw *hw)
 	}
 	rtlpriv->intf_ops->adapter_stop(hw);
 
+	if (1 == rtlpriv->btcoexist.btc_info.btcoexist &&
+		rtlhal->hw_type == HARDWARE_TYPE_RTL8812AE)
+	{
+		printk("close socket for 8812AE + 8761AU\n");
+		rtlpriv->btcoexist.btc_ops->btc_close_socket(rtlpriv);/*troy add for 8812 btcoex*/
+	}
 	mutex_unlock(&rtlpriv->locks.conf_mutex);
 }
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,7,0))
+
+
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 7, 0))
 static void rtl_op_tx(struct ieee80211_hw *hw, struct sk_buff *skb)
 #else
 static void rtl_op_tx(struct ieee80211_hw *hw,
@@ -212,7 +267,9 @@ static void rtl_op_tx(struct ieee80211_hw *hw,
 	if (!test_bit(RTL_STATUS_INTERFACE_START, &rtlpriv->status))
 		goto err_free;
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,7,0))
+
+
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 7, 0))
 	if (!rtlpriv->intf_ops->waitq_insert(hw, skb))
 		rtlpriv->intf_ops->adapter_tx(hw, skb, &tcb_desc);
 #else
@@ -436,7 +493,11 @@ static void _rtl_add_wowlan_patterns(struct ieee80211_hw *hw,
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_mac *mac = &(rtlpriv->mac80211);
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 12, 0))
 	struct cfg80211_pkt_pattern *patterns = wow->patterns;
+#else
+	struct cfg80211_wowlan_trig_pkt_pattern *patterns = wow->patterns;
+#endif
 	struct rtl_wow_pattern rtl_pattern;
 	const u8 *pattern_os, *mask_os;
 	u8 mask[MAX_WOL_BIT_MASK_SIZE] = {0};
@@ -606,6 +667,7 @@ static int rtl_op_config(struct ieee80211_hw *hw, u32 changed)
 
 	if (mac->skip_scan)
 		return 1;
+
 
 	mutex_lock(&rtlpriv->locks.conf_mutex);
 	if (changed & IEEE80211_CONF_CHANGE_LISTEN_INTERVAL) {	/* BIT(2) */
@@ -802,7 +864,7 @@ static int rtl_op_config(struct ieee80211_hw *hw, u32 changed)
 		 */
 		if (rtlpriv->mac80211.offchan_deley) {
 			rtlpriv->mac80211.offchan_deley = false;
-			mdelay(50);
+			mdelay(35);
 		}
 
 		rtlphy->current_channel = wide_chan;
@@ -1300,7 +1362,7 @@ static void rtl_op_bss_info_changed(struct ieee80211_hw *hw,
 			 * */
 		}
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0))
 		if (sta->vht_cap.vht_supported)
 			mac->vht_enable = true;
 #endif
@@ -1572,9 +1634,14 @@ static int rtl_op_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 	break;
 	}
 	/**************** debug info ****************/
+
+
+
+
 	rtlpriv->sec.being_setkey = true;
 	rtl_ips_nic_on(hw);
 	mutex_lock(&rtlpriv->locks.conf_mutex);
+
 	/**************** determine key_type ****************/
 	if (key->flags & IEEE80211_KEY_FLAG_PAIRWISE)
 		cam_key_type = pairwise_key;
@@ -1588,15 +1655,21 @@ static int rtl_op_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 		cam_key_type = wep_only;
 	}
 	/**************** determine key_type ****************/
+
+
+
 	rtlpriv->cfg->ops->enable_hw_sec(hw);
+
 
 	/* <4> set key based on cmd */
 	switch (cmd) {
 	case SET_KEY:
+
 		if (-1 == rtl_cam_set_key(hw, sta, key , cam_key_type)) {
 			err = -EOPNOTSUPP;
 			goto out_unlock;
 		}
+
 
 		/* <5> tell mac80211 do something: */
 		/*must use sw generate IV, or can not work !!!!. */
@@ -1717,34 +1790,3 @@ const struct ieee80211_ops rtl_ops = {
 	.flush = rtl_op_flush,
 };
 EXPORT_SYMBOL_GPL(rtl_ops);
-
-bool rtl_cmd_send_packet(struct ieee80211_hw *hw, struct sk_buff *skb)
-{
-	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
-	struct rtl8192_tx_ring *ring;
-	struct rtl_tx_desc *pdesc;
-	unsigned long flags;
-	struct sk_buff *pskb = NULL;
-
-	ring = &rtlpci->tx_ring[BEACON_QUEUE];
-
-	spin_lock_irqsave(&rtlpriv->locks.irq_th_lock, flags);
-	pskb = __skb_dequeue(&ring->queue);
-	if (pskb)
-		kfree_skb(pskb);
-
-	/*this is wrong, fill_tx_cmddesc needs update*/
-	pdesc = &ring->desc[0];
-
-	rtlpriv->cfg->ops->fill_tx_cmddesc(hw, (u8 *)pdesc, 1, 1, skb);
-
-	__skb_queue_tail(&ring->queue, skb);
-
-	spin_unlock_irqrestore(&rtlpriv->locks.irq_th_lock, flags);
-
-	rtlpriv->cfg->ops->tx_polling(hw, BEACON_QUEUE);
-
-	return true;
-}
-EXPORT_SYMBOL(rtl_cmd_send_packet);
