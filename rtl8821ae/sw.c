@@ -89,6 +89,51 @@ static void rtl8821ae_init_aspm_vars(struct ieee80211_hw *hw)
 	rtlpci->const_support_pciaspm = 1;
 }
 
+static void load_wowlan_fw(struct rtl_priv *rtlpriv)
+{
+	/* callback routine to load wowlan firmware after main fw has
+	 * been loaded */
+	const struct firmware *wowlan_firmware;
+	char *fw_name = NULL;
+	int err;
+
+	/* for wowlan firmware buf */
+	rtlpriv->rtlhal.wowlan_firmware = vzalloc(0x8000);
+	if (!rtlpriv->rtlhal.wowlan_firmware) {
+		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG,
+			 "Can't alloc buffer for wowlan fw.\n");
+		return;
+	}
+
+	if (rtlpriv->rtlhal.hw_type == HARDWARE_TYPE_RTL8821AE)
+		fw_name = "rtlwifi/rtl8821aefw_wowlan.bin";
+	else
+		fw_name = "rtlwifi/rtl8812aefw_wowlan.bin";
+	err = request_firmware(&wowlan_firmware, fw_name, rtlpriv->io.dev);
+	if (err) {
+		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG,
+			 "Failed to request wowlan firmware!\n");
+		goto error;
+	}
+
+	if (wowlan_firmware->size > 0x8000) {
+		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG,
+			 "Wowlan Firmware is too big!\n");
+		goto error;
+	}
+
+	memcpy(rtlpriv->rtlhal.wowlan_firmware, wowlan_firmware->data,
+	       wowlan_firmware->size);
+	rtlpriv->rtlhal.wowlan_fwsize = wowlan_firmware->size;
+	release_firmware(wowlan_firmware);
+
+	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "WOWLAN FirmwareDownload OK\n");
+	return;
+error:
+	release_firmware(wowlan_firmware);
+	vfree(rtlpriv->rtlhal.wowlan_firmware);
+}
+
 /*InitializeVariables8812E*/
 int rtl8821ae_init_sw_vars(struct ieee80211_hw *hw)
 {
@@ -99,7 +144,6 @@ int rtl8821ae_init_sw_vars(struct ieee80211_hw *hw)
 	struct rtl_hal *rtlhal = rtl_hal(rtl_priv(hw));
 
 	rtl8821ae_bt_reg_init(hw);
-	rtlpci->msi_support = rtlpriv->cfg->mod_params->msi_support;
 	rtlpriv->btcoexist.btc_ops = rtl_btc_get_ops_pointer();
 
 	rtlpriv->dm.dm_initialgain_enable = 1;
@@ -173,6 +217,7 @@ int rtl8821ae_init_sw_vars(struct ieee80211_hw *hw)
 	rtlpriv->psc.inactiveps = rtlpriv->cfg->mod_params->inactiveps;
 	rtlpriv->psc.swctrl_lps = rtlpriv->cfg->mod_params->swctrl_lps;
 	rtlpriv->psc.fwctrl_lps = rtlpriv->cfg->mod_params->fwctrl_lps;
+	rtlpci->msi_support = rtlpriv->cfg->mod_params->msi_support;
 	if (rtlpriv->cfg->mod_params->disable_watchdog)
 		pr_info("watchdog disabled\n");
 	rtlpriv->psc.reg_fwctrl_lps = 3;
@@ -189,6 +234,7 @@ int rtl8821ae_init_sw_vars(struct ieee80211_hw *hw)
 	else if (rtlpriv->psc.reg_fwctrl_lps == 3)
 		rtlpriv->psc.fwctrl_psmode = FW_PS_DTIM_MODE;
 
+	rtlpriv->rtl_fw_second_cb = load_wowlan_fw;
 	/* for firmware buf */
 	rtlpriv->rtlhal.pfirmware = vzalloc(0x8000);
 	if (!rtlpriv->rtlhal.pfirmware) {
@@ -196,35 +242,22 @@ int rtl8821ae_init_sw_vars(struct ieee80211_hw *hw)
 			 "Can't alloc buffer for fw.\n");
 		return 1;
 	}
-	rtlpriv->rtlhal.wowlan_firmware = vzalloc(0x8000);
-	if (!rtlpriv->rtlhal.wowlan_firmware) {
-		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG,
-			 "Can't alloc buffer for wowlan fw.\n");
-		return 1;
-	}
 
 	if (rtlhal->hw_type == HARDWARE_TYPE_RTL8812AE)
-	{
 		rtlpriv->cfg->fw_name = "rtlwifi/rtl8812aefw.bin";
-		rtlpriv->cfg->wowlan_fw_name = "rtlwifi/rtl8812aefw_wowlan.bin";
-	} else {
+	else
 		rtlpriv->cfg->fw_name = "rtlwifi/rtl8821aefw.bin";
-		rtlpriv->cfg->wowlan_fw_name = "rtlwifi/rtl8821aefw_wowlan.bin";
-	}
 
 	rtlpriv->max_fw_size = 0x8000;
-	/*load normal firmware*/
 	pr_info("Using firmware %s\n", rtlpriv->cfg->fw_name);
 	err = request_firmware_nowait(THIS_MODULE, 1, rtlpriv->cfg->fw_name,
 				      rtlpriv->io.dev, GFP_KERNEL, hw,
-				      rtl_normal_fw_cb);
+				      rtl_fw_cb);
 	if (err) {
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG,
 			 "Failed to request firmware!\n");
 		return 1;
 	}
-
-
 	return 0;
 }
 

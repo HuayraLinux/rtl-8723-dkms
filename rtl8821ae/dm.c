@@ -606,7 +606,7 @@ static void rtl8821ae_dm_init_dynamic_txpower(struct ieee80211_hw *hw)
 void rtl8821ae_dm_init_edca_turbo(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	rtlpriv->dm.current_turbo_edca = false;
+	rtlpriv->dm.bcurrent_turbo_edca = false;
 	rtlpriv->dm.is_any_nonbepkts = false;
 	rtlpriv->dm.is_cur_rdlstate = false;
 }
@@ -2172,22 +2172,33 @@ void rtl8812ae_dm_txpower_tracking_callback_thermalmeter(
 				rtldm->thermalvalue);
 		}
 
-		if (thermal_value > rtlefuse->eeprom_thermalmeter)
+		if (thermal_value > rtlefuse->eeprom_thermalmeter) {
 			RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 				"Temperature(%d) higher than PG value(%d)\n",
 				thermal_value, rtlefuse->eeprom_thermalmeter);
-		else
+
+
 			RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
-				 "Temperature(%d) lower than PG value(%d)\n",
-				 thermal_value, rtlefuse->eeprom_thermalmeter);
+				"**********Enter POWER Tracking MIX_MODE**********\n");
+			for (p = RF90_PATH_A; p < MAX_PATH_NUM_8812A; p++)
+					rtl8812ae_dm_txpwr_track_set_pwr(hw,
+						MIX_MODE, p, 0);
+
+		} else {
+			RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+				"Temperature(%d) lower than PG value(%d)\n",
+				thermal_value, rtlefuse->eeprom_thermalmeter);
 
 
-		RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
-			"**********Enter POWER Tracking MIX_MODE**********\n");
-		for (p = RF90_PATH_A; p < MAX_PATH_NUM_8812A; p++)
-			rtl8812ae_dm_txpwr_track_set_pwr(hw, MIX_MODE, p,
-							 index_for_channel);
+			RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+				"**********Enter POWER Tracking MIX_MODE**********\n");
+			for (p = RF90_PATH_A; p < MAX_PATH_NUM_8812A; p++)
+				rtl8812ae_dm_txpwr_track_set_pwr(hw,
+								MIX_MODE,
+								p,
+								index_for_channel);
 
+		}
 		/*Record last time Power Tracking result as base.*/
 		rtldm->bb_swing_idx_cck_base = rtldm->bb_swing_idx_cck;
 		for (p = RF90_PATH_A; p < MAX_PATH_NUM_8812A; p++)
@@ -3030,18 +3041,18 @@ static void rtl8821ae_dm_check_edca_turbo(struct ieee80211_hw *hw)
 		RT_TRACE(rtlpriv, COMP_TURBO, DBG_LOUD,
 			"EDCA Turbo on: EDCA_BE:0x%x\n", edca_be);
 
-		rtlpriv->dm.current_turbo_edca = true;
+		rtlpriv->dm.bcurrent_turbo_edca = true;
 
 		RT_TRACE(rtlpriv, COMP_TURBO, DBG_LOUD,
 			"EDCA_BE_DL : 0x%x  EDCA_BE_UL : 0x%x  EDCA_BE : 0x%x\n",
 			edca_be_dl, edca_be_ul, edca_be);
 	} else {
-		if (rtlpriv->dm.current_turbo_edca) {
+		if (rtlpriv->dm.bcurrent_turbo_edca) {
 			u8 tmp = AC0_BE;
 			rtlpriv->cfg->ops->set_hw_reg(hw, HW_VAR_AC_PARAM,
 						      (u8 *) (&tmp));
 		}
-		rtlpriv->dm.current_turbo_edca = false;
+		rtlpriv->dm.bcurrent_turbo_edca = false;
 	}
 
 	rtlpriv->dm.is_any_nonbepkts = false;

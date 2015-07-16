@@ -59,20 +59,20 @@ static u8 _rtl8723be_map_hwqueue_to_fwqueue(struct sk_buff *skb, u8 hw_queue)
  *
  * B/G rate:
  * (rx_status->flag & RX_FLAG_HT) = 0,
- * DESC92C_RATE1M-->DESC92C_RATE54M ==> idx is 0-->11,
+ * DESC_RATE1M-->DESC_RATE54M ==> idx is 0-->11,
  *
  * N rate:
  * (rx_status->flag & RX_FLAG_HT) = 1,
- * DESC92C_RATEMCS0-->DESC92C_RATEMCS15 ==> idx is 0-->15
+ * DESC_RATEMCS0-->DESC_RATEMCS15 ==> idx is 0-->15
  *
  * 5G band:rx_status->band == IEEE80211_BAND_5GHZ
  * A rate:
  * (rx_status->flag & RX_FLAG_HT) = 0,
- * DESC92C_RATE6M-->DESC92C_RATE54M ==> idx is 0-->7,
+ * DESC_RATE6M-->DESC_RATE54M ==> idx is 0-->7,
  *
  * N rate:
  * (rx_status->flag & RX_FLAG_HT) = 1,
- * DESC92C_RATEMCS0-->DESC92C_RATEMCS15 ==> idx is 0-->15
+ * DESC_RATEMCS0-->DESC_RATEMCS15 ==> idx is 0-->15
  */
 static int _rtl8723be_rate_mapping(struct ieee80211_hw *hw,
 				   bool isht, u8 desc_rate)
@@ -86,40 +86,40 @@ static int _rtl8723be_rate_mapping(struct ieee80211_hw *hw,
 		if (IEEE80211_BAND_2GHZ == hw->conf.channel->band) {
 #endif
 			switch (desc_rate) {
-			case DESC92C_RATE1M:
+			case DESC_RATE1M:
 				rate_idx = 0;
 				break;
-			case DESC92C_RATE2M:
+			case DESC_RATE2M:
 				rate_idx = 1;
 				break;
-			case DESC92C_RATE5_5M:
+			case DESC_RATE5_5M:
 				rate_idx = 2;
 				break;
-			case DESC92C_RATE11M:
+			case DESC_RATE11M:
 				rate_idx = 3;
 				break;
-			case DESC92C_RATE6M:
+			case DESC_RATE6M:
 				rate_idx = 4;
 				break;
-			case DESC92C_RATE9M:
+			case DESC_RATE9M:
 				rate_idx = 5;
 				break;
-			case DESC92C_RATE12M:
+			case DESC_RATE12M:
 				rate_idx = 6;
 				break;
-			case DESC92C_RATE18M:
+			case DESC_RATE18M:
 				rate_idx = 7;
 				break;
-			case DESC92C_RATE24M:
+			case DESC_RATE24M:
 				rate_idx = 8;
 				break;
-			case DESC92C_RATE36M:
+			case DESC_RATE36M:
 				rate_idx = 9;
 				break;
-			case DESC92C_RATE48M:
+			case DESC_RATE48M:
 				rate_idx = 10;
 				break;
-			case DESC92C_RATE54M:
+			case DESC_RATE54M:
 				rate_idx = 11;
 				break;
 			default:
@@ -128,28 +128,28 @@ static int _rtl8723be_rate_mapping(struct ieee80211_hw *hw,
 			}
 		} else {
 			switch (desc_rate) {
-			case DESC92C_RATE6M:
+			case DESC_RATE6M:
 				rate_idx = 0;
 				break;
-			case DESC92C_RATE9M:
+			case DESC_RATE9M:
 				rate_idx = 1;
 				break;
-			case DESC92C_RATE12M:
+			case DESC_RATE12M:
 				rate_idx = 2;
 				break;
-			case DESC92C_RATE18M:
+			case DESC_RATE18M:
 				rate_idx = 3;
 				break;
-			case DESC92C_RATE24M:
+			case DESC_RATE24M:
 				rate_idx = 4;
 				break;
-			case DESC92C_RATE36M:
+			case DESC_RATE36M:
 				rate_idx = 5;
 				break;
-			case DESC92C_RATE48M:
+			case DESC_RATE48M:
 				rate_idx = 6;
 				break;
-			case DESC92C_RATE54M:
+			case DESC_RATE54M:
 				rate_idx = 7;
 				break;
 			default:
@@ -159,52 +159,52 @@ static int _rtl8723be_rate_mapping(struct ieee80211_hw *hw,
 		}
 	} else {
 		switch (desc_rate) {
-		case DESC92C_RATEMCS0:
+		case DESC_RATEMCS0:
 			rate_idx = 0;
 			break;
-		case DESC92C_RATEMCS1:
+		case DESC_RATEMCS1:
 			rate_idx = 1;
 			break;
-		case DESC92C_RATEMCS2:
+		case DESC_RATEMCS2:
 			rate_idx = 2;
 			break;
-		case DESC92C_RATEMCS3:
+		case DESC_RATEMCS3:
 			rate_idx = 3;
 			break;
-		case DESC92C_RATEMCS4:
+		case DESC_RATEMCS4:
 			rate_idx = 4;
 			break;
-		case DESC92C_RATEMCS5:
+		case DESC_RATEMCS5:
 			rate_idx = 5;
 			break;
-		case DESC92C_RATEMCS6:
+		case DESC_RATEMCS6:
 			rate_idx = 6;
 			break;
-		case DESC92C_RATEMCS7:
+		case DESC_RATEMCS7:
 			rate_idx = 7;
 			break;
-		case DESC92C_RATEMCS8:
+		case DESC_RATEMCS8:
 			rate_idx = 8;
 			break;
-		case DESC92C_RATEMCS9:
+		case DESC_RATEMCS9:
 			rate_idx = 9;
 			break;
-		case DESC92C_RATEMCS10:
+		case DESC_RATEMCS10:
 			rate_idx = 10;
 			break;
-		case DESC92C_RATEMCS11:
+		case DESC_RATEMCS11:
 			rate_idx = 11;
 			break;
-		case DESC92C_RATEMCS12:
+		case DESC_RATEMCS12:
 			rate_idx = 12;
 			break;
-		case DESC92C_RATEMCS13:
+		case DESC_RATEMCS13:
 			rate_idx = 13;
 			break;
-		case DESC92C_RATEMCS14:
+		case DESC_RATEMCS14:
 			rate_idx = 14;
 			break;
-		case DESC92C_RATEMCS15:
+		case DESC_RATEMCS15:
 			rate_idx = 15;
 			break;
 		default:
@@ -218,8 +218,8 @@ static int _rtl8723be_rate_mapping(struct ieee80211_hw *hw,
 static void _rtl8723be_query_rxphystatus(struct ieee80211_hw *hw,
 					 struct rtl_stats *pstatus, u8 *pdesc,
 					 struct rx_fwinfo_8723be *p_drvinfo,
-					 bool packet_match_bssid,
-					 bool packet_toself,
+					 bool bpacket_match_bssid,
+					 bool bpacket_toself,
 					 bool packet_beacon)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
@@ -232,8 +232,8 @@ static void _rtl8723be_query_rxphystatus(struct ieee80211_hw *hw,
 	u8 lan_idx, vga_idx;
 
 	/* Record it for next packet processing */
-	pstatus->packet_matchbssid = packet_match_bssid;
-	pstatus->packet_toself = packet_toself;
+	pstatus->packet_matchbssid = bpacket_match_bssid;
+	pstatus->packet_toself = bpacket_toself;
 	pstatus->packet_beacon = packet_beacon;
 	pstatus->rx_mimo_signalquality[0] = -1;
 	pstatus->rx_mimo_signalquality[1] = -1;
@@ -281,7 +281,7 @@ static void _rtl8723be_query_rxphystatus(struct ieee80211_hw *hw,
 		pstatus->recvsignalpower = rx_pwr_all;
 
 		/* (3) Get Signal Quality (EVM) */
-		if (packet_match_bssid) {
+		if (bpacket_match_bssid) {
 			u8 sq, sq_rpt;
 			if (pstatus->rx_pwdb_all > 40) {
 				sq = 100;
@@ -329,8 +329,8 @@ static void _rtl8723be_query_rxphystatus(struct ieee80211_hw *hw,
 		pstatus->recvsignalpower = rx_pwr_all;
 
 		/* (3)EVM of HT rate */
-		if (pstatus->rate >= DESC92C_RATEMCS8 &&
-		    pstatus->rate <= DESC92C_RATEMCS15)
+		if (pstatus->rate >= DESC_RATEMCS8 &&
+		    pstatus->rate <= DESC_RATEMCS15)
 			max_spatial_stream = 2;
 		else
 			max_spatial_stream = 1;
@@ -339,7 +339,7 @@ static void _rtl8723be_query_rxphystatus(struct ieee80211_hw *hw,
 			evm = rtl_evm_db_to_percentage(
 						p_phystrpt->stream_rxevm[i]);
 
-			if (packet_match_bssid) {
+			if (bpacket_match_bssid) {
 				/* Fill value in RFD, Get the first
 				 * spatial stream only */
 				if (i == 0)
@@ -350,7 +350,7 @@ static void _rtl8723be_query_rxphystatus(struct ieee80211_hw *hw,
 			}
 		}
 
-		if (packet_match_bssid) {
+		if (bpacket_match_bssid) {
 			for (i = RF90_PATH_A; i <= RF90_PATH_B; i++)
 				rtl_priv(hw)->dm.cfo_tail[i] =
 					(int)p_phystrpt->path_cfotail[i];
@@ -420,7 +420,7 @@ static void _rtl8723be_translate_rx_signal_stuff(struct ieee80211_hw *hw,
 	 * this assignment is neccesary,
 	 * otherwise it counld be true in this case
 	 * the situation is much worse in Kernel 3.10*/
-	if (ieee80211_is_beacon(fc))
+	if (ieee80211_is_beacon(hdr->frame_control))
 		packet_beacon = true;
 	else
 		packet_beacon = false;
@@ -678,7 +678,7 @@ void rtl8723be_tx_fill_desc(struct ieee80211_hw *hw,
 
 		/* ptcb_desc->use_driver_rate = true; */
 		SET_TX_DESC_TX_RATE(pdesc, ptcb_desc->hw_rate);
-		if (ptcb_desc->hw_rate > DESC92C_RATEMCS0)
+		if (ptcb_desc->hw_rate > DESC_RATEMCS0)
 			short_gi = (ptcb_desc->use_shortgi) ? 1 : 0;
 		else
 			short_gi = (ptcb_desc->use_shortpreamble) ? 1 : 0;
@@ -701,7 +701,7 @@ void rtl8723be_tx_fill_desc(struct ieee80211_hw *hw,
 
 		SET_TX_DESC_RTS_SC(pdesc, ptcb_desc->rts_sc);
 		SET_TX_DESC_RTS_SHORT(pdesc,
-			((ptcb_desc->rts_rate <= DESC92C_RATE54M) ?
+			((ptcb_desc->rts_rate <= DESC_RATE54M) ?
 			 (ptcb_desc->rts_use_shortpreamble ? 1 : 0) :
 			 (ptcb_desc->rts_use_shortgi ? 1 : 0)));
 
@@ -823,7 +823,7 @@ void rtl8723be_tx_fill_cmddesc(struct ieee80211_hw *hw, u8 *pdesc,
 
 	SET_TX_DESC_OFFSET(pdesc, USB_HWDESC_HEADER_LEN);
 
-	SET_TX_DESC_TX_RATE(pdesc, DESC92C_RATE1M);
+	SET_TX_DESC_TX_RATE(pdesc, DESC_RATE1M);
 
 	SET_TX_DESC_SEQ(pdesc, 0);
 

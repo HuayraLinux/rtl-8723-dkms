@@ -1,28 +1,27 @@
-Source: rtl-8723-dkms
+Source: rtl-8723-rock-dkms
 Section: non-free/kernel
 Priority: optional
 Maintainer: Fernando Toledo <ragnarok@docksud.com.ar>
 Build-Depends: debhelper (>= 8.0.0), dkms
 Standards-Version: 3.9.5
 
-Package: rtl-8723-dkms
+Package: rtl-8723-rock-dkms
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, dkms, linux-headers-686-pae | linux-headers-amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}, dkms, 
+ linux-headers-686-pae | linux-headers-amd64
 Recommends: rtl-8723-firmware
-Description: Realtek 8723 kernel module
+Conflicts: rtl-8723-dkms
+Replaces: rtl-8723-dkms 
+Description: Realtek 8723 kernel module rock branch
  This is the driver for the Realtek 8723 wireless adapter.
+ This package have the rock branch from git repository
 
-Package: rtl-8723-firmware
+Package: rtl-8723-rock-firmware
 Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}, firmware-realtek
-Conflicts: rtl-8723-firmware-jessie
-Description: Realtek 8723 firmware files (non-free)
+Conflicts: rtl-8723-firmware-jessie, rtl-8723-firmware
+Replaces: rtl-8723-firmware
+Description: Realtek 8723 firmware files rock branch (non-free)
  This package have the non-free firmware for the Realtek 8723 wireless adapter.
+ This package have the rock branch from git repository
 
-Package: rtl-8723-firmware-jessie
-Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, firmware-realtek
-Conflicts: rtl-8723-firmware
-Description: Realtek 8723 firmware files (non-free) (dummy package)
- This package have the non-free firmware for the Realtek 8723 wireless adapter.
- This package only exists for transition.

@@ -1,3 +1,9 @@
+rtl-8723-rock-dkms (1.3.6) unstable; urgency=medium
+
+  * build desde el branch rock del git
+
+ -- Fernando Toledo <ragnarok@docksud.com.ar>  Thu, 16 Jul 2015 15:02:28 -0300
+
 rtl-8723-dkms (1.3.5) unstable; urgency=medium
 
   * Update to last commit from rock branch of lwfinger/rtlwifi_new (22/05/15)

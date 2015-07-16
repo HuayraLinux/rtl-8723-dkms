@@ -344,7 +344,7 @@ static void rtl88e_dm_diginit(struct ieee80211_hw *hw)
 	dm_dig->cur_igvalue = rtl_get_bbreg(hw, ROFDM0_XAAGCCORE1, 0x7f);
 	dm_dig->pre_igvalue = 0;
 	dm_dig->cur_sta_cstate = DIG_STA_DISCONNECT;
-	dm_dig->pre_sta_cstate = DIG_STA_DISCONNECT;
+	dm_dig->presta_cstate = DIG_STA_DISCONNECT;
 	dm_dig->curmultista_cstate = DIG_MULTISTA_DISCONNECT;
 	dm_dig->rssi_lowthresh = DM_DIG_THRESH_LOW;
 	dm_dig->rssi_highthresh = DM_DIG_THRESH_HIGH;
@@ -769,7 +769,7 @@ static void rtl88e_dm_pwdb_monitor(struct ieee80211_hw *hw)
 	static u64 last_record_rxok_cnt = 0;
 	long tmp_entry_max_pwdb = 0, tmp_entry_min_pwdb = 0xff;
 
-	if (rtlhal->oem_id == RT_CID_819x_HP) {
+	if (rtlhal->oem_id == RT_CID_819X_HP) {
 		u64 cur_txok_cnt = 0;
 		u64 cur_rxok_cnt = 0;
 		cur_txok_cnt = rtlpriv->stats.txbytesunicast -
@@ -827,7 +827,7 @@ static void rtl88e_dm_pwdb_monitor(struct ieee80211_hw *hw)
 void rtl88e_dm_init_edca_turbo(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
-	rtlpriv->dm.current_turbo_edca = false;
+	rtlpriv->dm.bcurrent_turbo_edca = false;
 	rtlpriv->dm.is_any_nonbepkts = false;
 	rtlpriv->dm.is_cur_rdlstate = false;
 }
@@ -849,7 +849,7 @@ static void rtl88e_dm_check_edca_turbo(struct ieee80211_hw *hw)
 
 	if ((last_bt_edca_ul != rtlpriv->btcoexist.bt_edca_ul) ||
 	    (last_bt_edca_dl != rtlpriv->btcoexist.bt_edca_dl)) {
-		rtlpriv->dm.current_turbo_edca = false;
+		rtlpriv->dm.bcurrent_turbo_edca = false;
 		last_bt_edca_ul = rtlpriv->btcoexist.bt_edca_ul;
 		last_bt_edca_dl = rtlpriv->btcoexist.bt_edca_dl;
 	}
@@ -865,7 +865,7 @@ static void rtl88e_dm_check_edca_turbo(struct ieee80211_hw *hw)
 	}
 
 	if (mac->link_state != MAC80211_LINKED) {
-		rtlpriv->dm.current_turbo_edca = false;
+		rtlpriv->dm.bcurrent_turbo_edca = false;
 		return;
 	}
 	if ((bt_change_edca) || ((!rtlpriv->dm.is_any_nonbepkts) &&
@@ -876,7 +876,7 @@ static void rtl88e_dm_check_edca_turbo(struct ieee80211_hw *hw)
 
 		if (cur_rxok_cnt > 4 * cur_txok_cnt) {
 			if (!rtlpriv->dm.is_cur_rdlstate ||
-			    !rtlpriv->dm.current_turbo_edca) {
+			    !rtlpriv->dm.bcurrent_turbo_edca) {
 				rtl_write_dword(rtlpriv,
 						REG_EDCA_BE_PARAM,
 						edca_be_dl);
@@ -884,21 +884,21 @@ static void rtl88e_dm_check_edca_turbo(struct ieee80211_hw *hw)
 			}
 		} else {
 			if (rtlpriv->dm.is_cur_rdlstate ||
-			    !rtlpriv->dm.current_turbo_edca) {
+			    !rtlpriv->dm.bcurrent_turbo_edca) {
 				rtl_write_dword(rtlpriv,
 						REG_EDCA_BE_PARAM,
 						edca_be_ul);
 				rtlpriv->dm.is_cur_rdlstate = false;
 			}
 		}
-		rtlpriv->dm.current_turbo_edca = true;
+		rtlpriv->dm.bcurrent_turbo_edca = true;
 	} else {
-		if (rtlpriv->dm.current_turbo_edca) {
+		if (rtlpriv->dm.bcurrent_turbo_edca) {
 			u8 tmp = AC0_BE;
 			rtlpriv->cfg->ops->set_hw_reg(hw,
 						      HW_VAR_AC_PARAM,
 						      (u8 *) (&tmp));
-			rtlpriv->dm.current_turbo_edca = false;
+			rtlpriv->dm.bcurrent_turbo_edca = false;
 		}
 	}
 
