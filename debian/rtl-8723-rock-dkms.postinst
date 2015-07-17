@@ -1,0 +1,12 @@
+#! /bin/sh
+set -e
+
+
+if [ "$1" = "configure" ]; then
+
+    echo "Limpiando archivo del paquete rtl-8723-dkms"
+    rm -rf /lib/modules/`uname -r`/updates/dkms/rtlwifi
+
+fi
+
+#DEBHELPER#
