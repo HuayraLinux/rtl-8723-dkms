@@ -1,28 +1,15 @@
-Source: rtl-8723-dkms
+Source: rtl-8723-new-dkms
 Section: non-free/kernel
 Priority: optional
 Maintainer: Fernando Toledo <ragnarok@docksud.com.ar>
 Build-Depends: debhelper (>= 8.0.0), dkms
 Standards-Version: 3.9.5
 
-Package: rtl-8723-dkms
+Package: rtl-8723-new-dkms
 Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}, dkms, linux-headers-686-pae | linux-headers-amd64
-Recommends: rtl-8723-firmware
-Description: Realtek 8723 kernel module
- This is the driver for the Realtek 8723 wireless adapter.
+Conflicts: rtl-8723-dkms, rtl-8723-rock-dkms 
+Replaces: rtl-8723-dkms, rtl-8723-rock-dkms 
+Description: Realtek 8723 kernel module (v4.3)
+ This is the another driver for the Realtek 8723BE wireless adapter.
 
-Package: rtl-8723-firmware
-Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, firmware-realtek
-Conflicts: rtl-8723-firmware-jessie
-Description: Realtek 8723 firmware files (non-free)
- This package have the non-free firmware for the Realtek 8723 wireless adapter.
-
-Package: rtl-8723-firmware-jessie
-Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, firmware-realtek
-Conflicts: rtl-8723-firmware
-Description: Realtek 8723 firmware files (non-free) (dummy package)
- This package have the non-free firmware for the Realtek 8723 wireless adapter.
- This package only exists for transition.
