@@ -1,3 +1,9 @@
+rtl-8723-new-dkms (1.2) unstable; urgency=medium
+
+  * Remueve mensajes de debug.
+
+ -- Matias De lellis <mati86dl@gmail.com>  Fri, 26 Aug 2016 11:30:37 -0300
+
 rtl-8723-new-dkms (1.1) unstable; urgency=medium
 
   * Conflicto y replaces de rtl-* anteriores
