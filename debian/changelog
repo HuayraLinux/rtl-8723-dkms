@@ -1,4 +1,4 @@
-rtl-8723-new-dkms (1.3) UNRELEASED; urgency=medium
+rtl-8723-new-dkms (1.3) unstable; urgency=medium
 
   * Agregado el sistema de modaliases para integración con huayra-drivers-common
 
