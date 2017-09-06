@@ -1,3 +1,9 @@
+rtl-8723-new-dkms (1.3) UNRELEASED; urgency=medium
+
+  * Agregado el sistema de modaliases para integración con huayra-drivers-common
+
+ -- Ignacio Losiggio <iglosiggio@gmail.com>  Wed, 06 Sep 2017 12:35:53 -0300
+
 rtl-8723-new-dkms (1.2) unstable; urgency=medium
 
   * Remueve mensajes de debug.

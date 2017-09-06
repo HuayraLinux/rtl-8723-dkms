@@ -3,7 +3,7 @@
 VERSION=$(shell dpkg-parsechangelog |grep ^Version:|cut -d ' ' -f 2)
 
 %:
-	dh $@ --with dkms
+	dh $@ --with dkms,modaliases
 
 override_dh_install:
 	dh_install core hal include os_dep platform Kconfig Makefile clean ifcfg-wlan0 runwpa wlan0dhcp usr/src/rtl-8723-new-dkms-$(VERSION)/
